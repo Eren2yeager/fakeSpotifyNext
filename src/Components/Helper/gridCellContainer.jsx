@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import {
   isPlayingContext,
-  playlists,
+
   audioRefContext,
 } from "@/Contexts/contexts";
 import Link from "next/link";
@@ -10,7 +10,7 @@ import { usePathname } from "next/navigation";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
 import { usePlayer } from "@/Contexts/playerContext";
-
+import { usePlaylists } from "@/Contexts/playlistsContext";
 import Pillers from "@/Components/Helper/pillers";
 
 const PlaylistCard = (props) => {
@@ -112,16 +112,17 @@ const PlaylistCard = (props) => {
 };
 
 const GridCellContainer = () => {
-  const playlistArray = React.useContext(playlists);
+
+  const {playlists} = usePlaylists();
 
   return(
  <>
   {
-    playlistArray !== null && 
+    playlists !== null && 
       <>
         <div className="px-5 pt-2 ">
           <div className="grid grid-cols-2  sm:grid-cols-[repeat(auto-fit,minmax(250px,1fr))]  gap-4">
-            {playlistArray.allPlaylists?.slice(0, 8).map((pl, idx) => (
+            {playlists?.slice(0, 8).map((pl, idx) => (
               pl.songs.length > 0 &&
               <PlaylistCard key={idx} index={idx} item={pl} />
             ))}
@@ -134,4 +135,4 @@ const GridCellContainer = () => {
 )
 };
 
-export default GridCellContainer;
+export default React.memo(GridCellContainer);

@@ -2,43 +2,22 @@ import React, { useEffect, useState, useContext, useRef } from "react";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
 import { IoAddOutline } from "react-icons/io5";
-import { CURRENT_SONG_CONTEXT } from "../../Contexts/audio.controls.";
-import { audioRefContext, isPlayingContext } from "../../Contexts/contexts";
+import { isPlayingContext } from "../../Contexts/contexts";
 import Pillers from "./pillers";
-
-
-
+import { usePlayer } from "@/Contexts/playerContext";
 
 export const RecentSearchSongCard = (props) => {
   // these are contexts to control song
-  const Context_Current_Song = useContext(CURRENT_SONG_CONTEXT);
   const Context_isPlaying = useContext(isPlayingContext);
-  const Context_audio_ref = useContext(audioRefContext);
+  const { handlePlayFromType } = usePlayer();
+  const [conditionCheck, setConditionCheck] = useState(false);
 
-
-  const handlePlayPause = (song) => {
-    if (song?.fileUrl !== Context_Current_Song?.currentSong?.fileUrl) {
-      Context_Current_Song.setCurrentSong(song); // triggers AudioComponent effect
-      Context_isPlaying.setisPlaying(true); // will be read in AudioComponent
-    } else {
-      if (
-        song?.fileUrl == Context_Current_Song?.currentSong?.fileUrl &&
-        Context_isPlaying.isPlaying
-      ) {
-        Context_audio_ref.current.pause();
-        Context_isPlaying.setisPlaying(false);
-      } else {
-        Context_audio_ref.current.play();
-        Context_isPlaying.setisPlaying(true);
-      }
-    }
+  const handlePlayPause = async (item) => {
+    setConditionCheck(handlePlayFromType(item));
   };
 
   return (
-    <div
-      className="relative playlist-card flex bg-zinc-800 hover:bg-zinc-700 h-[60px] p-1 my-1 rounded-xl cursor-pointer group"
-
-    >
+    <div className="relative playlist-card flex bg-zinc-800 hover:bg-zinc-700 h-[60px] p-1 my-1 rounded-xl cursor-pointer group">
       <div className="relative min-w-[50px] min-h-[50x] bg-zinc-900 rounded-xl">
         <img
           src={props.item.image || "/images/notfound.png"}
@@ -51,8 +30,7 @@ export const RecentSearchSongCard = (props) => {
           }}
           className="absolute top-1/4 right-1/4 invisible group-hover:visible"
         >
-          {props.item.fileUrl == Context_Current_Song.currentSong.fileUrl &&
-          Context_isPlaying.isPlaying ? (
+          {conditionCheck && Context_isPlaying.isPlaying ? (
             <IoIosPause className="text-2xl cursor-pointer" />
           ) : (
             <IoIosPlay className="text-2xl cursor-pointer" />
@@ -63,20 +41,18 @@ export const RecentSearchSongCard = (props) => {
       <div className="w-full flex-col justify-center items-start flex  px-2 pr-3 truncate">
         <div
           className={`max-w-[100%] justify-start text-[14px] font-bold truncate ${
-            props.item.fileUrl == Context_Current_Song.currentSong.fileUrl &&
-            "text-green-500"
+            conditionCheck && "text-green-500"
           }  `}
         >
-          <p className="flex">
-            
-            {props.item.fileUrl == Context_Current_Song.currentSong.fileUrl && Context_isPlaying.isPlaying && (
+          <div className="flex">
+            {conditionCheck && Context_isPlaying.isPlaying && (
               <div className="flex">
-                <Pillers /> 
+                <Pillers />
                 &nbsp;&nbsp;
               </div>
             )}
-            {props.item.title || "song-Name"}
-          </p>
+            {props.item.name || "song-Name"}
+          </div>
         </div>
         <div className=" text-xs max-w-[100%] truncate justify-start opacity-50  ">
           {props.item.artist.name || "artist-Name"}
@@ -86,7 +62,7 @@ export const RecentSearchSongCard = (props) => {
         <div
           className="transform rotate-45 active:scale-90 p-0.5 hover:scale-125 absolute right-0 top-1/4 px-2 sm:invisible sm:group-hover:visible"
           onClick={() => {
-            props.setList((prev) => prev.filter((item) => item != props.item));
+            props.handleDelete(props.item)
           }}
         >
           <IoAddOutline className="text-3xl  sm:text-white " />
@@ -99,11 +75,28 @@ export const RecentSearchSongCard = (props) => {
 const RecentSearches = () => {
   const [recentSearches, setRecentSearches] = useState(null);
 
+  let recentSearchesArray = [];
   useEffect(() => {
-    const res = fetch("http://localhost:5000/api/songs", { method: "GET" })
-      .then((res) => res.json())
-      .then((data) => setRecentSearches(data));
+    try {
+      const stored = localStorage.getItem("recentSearchesArray");
+      if (stored) {
+        recentSearchesArray = JSON.parse(stored);
+      }
+    } catch (e) {
+      // If parsing fails, reset to empty array
+      recentSearchesArray = [];
+    }
+    setRecentSearches(recentSearchesArray);
   }, []);
+
+  const handleDelete = (itemToDelete) => {
+    setRecentSearches((prev) => {
+      // Use _id for comparison to avoid reference issues
+      const updated = prev.filter((item) => item._id !== itemToDelete._id);
+      localStorage.setItem("recentSearchesArray", JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   return (
     <>
@@ -120,7 +113,7 @@ const RecentSearches = () => {
                   <RecentSearchSongCard
                     item={item}
                     index={index}
-                    setList={setRecentSearches}
+                    handleDelete={handleDelete}
                   />
                 </li>
               ))}
@@ -128,7 +121,12 @@ const RecentSearches = () => {
             <button
               className="px-3 py-1 w-fit font-bold border-1 rounded-full cursor-pointer"
               onClick={() => {
-                setRecentSearches(recentSearches.splice(0, 0));
+                setRecentSearches(() => {
+                  // Use _id for comparison to avoid reference issues
+                  const updated = []
+                  localStorage.setItem("recentSearchesArray", JSON.stringify(updated));
+                  return updated;
+                });
               }}
             >
               Clear recent searches
@@ -140,4 +138,4 @@ const RecentSearches = () => {
   );
 };
 
-export default RecentSearches;
+export default React.memo(RecentSearches);

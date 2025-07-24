@@ -36,4 +36,4 @@ const BigEndbar = (props) => {
   );
 };
 
-export  default BigEndbar
+export  default React.memo(BigEndbar)

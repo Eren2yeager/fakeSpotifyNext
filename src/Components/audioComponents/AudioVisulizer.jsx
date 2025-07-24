@@ -61,4 +61,4 @@ const AudioVisualizer = () => {
   );
 };
 
-export default AudioVisualizer;
+export default React.memo(AudioVisualizer);

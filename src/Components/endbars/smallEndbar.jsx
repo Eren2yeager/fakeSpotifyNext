@@ -16,6 +16,7 @@ import { usePlayer } from "@/Contexts/playerContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SuggestBgColor from "@/functions/bgSuggester";
+import AddButton from "../Helper/AddButton";
 
 const SmallEndbar = (props) => {
   const pathname = usePathname();
@@ -72,9 +73,7 @@ const SmallEndbar = (props) => {
             showAudioComponent={true}
             showAddTolibraryButton={true}
             bgColor={bgColor}
-            songName={selectedSong?.name || "Select a Song to Play"}
-            artistName={selectedSong?.artist?.name || " "}
-            imageUrl={selectedSong?.image}
+            song={selectedSong}
             showRightButton={true}
             className="justify-between"
           />
@@ -115,7 +114,8 @@ const SmallEndbar = (props) => {
           <span className="text-xs">Your library</span>
         </div>
 
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center relative">
+          <span className="z-1 top-0 right-0 absolute opacity-0"><AddButton /></span>
           <GrAdd className="text-2xl font-bold" />
           <span className="text-xs">Create</span>
         </div>
@@ -124,4 +124,4 @@ const SmallEndbar = (props) => {
   );
 };
 
-export default SmallEndbar;
+export default React.memo(SmallEndbar);

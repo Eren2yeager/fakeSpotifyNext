@@ -2,9 +2,9 @@
 import { SessionProvider } from "next-auth/react";
 import "@/styles/index.css";
 import "@/styles/scrollbar.css";
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 
-export default function RootLayout({ children }) {
+ function RootLayout({ children }) {
   useEffect(() => {
     document.title = "Fake Spotify";
   }, []);
@@ -23,3 +23,5 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
+export default memo(RootLayout)

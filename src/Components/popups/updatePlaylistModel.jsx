@@ -2,8 +2,10 @@
 
 import { useState, useTransition, useContext } from "react";
 import { editPlaylist } from "@/app/(protected)/actions/playlistActions";
-import { playlists } from "@/Contexts/contexts";
 import { GrAdd } from "react-icons/gr";
+import { PiNotePencil } from "react-icons/pi";
+import { usePlaylists } from "@/Contexts/playlistsContext";
+import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 
 export default function EditPlaylistModal({ playlist, onClose }) {
   const [pending, startTransition] = useTransition();
@@ -15,7 +17,8 @@ export default function EditPlaylistModal({ playlist, onClose }) {
   );
 
   //   to set the playlists
-  const ContextPlaylists = useContext(playlists);
+  const { fetchPlaylists } = usePlaylists();
+  const toast = useSpotifyToast();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -35,22 +38,15 @@ export default function EditPlaylistModal({ playlist, onClose }) {
     startTransition(async () => {
       const ok = await editPlaylist(playlist._id, formData);
       if (ok) {
-        fetch("/api/playlists")
-          .then((res) => {
-            if (!res.ok) {
-              throw new Error("Failed to fetch playlists");
-            }
-            return res.json();
-          })
-          .then((data) => {
-            ContextPlaylists.setAllPlaylists(data);
-          })
-          .catch((err) => {
-            console.error("❌ Error fetching playlists:", err);
-          });
+        toast({
+          text: `Changes Saved`,
+          image: playlist.image,
+        });
+
+        fetchPlaylists();
       }
 
-      onClose()
+      onClose();
     });
   };
 
@@ -59,7 +55,7 @@ export default function EditPlaylistModal({ playlist, onClose }) {
       <div className="bg-neutral-900 rounded-xl w-full max-w-2xl p-6 relative shadow-2xl">
         <button
           onClick={() => {
-            onClose()
+            onClose();
           }}
           className="absolute top-4 right-4 text-white text-xl"
         >
@@ -70,10 +66,10 @@ export default function EditPlaylistModal({ playlist, onClose }) {
 
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col  md:flex-row gap-6"
+          className="flex flex-col items-center md:items-start md:flex-row gap-6"
         >
           {/* Image Preview */}
-          <label className="group w-45 h-45 bg-neutral-800 rounded-md flex items-center justify-center cursor-pointer overflow-hidden">
+          <label className="group w-45 h-45 bg-neutral-800 rounded-md flex items-center justify-center cursor-pointer overflow-hidden relative">
             <input
               type="file"
               accept="image/*"
@@ -85,10 +81,16 @@ export default function EditPlaylistModal({ playlist, onClose }) {
               alt="Playlist"
               className="object-cover w-full h-full ml-auto group-hover:opacity-70 transition"
             />
+            <div className="w-[100%] h-[100%] flex hover:flex absolute top-0 right-0 sm:hidden group-hover:block rounded-md bg-black/45 hover:bg-black/45 cursor-pointer">
+              <PiNotePencil
+                className="mx-auto my-auto brightness-150 text-white"
+                size={50}
+              />
+            </div>
           </label>
 
           {/* Text Fields */}
-          <div className="flex flex-col flex-1 gap-3">
+          <div className="flex flex-col w-full flex-1 gap-3">
             <input
               type="text"
               value={name}
@@ -107,7 +109,11 @@ export default function EditPlaylistModal({ playlist, onClose }) {
             <button
               type="submit"
               disabled={pending}
-              className="self-start bg-white text-black font-semibold px-6 py-2 rounded-full mt-2 hover:scale-105 transition"
+              className={`self-start ${
+                pending
+                  ? "bg-white/45 cursor-not-allowed"
+                  : "bg-white cursor-pointer"
+              }  text-black font-semibold px-6 py-2 rounded-full mt-2 hover:scale-105 transition`}
             >
               {pending ? "Saving..." : "Save"}
             </button>

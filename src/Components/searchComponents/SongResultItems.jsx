@@ -11,5 +11,5 @@ const SongResultItem = ({ song }) => (
     </div>
   );
   
-  export default SongResultItem;
+  export default React.memo(SongResultItem);
   

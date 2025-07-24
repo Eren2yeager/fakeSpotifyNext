@@ -12,7 +12,6 @@ export const isPlayingContext = createContext(false);
 export const ToggleFullScreenContext = createContext(false);
 export const imagePreviewContext = createContext(null)
 
-export const playlists = createContext([{imageUrl:"/images/notfound.png",playlistName:'unknown'}]);
 
 
 export const middleWidthContex = createContext()

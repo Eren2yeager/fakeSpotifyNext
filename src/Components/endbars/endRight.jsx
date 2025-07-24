@@ -145,4 +145,4 @@ const EndRight = () => {
   );
 };
 
-export default EndRight;
+export default React.memo(EndRight);

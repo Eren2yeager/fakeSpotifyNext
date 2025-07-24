@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-export default function Marquee(props) {
+ function Marquee(props) {
   const containerRef = useRef(null);
   const textRef = useRef(null);
   const animationRef = useRef(null);
@@ -101,3 +101,6 @@ export default function Marquee(props) {
     </div>
   );
 }
+
+
+export default React.memo(Marquee);

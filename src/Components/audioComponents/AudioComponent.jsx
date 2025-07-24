@@ -1,5 +1,5 @@
 "use client"
-import React, { useContext,  useEffect} from "react";
+import React, { useContext,  useEffect , memo} from "react";
 import { audioRefContext, isPlayingContext ,showRightContext , showPlaylistsContext} from "@/Contexts/contexts";
 import {
   currentTimeContext,
@@ -113,4 +113,4 @@ const AudioComponent = () => {
   );
 };
 
-export default AudioComponent;
+export default memo(AudioComponent);

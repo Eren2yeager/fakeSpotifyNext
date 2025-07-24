@@ -15,8 +15,8 @@ export async function GET(req) {
         path: "playlists.songs.song",
         populate: [
           { path: "artist", select: "name image bio" }, 
-          { path: "album", select: "name coverImage" },
-          { path: "savedIn", select: "name" },
+          { path: "album", select: "name coverImage" }
+
         ],
       })
       .select("playlists");

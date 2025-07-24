@@ -95,4 +95,4 @@ const ListRender = (props) => {
    )
 }
 
-export default ListRender
+export default React.memo(ListRender)

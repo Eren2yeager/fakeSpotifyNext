@@ -27,7 +27,8 @@ export const authOptions = {
           image: user.image,
           playlists: [
             {
-              type: "Liked",
+              type: "Playlist",
+              specialtype : 'Liked',
               name: "Liked Songs",
               songs: [],
               image: "/images/liked.png",
@@ -41,14 +42,13 @@ export const authOptions = {
     },
 
     async session({ session }) {
-      console.log(session)
       await connectDB();
       const dbUser = await User.findOne({ email: session.user.email });
 
       // Attach user ID or playlists if needed
-      session.user._id = dbUser._id;
-      session.user.playlists = dbUser.playlists;
-
+      session.user = dbUser;
+       
+      console.log(session)
       return session;
     },
   },

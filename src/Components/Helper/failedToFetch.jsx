@@ -20,4 +20,4 @@ const FailedToFetch = () => {
   );
 };
 
-export default FailedToFetch;
+export default React.memo(FailedToFetch);

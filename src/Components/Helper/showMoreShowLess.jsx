@@ -20,4 +20,4 @@ const ShowMoreShowLess = (props) => {
     );
 }
 
-export default ShowMoreShowLess
+export default React.memo(ShowMoreShowLess)

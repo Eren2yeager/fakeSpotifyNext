@@ -1,4 +1,4 @@
-import React, { useState,  useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { IoIosPlay } from "react-icons/io";
@@ -9,7 +9,10 @@ import Pillers from "@/Components/Helper/pillers";
 import { usePlayer } from "@/Contexts/playerContext";
 import { isPlayingContext } from "@/Contexts/contexts";
 import { audioRefContext } from "@/Contexts/contexts";
-
+import ThreeDotsPopUp from "../popups/songThreeDotsPopUp";
+import TickOrAdd from "../Helper/TickOrAdd";
+import { usePlaylists } from "@/Contexts/playlistsContext";
+import ThreeDots from "../Helper/ThreeDots";
 
 const SearchPlaylistSongCard = (props) => {
   const Context_audio_ref = useContext(audioRefContext);
@@ -19,16 +22,38 @@ const SearchPlaylistSongCard = (props) => {
   const [addToLibrary, setaddToLibrary] = useState(false);
 
   const { currentSong, context, play } = usePlayer();
-
+  const { playlists } = usePlaylists();
 
   let conditionCheck;
-  conditionCheck= (currentSong?._id == props.item._id && context.id === props.context.id);
+  conditionCheck =
+    currentSong?._id == props.item._id && context.id === props.context.id;
   const handlePlay = () => {
-    if (
-      currentSong == null ||
-      (!conditionCheck)
-    ) {
+    if (currentSong == null || !conditionCheck) {
       play(props.allSongs, props.item, props.context);
+          // Get current recent searches from localStorage, or start with empty array
+    let recentSearchesArray = [];
+    try {
+      const stored = localStorage.getItem("recentSearchesArray");
+      if (stored) {
+        recentSearchesArray = JSON.parse(stored);
+      }
+    } catch (e) {
+      // If parsing fails, reset to empty array
+      recentSearchesArray = [];
+    }
+
+    // Optionally: prevent duplicates (by _id)
+    const alreadyExists = recentSearchesArray.some(
+      (item) => item._id === props.item._id
+    );
+    if (!alreadyExists) {
+      recentSearchesArray.push(props.item);
+    }
+
+    localStorage.setItem(
+      "recentSearchesArray",
+      JSON.stringify(recentSearchesArray)
+    );
     } else {
       if (conditionCheck && Context_isPlaying.isPlaying) {
         Context_audio_ref.current.pause();
@@ -39,14 +64,43 @@ const SearchPlaylistSongCard = (props) => {
       }
     }
   };
+
   // just set the song
   const handleSongSet = () => {
     play(props.allSongs, props.item, props.context);
+    // Get current recent searches from localStorage, or start with empty array
+    let recentSearchesArray = [];
+    try {
+      const stored = localStorage.getItem("recentSearchesArray");
+      if (stored) {
+        recentSearchesArray = JSON.parse(stored);
+      }
+    } catch (e) {
+      // If parsing fails, reset to empty array
+      recentSearchesArray = [];
+    }
+
+    // Optionally: prevent duplicates (by _id)
+    const alreadyExists = recentSearchesArray.some(
+      (item) => item._id === props.item._id
+    );
+    if (!alreadyExists) {
+      recentSearchesArray.push(props.item);
+    }
+
+    localStorage.setItem(
+      "recentSearchesArray",
+      JSON.stringify(recentSearchesArray)
+    );
+
+
   };
+
+  useEffect(() => {}, [props.item, playlists]);
 
   return (
     <div
-      className="flex items-center text-gray-400  p-2  hover:bg-white/8  rounded-[5px] group/songbar cursor-pointer"
+      className="flex items-center justify-between text-gray-400  p-2  hover:bg-white/8  rounded-[5px] group/songbar cursor-pointer"
       onMouseEnter={() => {
         window.innerWidth >= 640 ? setIsHovering(props.index) : undefined;
       }}
@@ -60,85 +114,61 @@ const SearchPlaylistSongCard = (props) => {
         window.innerWidth >= 640 ? handleSongSet() : undefined;
       }}
     >
-
-      <div
-        className=" truncate  flex items-center gap-3"
-      >
+      <div className=" truncate max-w-full  flex items-center gap-3">
         <div className="w-10 h-10 relative">
           <img
             src={props.item.image || "/images/notfound.png"}
             alt={`song cover ${props.index}`}
-            className={`min-w-10 min-h-10 rounded  cursor-pointer ${isHovering || isHovering==0 ? "opacity-50":""}`}
+            className={`min-w-10 min-h-10 rounded  cursor-pointer ${
+              isHovering || isHovering == 0 ? "opacity-50" : ""
+            }`}
           />
-          
-            <span
-              className={`absolute text-white bottom-1/5 left-1/5 ${isHovering || isHovering==0 ? "visible" :"invisible"}`}
-              onClick={() => {
-                handlePlay();
-              }}
-            >
-              {conditionCheck &&
-              Context_isPlaying.isPlaying ? (
-                <IoIosPause className="text-2xl  cursor-pointer" />
-              ) : (
-                <IoIosPlay className="text-2xl cursor-pointer" />
-              )}
-            </span>
- 
-          
+
+          <span
+            className={`absolute text-white bottom-1/5 left-1/5 ${
+              isHovering || isHovering == 0 ? "visible" : "invisible"
+            }`}
+            onClick={() => {
+              handlePlay();
+            }}
+          >
+            {conditionCheck && Context_isPlaying.isPlaying ? (
+              <IoIosPause className="text-2xl  cursor-pointer" />
+            ) : (
+              <IoIosPlay className="text-2xl cursor-pointer" />
+            )}
+          </span>
         </div>
-        <div className="truncate">
+        <div className="truncate max-w-full">
           <div
             className={`font-semibold flex items-center ${
-              conditionCheck
-                ? "text-green-500"
-                : "text-white"
-            }  truncate`}
+              conditionCheck ? "text-green-500" : "text-white"
+            }`}
           >
-            {
-                (conditionCheck &&
-            Context_isPlaying.isPlaying) && 
-            <div className="mr-2">
-            <Pillers />
+            {conditionCheck && Context_isPlaying.isPlaying && (
+              <div className="mr-2">
+                <Pillers />
+              </div>
+            )}
+            <span className=" max-w-full truncate">{props.item.name}</span>
           </div>
-            }
-            {props.item.name}
-          </div>
-          <div className="text-sm  max-w-[100%] truncate">
+          <div className="text-sm  max-w-full truncate">
             {props.item.artist.name}
           </div>
         </div>
       </div>
-
-
-      <div className=" w-[50px] text-right truncate flex justify-center ml-auto">
-        <span className=" transform active:scale-90 hover:scale-110 transition-200 p-1 invisible group-hover/songbar:visible">
-          {props.item?.savedIn?.length > 0 ? (
-            <TiTick
-              className="bg-green-600 rounded-full text-black animate-pulse cursor-pointer"
-              size={20}
-              onClick={() => {
-                setaddToLibrary(!addToLibrary);
-              }}
-            />
-          ) : (
-            <IoMdAddCircleOutline
-              className="cursor-pointer"
-              size={20}
-              onClick={() => {
-                setaddToLibrary(!addToLibrary);
-              }}
-            />
-          )}
-        </span>
-      </div>
-      <div className=" w-[50px] text-center truncate hidden sm:block ">
-        {props.item?.duration}
-      </div>
-      <div className=" w-[50px]   truncate  flex justify-end sm:justify-center sm:invisible group-hover/songbar:visible">
-        <span className="p-1 transform active:scale-90 hover:scale-110 transition-200 cursor-pointer">
-          <BsThreeDots className="text-xl transform rotate-90 sm:rotate-0" />
-        </span>
+      <div className="w-fit justify-end flex items-center ">
+        <div className=" w-[50px] text-right truncate flex justify-center ">
+          <span className=" transform active:scale-90 hover:scale-110 transition-200 p-1 sm:invisible group-hover/songbar:visible">
+            <TickOrAdd song={props.item} />
+          </span>
+        </div>
+        <div className=" w-[50px] text-center   hidden sm:block">
+          {props.item?.duration}
+        </div>
+        <div className=" w-[50px]   truncate  flex justify-end sm:justify-center sm:invisible group-hover/songbar:visible">
+          <ThreeDots song={props.item} />
+        </div>
       </div>
     </div>
   );

@@ -1,57 +1,23 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
-import { CURRENT_SONG_CONTEXT } from "../../Contexts/audio.controls.";
 import { isPlayingContext, audioRefContext } from "../../Contexts/contexts";
 import { usePlayer } from "../../Contexts/playerContext";
-
+import { useRouter } from "next/navigation";
 const PlayListCard = (props) => {
-  const Context_Current_Song = useContext(CURRENT_SONG_CONTEXT);
   const Context_isPlaying = useContext(isPlayingContext);
   const Context_audio_ref = useContext(audioRefContext);
-  const { play , currentSong ,context } = usePlayer();
-
-
-
-  let conditionCheck = false;
-  if (props.item.type === "Song") {
-    conditionCheck =
-      currentSong?._id === props.item._id && props.item.type == context.type;
-  } else if (props.item.type === "Artist") {
-    conditionCheck =
-      currentSong?.artist?._id === props.item._id &&
-      props.item.type == context.type;
-  } else if(props.item.type === "Album"){
-    conditionCheck =
-    currentSong?.album?._id === props.item._id &&
-    props.item.type == context.type;
-  }else if (props.item.type === "Playlist") {
-    conditionCheck =
-      props.item.songs?.some(
-        (songData) => songData.song?._id === currentSong?._id
-      ) && props.item.type == context.type;
-  }
-  const handlePlayFromType = async (type, id) => {
-    if (currentSong == null || conditionCheck == false) {
-      try {
-        const res = await fetch(`http://localhost:5000/api/play/${type}/${id}`);
-        const data = await res.json();
-        play(data.songs, data.current, data.context);
-      } catch (err) {
-        console.error("Failed to play:", err);
-      }
-    } else {
-      if (conditionCheck && Context_isPlaying.isPlaying) {
-        Context_audio_ref.current.pause();
-        Context_isPlaying.setisPlaying(false);
-      } else {
-        Context_audio_ref.current.play();
-        Context_isPlaying.setisPlaying(true);
-      }
-    }
+  const { handlePlayFromType} = usePlayer();
+  const [conditionCheck , setConditionCheck] =useState(false)
+  const router =useRouter()
+  const handlePlayPause = async (item) => {
+    console.log(item)
+    setConditionCheck( handlePlayFromType(item))
   };
   return (
-    <div className="p-2 rounded-[5px] group hover:bg-gradient-to-b from-white/8 to-transparent cursor-pointer transition-all duration-300 relative active:bg-white/15">
+    <div className="p-2 rounded-[5px] group hover:bg-gradient-to-b from-white/8 to-transparent cursor-pointer transition-all duration-300 relative active:bg-white/15" 
+    onClick={()=>{router.push(`/playlists/${props.item._id}`)}}
+    >
       <div className=" w-[120px] sm:w-[180px]  overflow-hidden  m-1  ">
         <div className="w-[100%] h-[120px] sm:h-[180px] ">
           <img
@@ -82,7 +48,7 @@ const PlayListCard = (props) => {
               : "bottom-0 opacity-0"
           }  right-[15%]  group-hover:bottom-[30%] group-hover:opacity-100 transition-all duration-300 active:transform-[scale(0.95)]`}
           onClick={() => {
-            handlePlayFromType(props.item.type, props.item._id);
+            handlePlayPause(props.item)
           }}
         >
           <span>
@@ -101,4 +67,4 @@ const PlayListCard = (props) => {
   );
 };
 
-export default PlayListCard;
+export default React.memo(PlayListCard);

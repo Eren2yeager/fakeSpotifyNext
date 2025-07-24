@@ -106,4 +106,4 @@ const EndMiddle = (props) => {
   );
 };
 
-export default EndMiddle;
+export default React.memo(EndMiddle);

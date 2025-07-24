@@ -1,0 +1,95 @@
+[{
+  "_id": {
+    "$oid": "686a1f1efbf08f3fcba9b4e2"
+  },
+  "songName": "Legends Never Die",
+  "artistName": "Gods",
+  "albumName": "Legends Never Die",
+  "duration": "2:59",
+  "fileUrl": "https://eren2yeager.github.io/songs/audios/Legends%20Never%20Die%20(ft.%20Against%20The%20Current)%20%EF%BD%9C%20Worlds%202017%20-%20League%20of%20Legends%20(1).mp3",
+  "songImageUrl": "https://eren2yeager.github.io/songs/song-images/legends%20never%20die.jpg",
+  "artistImageUrl": "https://eren2yeager.github.io/songs/artist-images/artist-gods.jpg",
+  "songBgColor": "#d5d5d7",
+  "artistBgColor": "#6a6470",
+  "savedIn": [],
+  "added": {
+    "$date": "2025-07-06T07:00:46.103Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686a213ae700c6f30b6fd1d1"
+  },
+  "songName": "Love The Way You Lie",
+  "artistName": "Eminem",
+  "albumName": "Recovery",
+  "duration": "4:26",
+  "fileUrl": "https://eren2yeager.github.io/songs/audios/Eminem%20-%20Love%20The%20Way%20You%20Lie%20ft.%20Rihanna%20(1).mp3",
+  "songImageUrl": "https://eren2yeager.github.io/songs/song-images/love%20the%20way%20you%20lie.jpg",
+  "artistImageUrl": "https://eren2yeager.github.io/songs/artist-images/artist-eminem.jpg",
+  "songBgColor": "#787777",
+  "artistBgColor": "#3a3a3a",
+  "savedIn": [],
+  "added": {
+    "$date": "2025-07-06T07:09:46.987Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686a245a25a5042b30bf933b"
+  },
+  "songName": "Me and The Devil",
+  "artistName": "Soup&Skin",
+  "albumName": "SugerBread",
+  "duration": "3:05",
+  "fileUrl": "https://eren2yeager.github.io/songs/audios/Soap&Skin%20-%20Me%20And%20The%20Devil%20(Lyrics)%20(1).mp3",
+  "songImageUrl": "https://eren2yeager.github.io/songs/song-images/me%20and%20the%20devil.jpg",
+  "artistImageUrl": "https://eren2yeager.github.io/songs/artist-images/artist-soup&skiin.jpg",
+  "songBgColor": "#4e422e",
+  "artistBgColor": "#513e21",
+  "savedIn": [],
+  "added": {
+    "$date": "2025-07-06T07:23:06.040Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686a252125a5042b30bf933d"
+  },
+  "songName": "My Ordinary Life",
+  "artistName": "The Living Tombstone",
+  "albumName": "My Ordinary Life",
+  "duration": "4:05",
+  "fileUrl": "https://eren2yeager.github.io/songs/audios/My%20Ordinary%20Life-The%20Living%20Tombstone%20(1).mp3",
+  "songImageUrl": "https://eren2yeager.github.io/songs/song-images/my%20ordinary%20life.jpg",
+  "artistImageUrl": "https://eren2yeager.github.io/songs/artist-images/artist-the%20living%20tombstone.jpg",
+  "songBgColor": "#ca8ba6",
+  "artistBgColor": "#777a13",
+  "savedIn": [],
+  "added": {
+    "$date": "2025-07-06T07:26:25.712Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "686a25d925a5042b30bf933f"
+  },
+  "songName": "Starboy",
+  "artistName": "Weeknd",
+  "albumName": "Starboy",
+  "duration": "3:50",
+  "fileUrl": "https://eren2yeager.github.io/songs/audios/Starboy%20(1).mp3",
+  "songImageUrl": "https://eren2yeager.github.io/songs/song-images/starboy.jpg",
+  "artistImageUrl": "https://eren2yeager.github.io/songs/artist-images/artist-weeknd.jpg",
+  "songBgColor": "#7f3c32",
+  "artistBgColor": "#274359",
+  "savedIn": [],
+  "added": {
+    "$date": "2025-07-06T07:29:29.370Z"
+  },
+  "__v": 0
+}]

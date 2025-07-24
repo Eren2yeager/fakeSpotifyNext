@@ -1,41 +1,46 @@
 import React, { useState, useEffect, useRef } from "react";
 import { GrAdd } from "react-icons/gr";
 
-import { playlists, showPlaylistsContext } from "../../Contexts/contexts";
+import { showPlaylistsContext } from "../../Contexts/contexts";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { showRightContext } from "../../Contexts/contexts";
 import { createPlaylistForUser } from "@/app/(protected)/actions/playlistActions";
-import CreatePlaylistPopup from "../playlistCards/createPlaylistPopup";
-
+import CreatePlaylistPopup from "../popups/createPlaylistPopup";
+import { usePlaylists } from "@/Contexts/playlistsContext";
+import { useRouter } from "next/navigation";
+import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
+import AddButton from "../Helper/AddButton";
 const PlayCard = (props) => {
   const pathname = usePathname();
+  const router =useRouter()
   const isActive = (route) => pathname === route;
   return (
-    <Link
-      href={`/playlists/${props.playlist_id}`}
-
-    >
-        <img
-          src={`${props.imageUrl}`}
-          className={`min-w-[60px] max-w-[60px] min-h-[60px] max-h-[60px] p-1 object-cover rounded-xl ${
-            isActive(`/playlists/${props.playlist_id}`)
-              ? " bg-zinc-800"
-              : " hover:bg-zinc-800"
-          }`}
-          alt={props.playlist_name}
-          title={props.playlist_name}
-        />
-    </Link>
+      <img
+        src={`${props.imageUrl}`}
+        className={`min-w-[60px] max-w-[60px] min-h-[60px] max-h-[60px] p-1 object-cover rounded-xl ${
+          isActive(`/playlists/${props.playlist_id}`)
+            ? " bg-zinc-800"
+            : " hover:bg-zinc-800"
+        }`}
+        alt={props.playlist_name}
+        title={props.playlist_name}
+        onClick={() => {
+          if(pathname !== `/playlists/${props.playlist_id}`){
+            router.push(`/playlists/${props.playlist_id}`);
+          }
+        }}
+      />
   );
 };
 
 const SmallLeft = (props) => {
   const [activeIndex, setActiveIndex] = useState(null);
-  const ContextPlaylists = React.useContext(playlists);
+  const { playlists, fetchPlaylists } = usePlaylists();
   const ContextShowPlaylists = React.useContext(showPlaylistsContext);
   const ContextShowRight = React.useContext(showRightContext);
   // for scrolling effect
+  const toast = useSpotifyToast();
 
   const leftNavRef = React.useRef(null);
   const handleScroll = (e) => {
@@ -49,41 +54,19 @@ const SmallLeft = (props) => {
     }
   };
 
-  const [showPopup, setShowPopup] = useState(false);
-  const [isUpdated, setisUpdated] = useState(false);
 
-  const handleCreate = async () => {
-    const ok = await createPlaylistForUser();
-    if (ok) {
-      setisUpdated(true);
-    }
-  };
 
   useEffect(() => {
-    setisUpdated(false);
-    fetch("/api/playlists")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch playlists");
-        }
-        return res.json();
-      })
-      .then((data) => {
-        ContextPlaylists.setAllPlaylists(data);
-      })
-      .catch((err) => {
-        console.error("❌ Error fetching playlists:", err);
-      });
-  }, [isUpdated]);
+    fetchPlaylists();
+  },[]);
 
-  const createRef = useRef(null);
 
   return (
-    <div className={`small-left  w-[75px] h-[100%] bg-zinc-900 rounded-xl `}>
-      {ContextPlaylists && (
+    <div className={`small-left  w-[75px] h-[100%] bg-zinc-900 rounded-xl overflow-hidden`}>
+      {playlists && (
         <>
           <div
-            className=" flex flex-col  justify-center  items-center  gap-3  w-[100%] h-[100px] p-2 transition-all duration-300 sticky top-0 z-30 "
+            className=" flex flex-col  justify-center  items-center  gap-3  w-[100%] h-[100px] p-2 transition-all duration-300  top-0 z-30 "
             ref={leftNavRef}
           >
             <div
@@ -106,39 +89,14 @@ const SmallLeft = (props) => {
               </svg>
             </div>
 
-            <div
-              title="Create new Playlist"
-              className="w-8 h-8 flex justify-center items-center  px-2 py-2  rounded-full bg-zinc-800"
-              onClick={() => setShowPopup(!showPopup)}
-              onBlur={() => {
-                setShowPopup(false);
-              }}
-              ref={createRef}
-            >
-              <GrAdd
-                className={`transform transition-transform duration-300 ${
-                  showPopup ? " rotate-45" : "rotate-0"
-                }`}
-                size={15}
-              />
-              {showPopup && (
-                <CreatePlaylistPopup
-                  className={
-                    "absolute z-100 top-[100px] left-[10px] w-[300px] bg-zinc-700  text-white p-2 rounded-lg shadow-lg"
-                  }
-                  onCreate={handleCreate}
-                  onClose={() => setShowPopup(false)}
-                  trigger={createRef}
-                />
-              )}
-            </div>
+            <AddButton tailwindBg={"bg-zinc-800"}/>
           </div>
 
           <div
-            className="relative  max-h-full overflow-y-auto m-1 pb-30 "
+            className="relative  max-h-full overflow-y-auto px-1 pb-30 "
             onScroll={handleScroll}
           >
-            {ContextPlaylists.allPlaylists?.map((playlist, index) => (
+            {playlists?.map((playlist, index) => (
               <div
                 key={index}
                 onClick={() => {
@@ -162,4 +120,4 @@ const SmallLeft = (props) => {
   );
 };
 
-export default SmallLeft;
+export default React.memo(SmallLeft);

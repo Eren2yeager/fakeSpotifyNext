@@ -105,7 +105,7 @@ const Pillers = () => {
     );
   };
 
-export default Pillers;
+export default React.memo(Pillers);
 
 
 

@@ -1,8 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import NotFound from "../Helper/not-found";
 
-export default function PlaylistContextMenu({ onEdit, onDelete, triggerRef }) {
+export default function PlaylistContextMenu({
+  playlist,
+  onEdit,
+  onDelete,
+  triggerRef,
+  
+}) {
   const [visible, setVisible] = useState(false);
   const [coords, setCoords] = useState({ x: 0, y: 0 });
   const timeoutRef = useRef(null);
@@ -42,7 +50,9 @@ export default function PlaylistContextMenu({ onEdit, onDelete, triggerRef }) {
 
     const handleTouchStart = () => {
       timeoutRef.current = setTimeout(() => {
+        // rightNavRef.current.classList.remove("shadow-xl", "shadow-gray-950");
         openMenu(window.innerWidth / 2, window.innerHeight / 2);
+        timeoutRef.current.classList.add("bg-black");
       }, 500);
     };
 
@@ -80,21 +90,55 @@ export default function PlaylistContextMenu({ onEdit, onDelete, triggerRef }) {
   if (!visible) return null;
 
   return (
-    <div
+    <motion.div
+      initial={window.innerWidth <= 640 && { y: 300, opacity: 0 }}
+      exit={window.innerWidth <= 640 && { y: -200, opacity: 0 }}
+      animate={window.innerWidth <= 640 && { y: 0, opacity: 1 }}
+      transition={
+        window.innerWidth <= 640 && { duration: 0.6, ease: "easeOut" }
+      }
       id="playlist-context-menu"
-      className="absolute bg-zinc-700 p-1 text-white rounded-md shadow-lg sm:w-60 z-100  w-full"
+      className={`absolute bg-zinc-800 p-1 text-white rounded-md shadow-lg sm:w-60 z-100  w-full transition-transform duration-1000    `}
       style={
         window.innerWidth >= 640
           ? { top: coords.y - 100, left: coords.x }
           : { bottom: "0", left: "0" }
       }
-    >
+      drag={window.innerWidth <= 640 ? "y" : false}
+      dragConstraints={{ top: 0, bottom: 300 }}
+      onDragEnd={(event, info) => {
+        if (window.innerWidth <= 640 && info.offset.y > 100) {
+          setTimeout(() => {
+            setVisible(false); // ✅ call when dragged down enough
+          }, 1000);
+        }
+      }}
+    > <div className="h-1.5 w-[40%] sm:hidden mx-auto my-1 rounded-xs flex bg-white/45 "/>
+      {" "}
+      <div className="flex gap-1 justify-start items-center">
+        <img
+          src={`${playlist?.image}`}
+          className={`min-w-[60px] max-w-[60px] min-h-[60px] max-h-[60px] p-1 object-cover rounded-xl `}
+          alt={playlist?.name}
+          title={playlist?.name}
+        />
+        <p
+          className="text-wrap   overflow-hidden text-ellipsis break-words p-1"
+          style={{
+            display: "-webkit-box",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: 2,
+          }}
+        >
+          {playlist?.name}
+        </p>
+      </div>
       <button
         onClick={() => {
           setVisible(false);
           onEdit();
         }}
-        className="w-full px-4 py-2 text-left hover:bg-zinc-600 flex items-center gap-1 rounded-md"
+        className="w-full px-4 py-2 text-left hover:bg-zinc-600 flex items-center gap-5 justify-start rounded-md"
       >
         <lord-icon
           src="https://cdn.lordicon.com/exymduqj.json"
@@ -113,7 +157,7 @@ export default function PlaylistContextMenu({ onEdit, onDelete, triggerRef }) {
             onDelete();
           }
         }}
-        className="w-full px-4 py-2 text-left  hover:bg-zinc-600 flex items-center gap-1 rounded-md"
+        className="w-full px-4 py-2 text-left  hover:bg-zinc-600 flex items-center gap-5 justify-start  rounded-md"
       >
         <lord-icon
           src="https://cdn.lordicon.com/jzinekkv.json"
@@ -124,6 +168,7 @@ export default function PlaylistContextMenu({ onEdit, onDelete, triggerRef }) {
         ></lord-icon>
         <span>Delete</span>
       </button>
-    </div>
+      
+    </motion.div>
   );
 }

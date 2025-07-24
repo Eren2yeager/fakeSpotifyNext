@@ -1,5 +1,5 @@
 "use client";
-import { useState, useContext, useRef, useEffect } from "react";
+import { useState, useContext, useRef, useEffect , memo } from "react";
 import { Outlet } from "react-router-dom";
 import ImagePreviewer from "@/Components/Helper/ImagePreviewer.jsx";
 import { useWidthObserver } from "@/Components/Helper/WidthObserver";
@@ -25,7 +25,7 @@ function MainLayout({ children }) {
   useEffect(() => {
     renderCount.current++;
   });
-  // console.log(renderCount.current);
+  console.log( "render counts: ",renderCount.current);
 
   const ContextShowRight = useContext(showRightContext);
   const ContextShowPlaylists = useContext(showPlaylistsContext);
@@ -104,7 +104,7 @@ function MainLayout({ children }) {
                     />
                   </div>
                 ) : (
-                  <div className="">
+                  <div className="relative">
                     <SmallLeft
                       leftWidth={leftWidth}
                       setLeftWidth={setLeftWidth}
@@ -176,4 +176,4 @@ function MainLayout({ children }) {
   );
 }
 
-export default MainLayout;
+export default memo(MainLayout);

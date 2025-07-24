@@ -16,7 +16,9 @@ import { IoIosArrowDown } from "react-icons/io";
 import NotFound from "./Helper/not-found";
 import { TiTick } from "react-icons/ti";
 import { usePlayer } from "../Contexts/playerContext";
-
+import ThreeDots from "./Helper/ThreeDots";
+import TickOrAdd from "./Helper/TickOrAdd";
+import { useRouter } from "next/navigation";
 const PlayCard = (props) => {
   return (
     <div className="playlist-card flex  justify-between items-center  bg-zinc-800 h-[75px] p-2  rounded-xl hover:bg-zinc-700 group/playcard my-2">
@@ -55,7 +57,7 @@ const PlayCard = (props) => {
   );
 };
 
-const Right = (props) => {
+const Right = () => {
   const ContextFullScreen = useContext(ToggleFullScreenContext);
   const ContextShowRight = useContext(showRightContext);
   const rightNavRef = React.useRef(null);
@@ -65,31 +67,26 @@ const Right = (props) => {
 
   const [selectedSong, setSelectedSong] = useState(null);
   const [bgColor, setBgColor] = useState(null);
-  const {currentSong , context} =usePlayer()
+  const { currentSong, context } = usePlayer();
+  const router = useRouter();
 
   useEffect(() => {
     if (!currentSong) return;
 
     setSelectedSong(currentSong);
     const setBG = async () => {
-      if (!selectedSong?.image) return;
-      
+      if (!currentSong?.image) return;
+
       try {
-        const color = await SuggestBgColor(selectedSong.image);
-         
+        const color = await SuggestBgColor(currentSong.image);
+
         setBgColor(color); // or color.rgb
       } catch (err) {
         console.log("Error getting average color:", err);
       }
-    }
+    };
     setBG();
-
-  }, [currentSong , selectedSong]);
-
-
-
-
-   
+  }, [currentSong, selectedSong]);
 
   // for scrolling effect in above sm
 
@@ -163,13 +160,31 @@ const Right = (props) => {
         ContextFullScreen.toggleFullScreen ? `w-[100%]` : `w-[100%] `
       }  h-[100%] bg-zinc-900 rounded-sm   relative   overflow-y-auto ${
         ContextShowRight.showRight ? "block" : "hidden"
-      }  `}
+      } transition-all duration-1000 `}
       style={{
         background: `linear-gradient(0deg,#19191b , ${bgColor} )`,
       }}
     >
       {currentSong == null ? (
-        <NotFound />
+        <NotFound
+          text={"Find something to play"}
+          icon={
+            <lord-icon
+              src="https://cdn.lordicon.com/zxaptliv.json"
+              trigger="loop"
+              delay="3000"
+              stroke="bold"
+              colors="primary:#ffffff,secondary:#30e849"
+              style={{ width: "200px", height: "200px" }}
+            ></lord-icon>
+          }
+          buttonText={"Search"}
+          position={"center"}
+          buttonOnClick={() => {
+            router.push("/search");
+            ContextFullScreen.settoggleFullScreen(false);
+          }}
+        />
       ) : (
         <>
           <div
@@ -180,33 +195,35 @@ const Right = (props) => {
               className="transition-all duration-100 cursor-pointer  sm:block transform sm:translate-x-[-40px] sm:group-hover/right:translate-x-[0px]"
               id="toggle-right"
               onClick={handleClick}
-            > <span className="hidden sm:block">
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="25px"
-                viewBox="0 -960 960 960"
-                width="25px"
-                fill="#e3e3e3"
+            >
+              {" "}
+              <span className="hidden sm:block">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="25px"
+                  viewBox="0 -960 960 960"
+                  width="25px"
+                  fill="#e3e3e3"
                 >
-                <path d="M500-640v320l160-160-160-160ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm120-80v-560H200v560h120Zm80 0h360v-560H400v560Zm-80 0H200h120Z" />
-              </svg>
-                </span>
-                <span className="sm:hidden ">
-                <IoIosArrowDown className="text-2xl"/>
-                </span>
-
+                  <path d="M500-640v320l160-160-160-160ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm120-80v-560H200v560h120Zm80 0h360v-560H400v560Zm-80 0H200h120Z" />
+                </svg>
+              </span>
+              <span className="sm:hidden ">
+                <IoIosArrowDown className="text-2xl" />
+              </span>
             </div>
 
             <div className="font-bold transform sm:translate-x-[-35px] group-hover/right:translate-x-[-0px] transition-all duration-150 mr-auto max-w-[100%] truncate">
-              
-            <MarqueeDiv
-                    text={context.name || ""}
-                  />
+              <MarqueeDiv text={context.name || ""} />
             </div>
             <div className="justify-center items-center rounded-full flex font-bold sm:invisible group-hover/right:visible transition-all duration-100  gap-1">
-              <span className=" transition-all duration-300 transform rotate-90 sm:rotate-0 hover:backdrop-blur-lg hover:bg-white/8  p-2 rounded-full cursor-pointer">
-                <BsThreeDots className="text-xl" />
+              <span className="">
+                <ThreeDots
+                  song={currentSong}
+                  playlistId={
+                    context.type == "Playlist" ? context.id : undefined
+                  }
+                />
               </span>
               <span
                 className=" transition-all duration-300 hover:backdrop-blur-lg hidden sm:block hover:bg-white/8 p-2 rounded-full "
@@ -230,38 +247,45 @@ const Right = (props) => {
             ref={containerRef}
           >
             <div
-              className={`song-image flex flex-col justify-around  w-[100%] max-w-[400px] min-h-[85vh] ${ContextFullScreen.toggleFullScreen ? "sm:min-h-[60vh] sm:justify-center" : "sm:min-h-auto sm:justify-start"}  rounded-xl transition-all duration-500 `}
+              className={`song-image flex flex-col justify-around  w-[100%] max-w-[400px] min-h-[85vh] ${
+                ContextFullScreen.toggleFullScreen
+                  ? "sm:min-h-[80vh] sm:justify-center"
+                  : "sm:min-h-auto sm:justify-start"
+              }  rounded-xl transition-all duration-500 `}
               ref={SongImageRef}
-              >   
-
-                <img
-                  className="w-[100%]  object-cover rounded-xl transition-all duration-500 shadow-xl shadow-gray-950"
-                  src={`${selectedSong?.image || `/images/notfound.png`}`}
-                  alt=""
-                  />
+            >
+              <img
+                className="w-[100%]  object-cover rounded-xl transition-all duration-500 shadow-xl shadow-gray-950"
+                src={`${selectedSong?.image || `/images/notfound.png`}`}
+                alt=""
+              />
               <div className="w-[100%] max-w-[400px]">
-              <div
-                className={`song-info max-w-[100%] overflow-clip py-4 ${
-                  ContextFullScreen.toggleFullScreen && window.innerWidth >= 640
-                  ? `hidden`
-                  : ``
-                }`}
+                <div
+                  className={`song-info max-w-[100%] flex items-center overflow-clip py-4 ${
+                    ContextFullScreen.toggleFullScreen &&
+                    window.innerWidth >= 640
+                      ? `hidden`
+                      : ``
+                  }`}
                 >
-                <div className="max-w-[100%]  flex-col justify-center items-start flex my-2 truncate mr-auto">
-                  <MarqueeDiv
-                    text={selectedSong?.name || "prop not provided"}
-                    textClassName="font-sans font-bold text-xl"
-                  />
+                  <div className="max-w-[100%]  flex-col justify-center items-start flex my-2 truncate mr-auto">
+                    <MarqueeDiv
+                      text={selectedSong?.name || "prop not provided"}
+                      textClassName="font-sans font-bold text-xl"
+                    />
 
-                  <MarqueeDiv
-                    text={selectedSong?.artist?.name || "prop not provided"}
-                    textClassName="font-sans font-bold text-[0.9em] opacity-70"
-                  />
+                    <MarqueeDiv
+                      text={selectedSong?.artist?.name || "prop not provided"}
+                      textClassName="font-sans font-bold text-[0.9em] opacity-70"
+                    />
+                  </div>
+                  <span className="">
+                    <TickOrAdd song={currentSong} />
+                  </span>
                 </div>
-                    </div>
-                <dir className="w-[100%]  sm:hidden">
-                  <EndMiddle width="w-[100%]" />   
-                </dir>
+                <div className="w-[100%]  sm:hidden">
+                  <EndMiddle width="w-[100%]" />
+                </div>
               </div>
             </div>
 
@@ -313,4 +337,4 @@ const Right = (props) => {
   );
 };
 
-export default Right;
+export default React.memo(Right);

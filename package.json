@@ -12,6 +12,7 @@
     "@hugeicons/react": "^1.0.5",
     "cloudinary": "^2.7.0",
     "fast-average-color": "^9.5.0",
+    "framer-motion": "^12.23.6",
     "mongoose": "^8.16.4",
     "next": "15.4.1",
     "next-auth": "^4.24.11",

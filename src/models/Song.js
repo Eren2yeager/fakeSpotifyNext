@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
-import Artist from "./Artist.model.js";
-import Album from "./Album.model.js";
-import Playlist from "./Playlist.model.js";
+import Artist from "./Artist.js";
+import Album from "./Album.js";
 
 
 
@@ -22,10 +21,7 @@ const songSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Album",
     },
-    savedIn: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Playlist'
-    }]
+
   },
   { timestamps: true }
 );

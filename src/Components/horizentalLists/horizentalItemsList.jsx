@@ -68,10 +68,19 @@ const HorizentalItemsList = (props) => {
           {props.heading}
         </div>
         <div
-          className=" max-w-[100%] overflow-auto sm:overflow-hidden"
+          className="max-w-[100%] overflow-x-auto overflow-y-hidden scrollbar-hide"
           ref={parentRef}
           onScroll={handleScroll}
+          style={{
+            scrollbarWidth: "none", // Firefox
+            msOverflowStyle: "none", // IE 10+
+          }}
         >
+          <style jsx>{`
+            div.scrollbar-hide::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
           <div
             className={`group-hover/horizentalList:opacity-80 opacity-0 transition-opacity duration-200  hidden sm:block bg-zinc-700 p-1  rounded-full absolute cursor-pointer left-0 top-1/3 z-10  ${
               showLeftArrow == false ? `invisible` : "visible"
@@ -125,4 +134,4 @@ const Card=(props)=>{
 }
 
 
-export default HorizentalItemsList;
+export default React.memo(HorizentalItemsList);

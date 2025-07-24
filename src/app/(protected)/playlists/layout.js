@@ -1,11 +1,12 @@
-
+import React from "react";
 export const metadata = {
-    title: "Playlits - Fake Spotify",
+    title: "Playlists - Fake Spotify",
   };
-  export default function LoginLayout({ children }) {
+   function PlaylistLayout({ children }) {
   
   
   
       return <>{children}</>;
     }
   
+    export default React.memo(PlaylistLayout)

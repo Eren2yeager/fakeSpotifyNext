@@ -9,15 +9,16 @@ import { GLOWAL_SEARCH_TEXT_CONTEXT } from "../Contexts/search.controls";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 
-
-const Navbar = () => {
+const Navbar = memo(() => {
   const pathname = usePathname();
   const ContextFullScreen = useContext(ToggleFullScreenContext);
-  const { searchedText, setSearchedText } = useContext(GLOWAL_SEARCH_TEXT_CONTEXT);
+  const { searchedText, setSearchedText } = useContext(
+    GLOWAL_SEARCH_TEXT_CONTEXT
+  );
   const inputRef = useRef(null);
   const { data: session, status } = useSession();
-
 
   // for dropdown
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +26,10 @@ const Navbar = () => {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target)
+      ) {
         setIsOpen(false);
       }
     }
@@ -95,15 +99,23 @@ const Navbar = () => {
           alt="notification-icon"
           className="notification-icon w-7 h-7 py-1 px-1 invert rounded-3xl cursor-pointer hover:bg-zinc-300 transition duration-300 hidden sm:block"
         />
-        <div className="relative w-10 h-10 sm:flex items-center justify-center hidden sm:block">
+           <Link href="/profile" onClick={handleExitFullScreen}>
+        <div className="relative w-10 h-10 sm:flex items-center justify-center hidden sm:block cursor-pointer"
+         
+        >   
           <div className="absolute inset-0 rounded-full bg-gray-600 opacity-40"></div>
-          <div className="relative z-10 w-7 h-7 bg-blue-500 rounded-full flex items-center justify-center">
-            <span className="text-black font-bold">{session.user.name.slice(0,1)}</span>
-          </div>
+          {session.user.image && (
+              <img
+                src={session.user.image}
+                alt={session.user.name}
+                className=" relative z-2 max-w-7 h-7 brightness-110 rounded-full"
+              />
+          )}
         </div>
+     </ Link>
       </div>
     </header>
   );
-};
+});
 
-export default memo(Navbar);
+export default Navbar;

@@ -1,11 +1,12 @@
-
+import React from "react";
 export const metadata = {
     title: "Search - Fake Spotify",
   };
-  export default function LoginLayout({ children }) {
+   function SearchLayout({ children }) {
   
   
   
       return <>{children}</>;
     }
   
+    export default React.memo(SearchLayout)

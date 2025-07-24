@@ -1,10 +1,10 @@
 "use client";
-
+import React from "react";
 import { signIn ,signOut} from "next-auth/react";
 import { FaGithub, FaGoogle } from "react-icons/fa";
 
 
-export default function LoginPage() {
+ function LoginPage() {
 
 
 
@@ -49,3 +49,6 @@ export default function LoginPage() {
     </div>
   );
 }
+
+
+export default React.memo(LoginPage)

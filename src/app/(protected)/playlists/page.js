@@ -8,4 +8,4 @@ const page = () => {
   )
 }
 
-export default page;
+export default React.memo(page);

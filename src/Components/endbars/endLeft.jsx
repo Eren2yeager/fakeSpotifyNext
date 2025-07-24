@@ -17,13 +17,11 @@ const EndLeft = (props) => {
     <RectangularSongCard
     marquee={{show:true}}
     showAddTolibraryButton={true}
-    songName={currentSong?.name || "Select a Song to Play"}
-    artistName={currentSong?.artist?.name || " "}
-    imageUrl={currentSong?.image}
+    song={currentSong}
     showRightButton={true}
     className="justify-between"
   />
   )
 }
 
-export default EndLeft
+export default React.memo(EndLeft)

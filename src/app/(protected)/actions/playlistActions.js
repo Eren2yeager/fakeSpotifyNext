@@ -28,7 +28,7 @@ export async function createPlaylistForUser() {
     updatedAt: new Date(),
   };
 
-  user.playlists.unshift(newPlaylist);
+  user.playlists.push(newPlaylist);
   const isSaved = await user.save();
 
   if (isSaved) {

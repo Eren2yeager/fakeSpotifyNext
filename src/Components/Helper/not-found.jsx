@@ -1,38 +1,26 @@
-import React ,{useContext} from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useContext } from "react";
 import { useRouter } from "next/navigation";
-import { ToggleFullScreenContext} from "@/Contexts/contexts";
 
-const NotFound = () => {
+const NotFound = ({ text, icon, buttonText, buttonOnClick ,position , buttonColor}) => {
   const router = useRouter();
-  const Context_toggle_FullScreen = useContext(ToggleFullScreenContext);
 
   return (
-    <div className="min-w-[100%] min-h-[100%] h-screen flex flex-col justify-center items-center"
-    onClick={() => {
-      router.push("/search");
-      Context_toggle_FullScreen.settoggleFullScreen(false)
-    }}>
-      <lord-icon
-        src="https://cdn.lordicon.com/zxaptliv.json"
-        trigger="loop"
-        delay="3000"
-        stroke="bold"
-        colors="primary:#ffffff,secondary:#30e849"
-        style={{ width: "200px", height: "200px" }}
-      ></lord-icon>
-      <p className="font-extrabold font-sans">Find SomeThing to Play</p>
-      <button
-        className="px-3 py-2 rounded-full bg-green-500 font-extrabold m-4 cursor-pointer"
-        onClick={() => {
-          router.push("/search");
-          Context_toggle_FullScreen.settoggleFullScreen(false)
-        }}
-      >
-        Search
-      </button>
+    <div className={`min-w-[100%] min-h-[100%]  flex flex-col ${position =="top" ? "justify-start items-center" : position =="center" ? "justify-center items-center" : "justify-center items-center"} `}>
+      {icon}
+      {text && <p className="font-extrabold font-sans">{text}</p>}
+      {buttonText && (
+        <button
+          className={`px-3 py-2 rounded-full bg-green-500 font-extrabold m-4 cursor-pointer`}
+          style={{backgroundColor : buttonColor}}
+          onClick={
+            buttonOnClick
+          }
+        >
+          {buttonText}
+        </button>
+      )}
     </div>
   );
 };
 
-export default NotFound;
+export default React.memo(NotFound);

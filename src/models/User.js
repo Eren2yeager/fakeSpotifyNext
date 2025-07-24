@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Song from "./Song.model";
+import Song from "./Song";
 
 // Subschema for songs in playlists
 const playlistSongSchema = new mongoose.Schema(
@@ -19,13 +19,15 @@ const playlistSongSchema = new mongoose.Schema(
 
 // Playlist subschema
 const playlistSchema = new mongoose.Schema(
-  {
+  { 
     type: { type: String, default: "Playlist" }, // Can be "Playlist" or "Liked"
+    specialtype : String,
     name: { type: String, required: true },
     image: { type: String, default: "/images/notfound.png" },
     description: { type: String },
     songs: [playlistSongSchema],
     createdAt: { type: Date, default: Date.now },
+
   },
   { _id: true }
 );

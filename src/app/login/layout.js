@@ -1,10 +1,12 @@
-
+import React from "react";
 export const metadata = {
   title: "Login - Fake Spotify",
 };
-export default function LoginLayout({ children }) {
+function LoginLayout({ children }) {
 
 
 
     return <>{children}</>;
   }
+ 
+  export default React.memo(LoginLayout)

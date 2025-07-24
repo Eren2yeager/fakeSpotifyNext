@@ -71,4 +71,4 @@ const LiveSeekbar = (props) => {
   );
 };
 
-export default LiveSeekbar;
+export default React.memo(LiveSeekbar);

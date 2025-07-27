@@ -18,8 +18,8 @@ export async function GET(req, { params }) {
       }).populate({
         path: 'playlists.songs.song',
         populate: [
-          { path: 'artist', select: 'name image' },
-          { path: 'album', select: 'name coverImage' },
+          { path: 'artist', select: 'name image bio' },
+          { path: 'album', select: 'name image' },
         ],
       });
 
@@ -38,8 +38,8 @@ export async function GET(req, { params }) {
 
     if (type === 'Album') {
       const songs = await Song.find({ album: id })
-        .populate('artist', 'name image')
-        .populate('album', 'name coverImage')
+        .populate('artist', 'name image bio')
+        .populate('album', 'name image')
         .sort({ createdAt: 1 });
 
       if (!songs || songs.length === 0)
@@ -56,8 +56,8 @@ export async function GET(req, { params }) {
 
     if (type === 'Artist') {
       const songs = await Song.find({ artist: id })
-        .populate('artist', 'name image')
-        .populate('album', 'name coverImage')
+        .populate('artist', 'name image bio')
+        .populate('album', 'name image')
         .sort({ createdAt: 1 })
         .limit(10);
 
@@ -76,7 +76,7 @@ export async function GET(req, { params }) {
     if (type === 'Song') {
       const song = await Song.findById(id)
         .populate('artist', 'name image bio')
-        .populate('album', 'name coverImage');
+        .populate('album', 'name image');
 
       if (!song)
         return new Response(JSON.stringify({ error: 'Song not found' }), { status: 404 });

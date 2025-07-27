@@ -8,9 +8,9 @@ const songSchema = new mongoose.Schema(
   {
     type: { type:String , default: "Song"},
     name: { type: String, required: true },
+    genre: String,
+    image: String,
     duration: { type: String }, // optional, or calculate from file
-    image: { type: String, default: "/images/notfound.png" },
-    bgColor :{type: String},
     fileUrl: { type: String, required: true }, // MP3 or stream URL
     artist: {
       type: mongoose.Schema.Types.ObjectId,

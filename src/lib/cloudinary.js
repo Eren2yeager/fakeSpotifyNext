@@ -10,3 +10,16 @@ cloudinary.config({
 });
 
 export default cloudinary;
+
+
+export const uploadToCloudinary = async (fileBuffer, folder, resourceType = "image") => {
+  const base64 = fileBuffer.toString("base64");
+  const dataUri = "data:application/octet-stream;base64," + base64;
+
+  const uploaded = await cloudinary.uploader.upload(dataUri, {
+    folder,
+    resource_type: resourceType,
+  });
+
+  return uploaded.secure_url;
+};

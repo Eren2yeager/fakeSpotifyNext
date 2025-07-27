@@ -19,7 +19,7 @@ const TopResultCard = (props) => {
           <div className="max-w-[130px]  h-[130px] ">
             <img
               className="w-[100%] h-[100%] object-cover rounded-[5px]  shadow-lg shadow-gray-950"
-              src={`${props.item.image || "/images/notfound.png"}`}
+              src={`${props.item.image }`}
               alt=""
             />
           </div>

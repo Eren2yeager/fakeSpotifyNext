@@ -48,7 +48,7 @@ const PlaylistCard = (props) => {
       conditionCheck == false
     ) {
       try {
-        const res = await fetch(`http://localhost:5000/api/play/${type}/${id}`);
+        const res = await fetch(`/api/play/${type}/${id}`);
         const data = await res.json();
         play(data.songs, data.current, data.context);
       } catch (err) {

@@ -1,60 +1,64 @@
 "use client";
-import React, { useState, useRef, useContext, useEffect } from "react";
-import { IoIosPlay } from "react-icons/io";
-import { IoIosPause } from "react-icons/io";
+import React, {
+  useState,
+  useRef,
+  useContext,
+  useEffect,
+  useTransition,
+} from "react";
 import { imagePreviewContext, middleWidthContex } from "@/Contexts/contexts";
-import { useParams } from "next/navigation";
-import { FaRegClock } from "react-icons/fa";
-import { IoAddOutline } from "react-icons/io5";
 import { FaArrowLeft } from "react-icons/fa6";
-
-import { RiSearchLine } from "react-icons/ri";
-import { usePlayer } from "@/Contexts/playerContext";
-import { audioRefContext, isPlayingContext } from "@/Contexts/contexts";
-import MiddlePlaylistSongCard from "@/Components/playlistCards/middlePlaylistSongCard";
 import SuggestBgColor from "@/functions/bgSuggester";
 import { useRouter } from "next/navigation";
-import EditPlaylistModal from "@/Components/popups/updatePlaylistModel";
 import { PiNotePencil } from "react-icons/pi";
 import { usePlaylists } from "@/Contexts/playlistsContext";
-import AudioVisulizer from "@/Components/audioComponents/AudioVisulizer";
 import NotFound from "@/Components/Helper/not-found";
-import { useSession } from "next-auth/react";
 import ThreeDotsLoader from "@/Components/Helper/ThreeDotsLoader";
 import HorizentalItemsList from "@/Components/horizentalLists/horizentalItemsList";
 import EditProfileModal from "@/Components/popups/EditProfileModal";
-
-
-
-const MiddlePlaylistView = () => {
+import { useUser } from "@/Contexts/userContex";
+import { useSession } from "next-auth/react";
+import BecomeArtistDialog from "@/Components/popups/BecomeArtistDialog";
+import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
+const Profile = () => {
   const router = useRouter();
 
   const Context_middle_width = useContext(middleWidthContex);
   const { middleWidth } = Context_middle_width;
+  const [bgColor, setBgColor] = useState(null);
+  const { playlists, fetchPlaylists } = usePlaylists();
+  const [isFetching, setisFetching] = useState(false);
+  const { userProfile, fetchCurrentUserProfile } = useUser();
   const { data: session, status } = useSession();
 
-  const [bgColor, setBgColor] = useState(null);
-  const [playlist, setPlaylist] = useState(null);
-  const {  playlists, fetchPlaylists } =usePlaylists();
-  const [isFetching, setisFetching] = useState(true);
+  const toast = useSpotifyToast();
   useEffect(() => {
-    const setBG = async () => {
-      if (!session.user?.image) return;
-       if(!playlists){
-        fetchPlaylists()
-       }
+    const setBG = async (image) => {
+      if (!image) return;
+
       try {
-        const color = await SuggestBgColor(session.user.image);
+        const color = await SuggestBgColor(image);
         setBgColor(color); // or color.rgb
-        setisFetching(false);
         console.log("bg :", color);
       } catch (err) {
         console.error("Error getting average color:", err);
       }
     };
-    setBG();
-  }, [session , playlists]);
 
+    if (!userProfile) {
+      setisFetching(true);
+      fetchCurrentUserProfile()
+        .then((data) => {
+          setisFetching(false);
+          setBG(data?.image);
+        })
+        .catch((err) => {
+          console.error("❌ failed to fetch currentuserdata", err);
+        });
+    } else {
+      setBG(userProfile?.image || session.user.image || "/images/user.jpg");
+    }
+  }, [userProfile, playlists]); // Only depend on userProfile
   // for header bg on scroll
   const [scrolled, setScrolled] = useState(false);
   const handleScroll = (e) => {
@@ -66,6 +70,18 @@ const MiddlePlaylistView = () => {
   //   for edit play
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  //______________________________________________________________________________________________________________________________________________
+  //  for become a artist model
+  const [open, setOpen] = useState(false);
+
+  //______________________________________________________________________________________________________________________________________________
+  const handleClick = () => {
+    if (userProfile.isArtist && status == "authenticated") {
+      router.push("/artist/dashboard");
+    } else {
+      setOpen(true);
+    }
+  };
 
   return (
     <>
@@ -78,15 +94,16 @@ const MiddlePlaylistView = () => {
           className={`scroll-container  relative w-[100%] h-[100%] rounded-xl  overflow-y-auto text-white bg-zinc-900`}
           onScroll={handleScroll}
         >
-          {isModalOpen && (
+          {(
             <EditProfileModal
-            currentUser={session.user}
+            open={isModalOpen}
+              currentUser={userProfile}
               onClose={() => setIsModalOpen(false)}
             />
           )}
           <div className=" w-[100%]   rounded-xl flex flex-col">
             <div
-              className={`transition-all duration-300   w-[100%] z-11  flex  ${
+              className={`transition-all duration-300   w-[100%]   flex  ${
                 middleWidth > 640
                   ? "flex-row justify-start h-[250px] "
                   : "flex-col  items-center justify-end h-[300px]"
@@ -117,7 +134,11 @@ const MiddlePlaylistView = () => {
                 }}
               >
                 <img
-                  src={session.user.image || `/images/notfound.png`}
+                  src={
+                    userProfile?.image ||
+                    session.user?.image ||
+                    "/images/user.jpg"
+                  }
                   alt="user-img"
                   className={`max-w-full max-h-full min-w-full min-h-full  object-cover  rounded-full  cursor-pointer `}
                 />
@@ -157,28 +178,28 @@ const MiddlePlaylistView = () => {
                     WebkitLineClamp: 2,
                   }}
                 >
-                  {session.user.name || ""}
+                  {userProfile?.name || ""}
                 </p>
                 <div className="font-sans flex  gap-1  max-w-full truncate">
                   <span className="opacity-80">
                     {playlists?.length
-                      ? session.user.playlists?.length == 1
+                      ? playlists?.length == 1
                         ? `${playlists?.length} Playlist`
                         : `${playlists?.length} Playlists`
                       : ""}
                   </span>
                   <span className="text-white">
-                    {session.user.followers?.length
-                      ? session.user.followers?.length == 1
-                        ? ` • ${session.user.followers?.length} Follower`
-                        : ` • ${session.user.followers?.length} Followers`
+                    {userProfile?.followers?.length
+                      ? userProfile?.followers?.length == 1
+                        ? ` • ${userProfile?.followers?.length} Follower`
+                        : ` • ${userProfile?.followers?.length} Followers`
                       : ""}
                   </span>
                   <span className="text-white">
-                    {session.user.following?.length
-                      ? session.user.following?.length == 1
-                        ? ` • ${session.user.following?.length} Following`
-                        : ` • ${session.user.following?.length} Following`
+                    {userProfile?.following?.length
+                      ? userProfile?.following?.length == 1
+                        ? ` • ${userProfile?.following?.length} Following`
+                        : ` • ${userProfile?.following?.length} Following`
                       : ""}
                   </span>
                 </div>
@@ -204,9 +225,26 @@ const MiddlePlaylistView = () => {
 
                   {scrolled && (
                     <p className="font-bold font-sans text-xl px-3 mr-auto">
-                      {session.user.name || session.user._id}
+                      {userProfile?.name || user._id}
                     </p>
                   )}
+
+                  <div>
+                    <button
+                      onClick={handleClick}
+                      className=" text-white px-4 py-2 rounded-lg bottom-1 border-white  shadow-xs shadow-black"
+                      style={{ background: `${bgColor || "transparent"}` }}
+                    >
+                      {userProfile?.isArtist ? "Go to Artist DashBoard" : "Become a Artist"}
+                    </button>
+
+                    {!userProfile?.isArtist && (
+                      <BecomeArtistDialog
+                        open={open}
+                        onClose={() => setOpen(false)}
+                      />
+                    )}
+                  </div>
                 </div>
                 {playlists?.length > 0 && (
                   <HorizentalItemsList
@@ -214,16 +252,16 @@ const MiddlePlaylistView = () => {
                     listItems={playlists}
                   />
                 )}
-                {session.user.followers.length > 0 && (
+                {userProfile?.followers.length > 0 && (
                   <HorizentalItemsList
                     heading={"Followers"}
-                    listItems={session.user.followers}
+                    listItems={userProfile?.followers}
                   />
                 )}
-                {session.user.following.length > 0 && (
+                {userProfile?.following.length > 0 && (
                   <HorizentalItemsList
                     heading={"Following"}
-                    listItems={session.user.following}
+                    listItems={userProfile?.following}
                   />
                 )}
               </>
@@ -235,4 +273,4 @@ const MiddlePlaylistView = () => {
   );
 };
 
-export default React.memo(MiddlePlaylistView);
+export default React.memo(Profile);

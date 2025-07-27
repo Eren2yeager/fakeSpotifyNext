@@ -14,10 +14,11 @@ import {
   durationContext,
 } from "@/Contexts/audio.controls..js";
 import { PlayerProvider } from "@/Contexts/playerContext.jsx";
+
 import { GLOWAL_SEARCH_TEXT_CONTEXT } from "@/Contexts/search.controls.js";
 import { PlaylistsProvider } from "./Contexts/playlistsContext.jsx";
 import { SpotifyToastProvider } from "./Contexts/SpotifyToastContext.jsx";
-
+import { UserProvider } from "./Contexts/userContex.jsx";
 const BodyToRender = ({ children }) => {
   const [toggleFullScreen, settoggleFullScreen] = useState(false);
   const [showRight, setShowRight] = useState(true);
@@ -34,45 +35,47 @@ const BodyToRender = ({ children }) => {
 
   return (
     <SpotifyToastProvider>
-      <audioRefContext.Provider value={ContextAudioRef}>
-        <isPlayingContext.Provider value={{ isPlaying, setisPlaying }}>
-          <PlayerProvider>
-            <PlaylistsProvider>
-              <ToggleFullScreenContext.Provider
-                value={{ toggleFullScreen, settoggleFullScreen }}
-              >
-                <imagePreviewContext.Provider value={{ src, setSrc }}>
-                  <showPlaylistsContext.Provider
-                    value={{ showPlaylists, setShowPlaylists }}
-                  >
-                    <showRightContext.Provider
-                      value={{ showRight, setShowRight }}
+      <UserProvider>
+        <audioRefContext.Provider value={ContextAudioRef}>
+          <isPlayingContext.Provider value={{ isPlaying, setisPlaying }}>
+            <PlayerProvider>
+              <PlaylistsProvider>
+                <ToggleFullScreenContext.Provider
+                  value={{ toggleFullScreen, settoggleFullScreen }}
+                >
+                  <imagePreviewContext.Provider value={{ src, setSrc }}>
+                    <showPlaylistsContext.Provider
+                      value={{ showPlaylists, setShowPlaylists }}
                     >
-                      <durationContext.Provider
-                        value={{ duration, setDuration }}
+                      <showRightContext.Provider
+                        value={{ showRight, setShowRight }}
                       >
-                        <currentTimeContext.Provider
-                          value={{ currentTime, setCurrentTime }}
+                        <durationContext.Provider
+                          value={{ duration, setDuration }}
                         >
-                          <GLOWAL_SEARCH_TEXT_CONTEXT.Provider
-                            value={{ searchedText, setSearchedText }}
+                          <currentTimeContext.Provider
+                            value={{ currentTime, setCurrentTime }}
                           >
-                            <middleWidthContex.Provider
-                              value={{ middleWidth, setMiddleWidth }}
+                            <GLOWAL_SEARCH_TEXT_CONTEXT.Provider
+                              value={{ searchedText, setSearchedText }}
                             >
-                              {children}
-                            </middleWidthContex.Provider>
-                          </GLOWAL_SEARCH_TEXT_CONTEXT.Provider>
-                        </currentTimeContext.Provider>
-                      </durationContext.Provider>
-                    </showRightContext.Provider>
-                  </showPlaylistsContext.Provider>
-                </imagePreviewContext.Provider>
-              </ToggleFullScreenContext.Provider>
-            </PlaylistsProvider>
-          </PlayerProvider>
-        </isPlayingContext.Provider>
-      </audioRefContext.Provider>
+                              <middleWidthContex.Provider
+                                value={{ middleWidth, setMiddleWidth }}
+                              >
+                                {children}
+                              </middleWidthContex.Provider>
+                            </GLOWAL_SEARCH_TEXT_CONTEXT.Provider>
+                          </currentTimeContext.Provider>
+                        </durationContext.Provider>
+                      </showRightContext.Provider>
+                    </showPlaylistsContext.Provider>
+                  </imagePreviewContext.Provider>
+                </ToggleFullScreenContext.Provider>
+              </PlaylistsProvider>
+            </PlayerProvider>
+          </isPlayingContext.Provider>
+        </audioRefContext.Provider>
+      </UserProvider>
     </SpotifyToastProvider>
   );
 };

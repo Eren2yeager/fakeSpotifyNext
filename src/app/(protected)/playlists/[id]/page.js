@@ -21,16 +21,15 @@ import AudioVisulizer from "@/Components/audioComponents/AudioVisulizer";
 import NotFound from "@/Components/Helper/not-found";
 import { useSession } from "next-auth/react";
 import ThreeDotsLoader from "@/Components/Helper/ThreeDotsLoader";
+import { useUser } from "@/Contexts/userContex";
 const MiddlePlaylistView = () => {
   const router = useRouter();
-
+  const { data: session } = useSession();
   const { playlists } = usePlaylists();
-  const ContextSelectedImage = useContext(imagePreviewContext);
   const Context_isPlaying = useContext(isPlayingContext);
-  const Context_audio_ref = useContext(audioRefContext);
   const Context_middle_width = useContext(middleWidthContex);
   const { middleWidth } = Context_middle_width;
-  const { data: session, status } = useSession();
+  const { fetchCurrentUserProfile, userProfile } = useUser();
 
   const params = useParams();
   const slug = params.id;
@@ -45,6 +44,9 @@ const MiddlePlaylistView = () => {
 
   const [isFetching, setisFetching] = useState(true);
   useEffect(() => {
+    if (!userProfile) {
+      fetchCurrentUserProfile();
+    }
     fetch(`/api/playlists/${slug}`)
       .then((res) => {
         if (!res.ok) {
@@ -140,12 +142,10 @@ const MiddlePlaylistView = () => {
   // for hovering show playbutton
 
   // to play the song from playlist or just a song
-  const { handlePlayFromType } = usePlayer();
-  const [conditionCheck, setConditionCheck] = useState(false);
+  const { handlePlayFromType, conditionCheckForSong } = usePlayer();
 
-  const handlePlayPause = async (item) => {
-    setConditionCheck(handlePlayFromType(item));
-  };
+  // it will tell the what is currenty playlist
+  const conditionCheck = conditionCheckForSong(playlist);
 
   //   for edit play
 
@@ -166,8 +166,9 @@ const MiddlePlaylistView = () => {
           className={`scroll-container  relative w-[100%] h-[100%] rounded-xl  overflow-y-auto text-white bg-zinc-900`}
           onScroll={handleScroll}
         >
-          {isModalOpen && !playlist?.specialtype && (
+          { !playlist?.specialtype && (
             <EditPlaylistModal
+              open={isModalOpen}
               playlist={playlist}
               onClose={() => setIsModalOpen(false)}
             />
@@ -248,18 +249,22 @@ const MiddlePlaylistView = () => {
                 >
                   {playlist?.name || ""}
                 </p>
-                <div className="font-sans flex px-2 gap-1  max-w-full truncate">
+                <div className="font-sans flex  gap-1  max-w-full truncate">
                   <span className={``}>
                     {playlist ? (
                       <div className="flex items-center">
                         <img
-                          src={session.user.image}
-                          alt={session.user.name}
-                          title={session.user.name}
-                          className="max-w-6 h-6 rounded-full"
+                          src={
+                            userProfile?.image ||
+                            session.user?.image ||
+                            "/images/user.jpg"
+                          }
+                          alt={userProfile?.name || session.user?.name}
+                          title={userProfile?.name || session.user?.name}
+                          className=" max-w-6 max-h-6 min-w-6 min-h-6 rounded-full"
                         />
                         <span className="font-bold text-white">
-                          &nbsp;{session.user.name}{" "}
+                          &nbsp;{userProfile?.name || session.user?.name}{" "}
                         </span>
                       </div>
                     ) : (
@@ -307,7 +312,7 @@ const MiddlePlaylistView = () => {
                     <div
                       className="p-2.5  rounded-full bg-green-500  transition-all duration-300  cursor-pointer"
                       onClick={() => {
-                        handlePlayPause(playlist);
+                        handlePlayFromType(playlist);
                       }}
                     >
                       <span>

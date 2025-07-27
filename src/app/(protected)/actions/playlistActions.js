@@ -43,6 +43,8 @@ export async function createPlaylistForUser() {
 
 //  to edit a playlist
 
+
+// ✅ Edit a playlist (with Cloudinary image upload)
 export async function editPlaylist(playlistId, formData) {
   const session = await getServerSession(authOptions);
   if (!session) return null;
@@ -55,42 +57,39 @@ export async function editPlaylist(playlistId, formData) {
   const playlist = user.playlists.id(playlistId);
   if (!playlist) return null;
 
-  // Fields
   const name = formData.get("name");
   const description = formData.get("description");
   const image = formData.get("image");
 
-  // Optional image upload
-  if (image && typeof image !== "string") {
+  // ✅ Handle new image upload if it's a File
+  if (image && typeof image === "object") {
     const buffer = Buffer.from(await image.arrayBuffer());
+
     const uploaded = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          {
-            folder: "playlists",
-            resource_type: "image",
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        )
-        .end(buffer);
+      cloudinary.uploader.upload_stream(
+        {
+          folder: "spotify/playlists",
+          resource_type: "image",
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      ).end(buffer);
     });
 
     playlist.image = uploaded.secure_url;
   }
 
-  // Update text fields
   if (name) playlist.name = name;
   if (description) playlist.description = description;
+
   playlist.updatedAt = new Date();
 
   await user.save();
 
   return true;
 }
-
 
 
 //  to delete a playlist 

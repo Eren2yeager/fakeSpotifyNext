@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import Song from "./Song";
-
+import Song from "./Song.js";
+import Artist from "./Artist.js";
 // Subschema for songs in playlists
 const playlistSongSchema = new mongoose.Schema(
   {
@@ -19,15 +19,14 @@ const playlistSongSchema = new mongoose.Schema(
 
 // Playlist subschema
 const playlistSchema = new mongoose.Schema(
-  { 
+  {
     type: { type: String, default: "Playlist" }, // Can be "Playlist" or "Liked"
-    specialtype : String,
+    specialtype: String,
     name: { type: String, required: true },
     image: { type: String, default: "/images/notfound.png" },
     description: { type: String },
     songs: [playlistSongSchema],
     createdAt: { type: Date, default: Date.now },
-
   },
   { _id: true }
 );
@@ -38,9 +37,9 @@ const userSchema = new mongoose.Schema(
     name: String,
     email: { type: String, unique: true, required: true },
     image: String,
-
+    artist: { type: mongoose.Schema.Types.ObjectId, ref: "Artist" },
+    isArtist: { type: Boolean, default: false }, // Optional, purely for UI checks
     playlists: [playlistSchema], // embedded playlists
-
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },

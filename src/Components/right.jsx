@@ -166,29 +166,9 @@ const Right = () => {
       }}
     >
       {currentSong == null ? (
-        <NotFound
-          text={"Find something to play"}
-          icon={
-            <lord-icon
-              src="https://cdn.lordicon.com/zxaptliv.json"
-              trigger="loop"
-              delay="3000"
-              stroke="bold"
-              colors="primary:#ffffff,secondary:#30e849"
-              style={{ width: "200px", height: "200px" }}
-            ></lord-icon>
-          }
-          buttonText={"Search"}
-          position={"center"}
-          buttonOnClick={() => {
-            router.push("/search");
-            ContextFullScreen.settoggleFullScreen(false);
-          }}
-        />
-      ) : (
         <>
           <div
-            className=" flex gap-3   h-[60px] py-3   px-3 transition-all duration-200"
+            className=" flex gap-3   h-[60px] py-3   px-3 transition-all duration-200 relative"
             ref={rightNavRef}
           >
             <div
@@ -197,7 +177,7 @@ const Right = () => {
               onClick={handleClick}
             >
               {" "}
-              <span className="hidden sm:block">
+              <span className="hidden sm:block ">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   height="25px"
@@ -209,6 +189,54 @@ const Right = () => {
                 </svg>
               </span>
               <span className="sm:hidden ">
+                <IoIosArrowDown className="text-2xl" />
+              </span>
+            </div>
+          </div>
+          <NotFound
+            text={"Find something to play"}
+            icon={
+              <lord-icon
+                src="https://cdn.lordicon.com/zxaptliv.json"
+                trigger="loop"
+                delay="3000"
+                stroke="bold"
+                colors="primary:#ffffff,secondary:#30e849"
+                style={{ width: "200px", height: "200px" }}
+              ></lord-icon>
+            }
+            buttonText={"Search"}
+            position={"center"}
+            buttonOnClick={() => {
+              router.push("/search");
+              ContextFullScreen.settoggleFullScreen(false);
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <div
+            className=" flex gap-3   h-[60px] py-3   px-3 transition-all duration-200 "
+            ref={rightNavRef}
+          >
+            <div
+              className="transition-all duration-100 cursor-pointer  sm:block transform sm:translate-x-[-40px] sm:group-hover/right:translate-x-[0px]"
+              id="toggle-right"
+              onClick={handleClick}
+            >
+              {" "}
+              <span className="hidden sm:block ">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  height="25px"
+                  viewBox="0 -960 960 960"
+                  width="25px"
+                  fill="#e3e3e3"
+                >
+                  <path d="M500-640v320l160-160-160-160ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm120-80v-560H200v560h120Zm80 0h360v-560H400v560Zm-80 0H200h120Z" />
+                </svg>
+              </span>
+              <span className="sm:hidden absolute left-0 ">
                 <IoIosArrowDown className="text-2xl" />
               </span>
             </div>
@@ -313,7 +341,7 @@ const Right = () => {
                   </p>
                   <article className="p-3 text-sm   max-h-[calc(16*5)] transition-all duration-300">
                     <ShowMoreShowLess
-                      text={selectedSong?.artist?.bio || "artist-bio"}
+                      text={selectedSong?.artist?.bio || ""}
                       maxLength={`80`}
                       className="text-white/50"
                     />

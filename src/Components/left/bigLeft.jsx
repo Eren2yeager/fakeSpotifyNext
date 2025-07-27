@@ -26,58 +26,18 @@ import EditPlaylistModal from "../popups/updatePlaylistModel";
 import { deletePlaylist } from "@/app/(protected)/actions/playlistActions";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import AddButton from "../Helper/AddButton";
-
 const PlayCard = (props) => {
   const Context_isPlaying = useContext(isPlayingContext);
   const Context_audio_ref = useContext(audioRefContext);
   const router = useRouter();
   const pathname = usePathname();
-  const { play, currentSong, context } = usePlayer();
+  const { play, currentSong, context , handlePlayFromType , conditionCheckForSong } = usePlayer();
   const { playlists, fetchPlaylists } = usePlaylists();
   const toast = useSpotifyToast();
 
+  const conditionCheck= conditionCheckForSong(props.playlist)
 
-
-
-  let conditionCheck = false;
-  if (props.playlist.type === "Song") {
-    conditionCheck =
-      currentSong?._id === props.playlist._id &&
-      props.playlist.type == context?.type;
-  } else if (props.playlist.type === "Artist") {
-    conditionCheck =
-      currentSong?.artist?._id === props.playlist._id &&
-      props.playlist.type == context?.type;
-  } else if (props.playlist.type === "Album") {
-    conditionCheck =
-      currentSong?.album?._id === props.playlist._id &&
-      props.playlist.type == context?.type;
-  } else if (props.playlist.type === "Playlist") {
-    conditionCheck =
-      props.playlist.songs?.some(
-        (songData) => songData.song?._id === currentSong?._id
-      ) && props.playlist._id == context?.id;
-  }
-  const handlePlayFromType = async (type, id) => {
-    if (currentSong == null || conditionCheck == false) {
-      try {
-        const res = await fetch(`/api/play/${type}/${id}`);
-        const data = await res.json();
-        play(data.songs, data.current, data.context);
-      } catch (err) {
-        console.error("Failed to play:", err);
-      }
-    } else {
-      if (conditionCheck && Context_isPlaying.isPlaying) {
-        Context_audio_ref.current.pause();
-        Context_isPlaying.setisPlaying(false);
-      } else {
-        Context_audio_ref.current.play();
-        Context_isPlaying.setisPlaying(true);
-      }
-    }
-  };
-
+  
   // for right click context menu
   const [isModalOpen, setIsModalOpen] = useState(false);
   const cardRef = useRef(null);
@@ -118,14 +78,14 @@ const PlayCard = (props) => {
             className="absolute bottom-1/4 left-1/4  hidden group-hover:block active:transform-[scale(0.9)]"
             onClick={(e) => {
               e.stopPropagation();
-              handlePlayFromType(props.playlist.type, props.playlist._id);
+              handlePlayFromType(props.playlist);
             }}
           >
-            {conditionCheck && Context_isPlaying.isPlaying ? (
+            {props.playlist.songs.length  > 0 &&  (conditionCheck && Context_isPlaying.isPlaying ? (
               <IoIosPause className="text-2xl  cursor-pointer" />
             ) : (
               <IoIosPlay className="text-2xl  cursor-pointer" />
-            )}
+            ))}
           </span>
         </div>
         <div className="w-full flex-col justify-center items-start flex  px-2 truncate">

@@ -27,6 +27,10 @@ const SearchPlaylistSongCard = (props) => {
   let conditionCheck;
   conditionCheck =
     currentSong?._id == props.item._id && context.id === props.context.id;
+
+
+
+    
   const handlePlay = () => {
     if (currentSong == null || !conditionCheck) {
       play(props.allSongs, props.item, props.context);

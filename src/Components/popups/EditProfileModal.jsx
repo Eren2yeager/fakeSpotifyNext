@@ -5,13 +5,17 @@ import { GrAdd } from "react-icons/gr";
 import { PiNotePencil } from "react-icons/pi";
 import { editUserProfile } from "@/app/(protected)/actions/userActions";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
+import { useUser } from "@/Contexts/userContex";
+import { Dialog } from "../ui/Dialog";
 
-export default function EditProfileModal({ currentUser, onClose }) {
+export default function EditProfileModal({ currentUser, onClose ,open}) {
   const [pending, startTransition] = useTransition();
-  const [username, setUsername] = useState(currentUser.username || "");
+  const [name, setName] = useState(currentUser?.name || "");
   const [imageFile, setImageFile] = useState(null);
-  const [preview, setPreview] = useState(currentUser.image || "/images/default-user.png");
-
+  const [preview, setPreview] = useState(
+    currentUser.image || "/images/default-user.png"
+  );
+  const { fetchCurrentUserProfile } = useUser();
   const toast = useSpotifyToast();
 
   const handleImageChange = (e) => {
@@ -21,26 +25,36 @@ export default function EditProfileModal({ currentUser, onClose }) {
       setPreview(URL.createObjectURL(file));
     }
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.set("username", username);
+    formData.set("type", "editProfile");
+    formData.set("name", name);
     if (imageFile) formData.set("image", imageFile);
 
     startTransition(async () => {
-      const success = await editUserProfile(formData);
-      if (success) {
+      const res = await fetch("/api/profile", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        toast({ text: "Profile update failed" });
+        return;
+      }
+
+      const result = await res.json();
+      if (result.success) {
+        await fetchCurrentUserProfile();
         toast({ text: "Profile updated", image: preview });
         onClose();
       }
     });
   };
-
   return (
-    <div className="fixed inset-0 z-50 backdrop-blur-sm bg-black/60 flex items-center justify-center px-4">
-      <div className="bg-neutral-900 rounded-xl w-full max-w-xl p-6 relative shadow-2xl">
+    <Dialog onClose={onClose} open={open}>
+
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-white text-xl"
@@ -55,9 +69,10 @@ export default function EditProfileModal({ currentUser, onClose }) {
           className="flex flex-col items-center md:flex-row gap-6"
         >
           {/* Image */}
-          <label className="group w-40 h-40 bg-neutral-800 rounded-full flex items-center justify-center cursor-pointer overflow-hidden relative">
+          <label className="group w-40 h-40 sm:min-w-[200px] sm:h-[200px] bg-neutral-800 rounded-full flex items-center justify-center cursor-pointer overflow-hidden relative">
             <input
               type="file"
+              disabled={pending}
               accept="image/*"
               onChange={handleImageChange}
               className="hidden"
@@ -76,8 +91,9 @@ export default function EditProfileModal({ currentUser, onClose }) {
           <div className="flex flex-col w-full gap-3">
             <input
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={pending}
               className="bg-neutral-800 text-white p-3 rounded-md outline-none"
               placeholder="Username"
               required
@@ -95,9 +111,11 @@ export default function EditProfileModal({ currentUser, onClose }) {
         </form>
 
         <p className="text-xs text-gray-400 mt-4">
-          By proceeding, you agree to give Spotify access to the image you choose to upload.
+          By proceeding, you agree to give Spotify access to the image you
+          choose to upload.
         </p>
-      </div>
-    </div>
+        {/* {pending && <DisabledThreeeDotsLoader />} */}
+      
+        </Dialog>
   );
 }

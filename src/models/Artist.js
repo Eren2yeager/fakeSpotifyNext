@@ -1,20 +1,18 @@
+// models/Artist.js
 import mongoose from "mongoose";
-
+import Song from "./Song.js";
+import Album from "./Album.js";
+import User
+ from "./User.js";
 const artistSchema = new mongoose.Schema({
   type: { type:String , default: "Artist"},
+  specialtype: { type:String , default: "Artist"},
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User",},
   name: { type: String, required: true },
-  image: { type: String , default: "/images/notfound.png"}, // image URL
-  bgColor :{type: String},
-  bio: { type: String ,default : "Don't know much about this artist" },
-  songs: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Song",
-    required: true,
-  }],
+  image: String,
+  bio: String,
+  albums: [{ type: mongoose.Schema.Types.ObjectId, ref: "Album" }],
+  songs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Song" }],
 }, { timestamps: true });
 
-
 export default mongoose.models.Artist || mongoose.model("Artist", artistSchema);
-
-
-

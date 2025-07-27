@@ -1,4 +1,5 @@
-import React from "react";
+import React, {useContext} from "react";
+import { middleWidthContex } from "@/Contexts/contexts";
 const CategoryCard = ({ title, image, bgColor }) => {
     return (
       <div
@@ -28,6 +29,9 @@ const categories = [
 ];
 
 const CategoryGrid = () => {
+  const Context_middle_width = useContext(middleWidthContex);
+  const { middleWidth } = Context_middle_width;
+
   return (
     <div className=" sm:p-6 space-y-8 h-[100%] text-white z-10">
         <h2 className="text-2xl font-bold mb-4">Start browsing</h2>

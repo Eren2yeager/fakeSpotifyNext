@@ -6,8 +6,8 @@ import { GrAdd } from "react-icons/gr";
 import { PiNotePencil } from "react-icons/pi";
 import { usePlaylists } from "@/Contexts/playlistsContext";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
-
-export default function EditPlaylistModal({ playlist, onClose }) {
+import { Dialog } from "../ui/Dialog";
+export default function EditPlaylistModal({ playlist, onClose ,open }) {
   const [pending, startTransition] = useTransition();
   const [name, setName] = useState(playlist.name);
   const [description, setDescription] = useState(playlist.description || "");
@@ -31,28 +31,34 @@ export default function EditPlaylistModal({ playlist, onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData();
+    formData.set("edit", "edit");
     formData.set("name", name);
     formData.set("description", description);
     if (imageFile) formData.set("image", imageFile);
+    
+    
 
     startTransition(async () => {
-      const ok = await editPlaylist(playlist._id, formData);
-      if (ok) {
-        toast({
-          text: `Changes Saved`,
-          image: playlist.image,
-        });
-
+      const res = await fetch(`/api/playlists/${playlist._id}`, {
+        method: "POST",
+        body: formData,
+      });
+      
+      if (res.ok) {
+        toast({ text: "Playlist updated" });
         fetchPlaylists();
+        onClose();
+      } else {
+        toast({ text: "Failed to update playlist" ,image:preview  });
       }
-
-      onClose();
+      
     });
   };
 
   return (
-    <div className="fixed inset-0 z-100 backdrop-blur-xs bg-opacity-60 flex items-center justify-center ">
-      <div className="bg-neutral-900 rounded-xl w-full max-w-2xl p-6 relative shadow-2xl">
+    <Dialog open={open}  onClose={onClose}>
+
+      {/* <div className="bg-neutral-900 rounded-xl w-full max-w-2xl p-6 relative shadow-2xl"> */}
         <button
           onClick={() => {
             onClose();
@@ -73,6 +79,7 @@ export default function EditPlaylistModal({ playlist, onClose }) {
             <input
               type="file"
               accept="image/*"
+              disabled={pending}
               onChange={handleImageChange}
               className="hidden"
             />
@@ -94,6 +101,7 @@ export default function EditPlaylistModal({ playlist, onClose }) {
             <input
               type="text"
               value={name}
+              disabled={pending}
               onChange={(e) => setName(e.target.value)}
               className="bg-neutral-800 text-white p-3 rounded-md outline-none"
               placeholder="Playlist Name"
@@ -101,6 +109,7 @@ export default function EditPlaylistModal({ playlist, onClose }) {
             />
             <textarea
               value={description}
+              disabled={pending}
               onChange={(e) => setDescription(e.target.value)}
               className="bg-neutral-800 text-white p-3 rounded-md outline-none resize-none"
               placeholder="Add an optional description"
@@ -124,7 +133,8 @@ export default function EditPlaylistModal({ playlist, onClose }) {
           By proceeding, you agree to give access to the image you choose to
           upload. Please make sure you have the right to upload the image.
         </p>
-      </div>
-    </div>
+      {/* </div> */}
+    </Dialog>
+
   );
 }

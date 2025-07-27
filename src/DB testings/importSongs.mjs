@@ -21,8 +21,6 @@ for (let songData of jsonData) {
     fileUrl,
     songImageUrl,
     artistImageUrl,
-    songBgColor,
-    artistBgColor,
   } = songData;
 
   // 1️⃣ Find or create Artist
@@ -31,7 +29,6 @@ for (let songData of jsonData) {
     artist = await Artist.create({
       name: artistName,
       image: artistImageUrl,
-      bgColor: artistBgColor,
     });
   }
 
@@ -50,7 +47,6 @@ for (let songData of jsonData) {
     name: songName,
     fileUrl,
     image: songImageUrl,
-    bgColor : songBgColor,
     duration,
     artist: artist._id,
     album: album._id,

@@ -7,14 +7,12 @@ import { usePlayer } from "../../Contexts/playerContext";
 const  AlbumCard = (props) => {
   const Context_isPlaying = useContext(isPlayingContext);
   const Context_audio_ref = useContext(audioRefContext);
-  const { handlePlayFromType} = usePlayer();
-  const [conditionCheck , setConditionCheck] =useState(false)
+  const { handlePlayFromType , conditionCheckForSong} = usePlayer();
+  const conditionCheck = conditionCheckForSong(props.item);
 
-  const handlePlayPause = async (item) => {
-    setConditionCheck( handlePlayFromType(item))
-  };
+
   return (
-    <div className="p-2 rounded-[5px] group hover:bg-gradient-to-b from-white/8 to-transparent cursor-pointer transition-all duration-300 relative active:bg-white/15">
+    <div className="p-2 rounded-[5px] group hover:bg-white/8 cursor-pointer transition-all duration-300 relative active:bg-white/15">
       <div className=" w-[120px] sm:w-[180px]  overflow-hidden  m-1  ">
         <div className="w-[100%] h-[120px] sm:h-[180px] ">
           <img
@@ -45,7 +43,7 @@ const  AlbumCard = (props) => {
               : "bottom-0 opacity-0"
           }  right-[15%]  group-hover:bottom-[30%] group-hover:opacity-100 transition-all duration-300 active:transform-[scale(0.95)]`}
           onClick={() => {
-            handlePlayPause(props.item);
+            handlePlayFromType(props.item);
           }}
         >
           <span>

@@ -46,9 +46,11 @@ export const authOptions = {
       const dbUser = await User.findOne({ email: session.user.email });
 
       // Attach user ID or playlists if needed
-      session.user = dbUser;
-       
-      console.log(session)
+      session.user._id = dbUser._id;
+      if(dbUser.image){
+        session.user.image = dbUser.image;
+      }
+      
       return session;
     },
   },

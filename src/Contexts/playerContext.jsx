@@ -20,28 +20,36 @@ export const PlayerProvider = ({ children }) => {
     setContext(contextInfo);
   };
 
-  const handlePlayFromType = async (item) => {
+  const conditionCheckForSong = (item) => {
     let conditionCheck = false;
-    if (item.type === "Song") {
+    if (item?.type === "Song") {
       conditionCheck =
-        currentSong?._id === item._id && item.type == context.type;
-    } else if (item.type === "Artist") {
+        currentSong?._id === item?._id && item?.type == context.type;
+    } else if (item?.type === "Artist") {
       conditionCheck =
-        currentSong?.artist?._id === item._id && item.type == context.type;
-    } else if (item.type === "Album") {
+        currentSong?.artist?._id === item?._id && item?.type == context.type;
+    } else if (item?.type === "Album") {
       conditionCheck =
-        currentSong?.album?._id === item._id && item.type == context.type;
-    } else if (item.type === "Playlist") {
+        currentSong?.album?._id === item?._id && item?.type == context.type;
+    } else if (item?.type === "Playlist") {
       conditionCheck =
-        item.songs?.some(
+        item?.songs?.some(
           (songData) => songData.song?._id === currentSong?._id
-        ) && item.type == context.type;
+        ) && item?.type == context.type && item?._id == context?.id;
     }
+
+    return conditionCheck;
+  };
+
+  const handlePlayFromType = async (item) => {
+    const conditionCheck = conditionCheckForSong(item);
 
     if (currentSong == null || conditionCheck == false) {
       try {
-        const res = await fetch(`/api/play/${item.type}/${item._id}`);
+        const res = await fetch(`/api/play/${item?.type}/${item?._id}`);
         const data = await res.json();
+        // for debug 
+        console.log(data)
         play(data.songs, data.current, data.context);
       } catch (err) {
         console.error("Failed to play:", err);
@@ -56,11 +64,12 @@ export const PlayerProvider = ({ children }) => {
       }
     }
 
-    return conditionCheck
   };
 
   return (
-    <PlayerContext.Provider value={{ currentSong, queue, context, play , handlePlayFromType }}>
+    <PlayerContext.Provider
+      value={{ currentSong, queue, context, play, handlePlayFromType , conditionCheckForSong}}
+    >
       {children}
     </PlayerContext.Provider>
   );

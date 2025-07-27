@@ -1,55 +1,58 @@
-// app/(protected)/actions/userActions.js
-'use server';
+"use server";
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { getServerSession } from "next-auth";
-import { Readable } from "stream";
 import cloudinary from "@/lib/cloudinary";
+import { revalidatePath } from "next/cache";
 import User from "@/models/User";
-
-function bufferToStream(buffer) {
-  const readable = new Readable();
-  readable.push(buffer);
-  readable.push(null);
-  return readable;
-}
+import { connectDB } from "@/lib/mongoose";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function editUserProfile(formData) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) return false;
 
-  const username = formData.get("username");
-  const image = formData.get("image");
+    await connectDB();
 
-  const updates = {};
+    const user = await User.findOne({ email: session.user.email });
+    if (!user) return false;
 
-  if (username) {
-    updates.username = username.toString().trim();
+    const name = formData.get("name");
+    const image = formData.get("image");
+
+    if (name) user.name = name;
+
+    if (image && typeof image === "object") {
+      const buffer = await image.arrayBuffer();
+      const bytes = Buffer.from(buffer);
+
+      const uploaded = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream(
+            {
+              folder: "spotify/users",
+              resource_type: "image",
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          )
+          .end(bytes);
+      });
+
+      user.image = uploaded.secure_url;
+    }
+
+    await user.save();
+    
+    session.user.name = user.name
+    session.user.image = user.image
+
+    revalidatePath("/profile");
+    return true;
+  } catch (err) {
+    console.error("Failed to update profile:", err);
+    return false;
   }
-
-  if (image && typeof image === "object") {
-    const arrayBuffer = await image.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    const result = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          folder: "user_profiles",
-          resource_type: "image",
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
-
-      bufferToStream(buffer).pipe(stream);
-    });
-
-    updates.image = result.secure_url;
-  }
-
-  await User.findByIdAndUpdate(session.user.id, updates);
-
-  return true;
 }

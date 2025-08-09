@@ -66,6 +66,8 @@ export const PlayerProvider = ({ children }) => {
     setCurrentPlayOrderIndex(newPlayOrder.indexOf(startIndex));
     setUserInsertQueue([]);
     setPositionSec(0);
+    // User-initiated play should start playback
+    setIsPlaying(true);
   }, [isShuffling, buildPlayOrder]);
 
   const conditionCheckForSong = (item) => {

@@ -4,7 +4,7 @@ import { useState, useTransition, useContext } from "react";
 import { editPlaylist } from "@/app/(protected)/actions/playlistActions";
 import { GrAdd } from "react-icons/gr";
 import { PiNotePencil } from "react-icons/pi";
-import { usePlaylists } from "@/Contexts/playlistsContext";
+import { useLibrary } from "@/Contexts/libraryContext";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { Dialog } from "../ui/Dialog";
 export default function EditPlaylistModal({ playlist, onClose ,open }) {
@@ -17,7 +17,7 @@ export default function EditPlaylistModal({ playlist, onClose ,open }) {
   );
 
   //   to set the playlists
-  const { fetchPlaylists } = usePlaylists();
+  const { fetchLibrary } = useLibrary();
   const toast = useSpotifyToast();
 
   const handleImageChange = (e) => {
@@ -43,13 +43,23 @@ export default function EditPlaylistModal({ playlist, onClose ,open }) {
         method: "POST",
         body: formData,
       });
-      
+
       if (res.ok) {
         toast({ text: "Playlist updated" });
-        fetchPlaylists();
+        fetchLibrary();
         onClose();
       } else {
-        toast({ text: "Failed to update playlist" ,image:preview  });
+        let errorMsg = "Failed to update playlist";
+        try {
+          const data = await res.json();
+          if (data?.error) {
+            errorMsg = data.error;
+            errorMsg = errorMsg + data?.message
+          }
+        } catch (e) {
+          // fallback to default errorMsg
+        }
+        toast({ text: errorMsg });
       }
       
     });

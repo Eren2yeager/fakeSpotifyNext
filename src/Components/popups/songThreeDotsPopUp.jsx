@@ -13,19 +13,23 @@ import {
   removeSongFromPlaylist,
   toggleLikeSong,
 } from "@/app/(protected)/actions/songActions";
-import { usePlaylists } from "@/Contexts/playlistsContext";
+import { useLibrary } from "@/Contexts/libraryContext";
 import { TiTick } from "react-icons/ti";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import { BiAddToQueue } from "react-icons/bi";
 import { IoAddSharp } from "react-icons/io5";
 import { IoMdArrowDropright } from "react-icons/io";
 import { RiDeleteBin7Line } from "react-icons/ri";
+import { BiAlbum } from "react-icons/bi";
+import { MdOutlinePersonOutline } from "react-icons/md";
 import AddToPlaylistPopup from "./AddToPlaylistPopup";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
-
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 /*************************
  * Helper item component  *
  *************************/
+
 const MenuItem = ({ startIcon, endIcon, label, onClick }) => (
   <div
     onClick={onClick}
@@ -43,15 +47,18 @@ const MenuItem = ({ startIcon, endIcon, label, onClick }) => (
 export default function ThreeDotsPopUp({
   song,
   playlistId,
+  playlistCreaterId,
   anchorRect,
   onClose,
 }) {
   const [liked, setLiked] = useState(false);
+  const {data :session}  = useSession()
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const toast = useSpotifyToast();
-  const { checkSongIsInLikedSongs, getKeeperPlaylists, fetchPlaylists } =
-  usePlaylists();
-  
+  const { checkSongIsInLikedSongs, fetchLibrary } =
+    useLibrary();
+
   const [childRef, setChildRef] = useState(null); // <-- track nested popup DOM
   /* dynamic coords */
   const [coords, setCoords] = useState({ top: 0, left: 0 });
@@ -101,7 +108,7 @@ export default function ThreeDotsPopUp({
       toast({
         text: `Removed from this playlist`,
       });
-      fetchPlaylists();
+      fetchLibrary();
       onClose();
     });
   };
@@ -111,10 +118,10 @@ export default function ThreeDotsPopUp({
     startTransition(async () => {
       await toggleLikeSong(song._id);
       toast({
-        text: `Removed from Liked Songs`,
+        text: `Changes Saved`,
       });
       refreshLiked();
-      fetchPlaylists();
+      fetchLibrary();
       onClose();
     });
   };
@@ -129,7 +136,7 @@ export default function ThreeDotsPopUp({
       className="fixed  inset-0 z-[9998] bg-black/45 sm:bg-transparent"
       onClick={(e) => {
         e.stopPropagation(); // prevent event from reaching things behind
-        onClose()
+        onClose();
       }}
     >
       <motion.div
@@ -210,7 +217,7 @@ export default function ThreeDotsPopUp({
             setOuterRef={setChildRef} /* pass ref up */
           />
         )}
-        {playlistId && (
+        {(playlistId && playlistCreaterId == session.user._id) && (
           <MenuItem
             startIcon={
               <RiDeleteBin7Line className="cursor-pointer" size={20} />
@@ -243,6 +250,24 @@ export default function ThreeDotsPopUp({
           startIcon={<BiAddToQueue className="cursor-pointer" size={20} />}
           label="Add to queue"
         />
+        <MenuItem
+          startIcon={
+            <MdOutlinePersonOutline className="cursor-pointer" size={20} />
+          }
+          label="Go to Artist"
+          onClick={() => {
+            router.push(`/artists/${song.artist._id}`);
+          }}
+        />
+        {song.album && (
+          <MenuItem
+            startIcon={<BiAlbum className="cursor-pointer" size={20} />}
+            label="Go to Album"
+            onClick={() => {
+              router.push(`/albums/${song.album._id}`);
+            }}
+          />
+        )}
       </motion.div>
     </div>,
     document.body

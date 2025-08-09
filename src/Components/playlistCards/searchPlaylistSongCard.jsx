@@ -1,29 +1,22 @@
 import React, { useState, useContext, useEffect } from "react";
 
-import { IoMdAddCircleOutline } from "react-icons/io";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
-import { TiTick } from "react-icons/ti";
-import { BsThreeDots } from "react-icons/bs";
+
 import Pillers from "@/Components/Helper/pillers";
 import { usePlayer } from "@/Contexts/playerContext";
-import { isPlayingContext } from "@/Contexts/contexts";
-import { audioRefContext } from "@/Contexts/contexts";
-import ThreeDotsPopUp from "../popups/songThreeDotsPopUp";
 import TickOrAdd from "../Helper/TickOrAdd";
-import { usePlaylists } from "@/Contexts/playlistsContext";
+import {useLibrary } from "@/Contexts/libraryContext";
 import ThreeDots from "../Helper/ThreeDots";
-
+import { useRouter } from "next/navigation";
 const SearchPlaylistSongCard = (props) => {
-  const Context_audio_ref = useContext(audioRefContext);
-  const Context_isPlaying = useContext(isPlayingContext);
 
   const [isHovering, setIsHovering] = useState(NaN);
-  const [addToLibrary, setaddToLibrary] = useState(false);
 
-  const { currentSong, context, play } = usePlayer();
-  const { playlists } = usePlaylists();
+  const { currentSong,  context, play , isPlaying , setIsPlaying , durationRef , currentTimeRef , audioRef} = usePlayer();
 
+  const { library } = useLibrary();
+  const router = useRouter()
   let conditionCheck;
   conditionCheck =
     currentSong?._id == props.item._id && context.id === props.context.id;
@@ -51,7 +44,7 @@ const SearchPlaylistSongCard = (props) => {
       (item) => item._id === props.item._id
     );
     if (!alreadyExists) {
-      recentSearchesArray.push(props.item);
+      recentSearchesArray.unshift(props.item);
     }
 
     localStorage.setItem(
@@ -59,12 +52,12 @@ const SearchPlaylistSongCard = (props) => {
       JSON.stringify(recentSearchesArray)
     );
     } else {
-      if (conditionCheck && Context_isPlaying.isPlaying) {
-        Context_audio_ref.current.pause();
-        Context_isPlaying.setisPlaying(false);
+      if (conditionCheck && isPlaying) {
+        audioRef.current.pause();
+       setIsPlaying(false);
       } else {
-        Context_audio_ref.current.play();
-        Context_isPlaying.setisPlaying(true);
+        audioRef.current.play();
+       setIsPlaying(true);
       }
     }
   };
@@ -89,7 +82,7 @@ const SearchPlaylistSongCard = (props) => {
       (item) => item._id === props.item._id
     );
     if (!alreadyExists) {
-      recentSearchesArray.push(props.item);
+      recentSearchesArray.unshift(props.item);
     }
 
     localStorage.setItem(
@@ -100,11 +93,11 @@ const SearchPlaylistSongCard = (props) => {
 
   };
 
-  useEffect(() => {}, [props.item, playlists]);
+  useEffect(() => {}, [props.item, library]);
 
   return (
     <div
-      className="flex items-center justify-between text-gray-400  p-2  hover:bg-white/8  rounded-[5px] group/songbar cursor-pointer"
+      className="flex items-center justify-between text-gray-400 h-[60px] p-1  hover:bg-white/8  rounded-[5px] group/songbar cursor-pointer"
       onMouseEnter={() => {
         window.innerWidth >= 640 ? setIsHovering(props.index) : undefined;
       }}
@@ -136,7 +129,7 @@ const SearchPlaylistSongCard = (props) => {
               handlePlay();
             }}
           >
-            {conditionCheck && Context_isPlaying.isPlaying ? (
+            {conditionCheck && isPlaying ? (
               <IoIosPause className="text-2xl  cursor-pointer" />
             ) : (
               <IoIosPlay className="text-2xl cursor-pointer" />
@@ -149,7 +142,7 @@ const SearchPlaylistSongCard = (props) => {
               conditionCheck ? "text-green-500" : "text-white"
             }`}
           >
-            {conditionCheck && Context_isPlaying.isPlaying && (
+            {conditionCheck && isPlaying && (
               <div className="mr-2">
                 <Pillers />
               </div>
@@ -157,7 +150,15 @@ const SearchPlaylistSongCard = (props) => {
             <span className=" max-w-full truncate">{props.item.name}</span>
           </div>
           <div className="text-sm  max-w-full truncate">
-            {props.item.artist.name}
+          <span
+              className="hover:underline"
+              onClick={() => {
+                props.item?.artist._id &&
+                  router.push(`/artists/${props.item?.artist._id}`);
+              }}
+            >
+              {props.item?.artist?.name || "Unknown Artist"}
+            </span>
           </div>
         </div>
       </div>

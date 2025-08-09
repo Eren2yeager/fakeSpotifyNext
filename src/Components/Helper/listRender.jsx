@@ -2,11 +2,11 @@ import React,{useState ,useRef ,useEffect} from 'react'
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
 
-const ListRender = (props) => {
+const ListRender = ({activeItem , setActiveItem , listItems , className}) => {
 
   
-  const {activeItem, setActiveItem} = props.activeItem;
-   const navItems = props.listItems || ["item1", "item2", "item3"];
+
+   const navItems = listItems || ["item1", "item2", "item3"];
    // for horzental scrolling effect without user scroll
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
@@ -24,7 +24,7 @@ const ListRender = (props) => {
   useEffect(() => {
     const observer = new ResizeObserver(checkOverflow);
     if (parentRef.current) observer.observe(parentRef.current);
-
+ 
     return () => {
       observer.disconnect();
     };
@@ -37,7 +37,7 @@ const ListRender = (props) => {
       setShowLeftArrow(parentRef.current.scrollLeft > 0);
       setShowRightArrow(
         parentRef.current.scrollWidth - parentRef.current.scrollLeft >
-          parentRef.current.clientWidth + 5
+          parentRef.current.clientWidth + 2
       );
     }, 200);
   };
@@ -56,21 +56,36 @@ const ListRender = (props) => {
   };
   
    return (
-    <div className=' overflow-hidden flex items-center' ref={parentRef} onScroll={handleScroll}>
+    <div
+      className="overflow-x-auto inset-0 overflow-y-hidden flex items-center scrollbar-hide"
+      style={{
+        scrollbarWidth: "none", // Firefox
+        msOverflowStyle: "none", // IE 10+
+      }}
+      ref={parentRef}
+      onScroll={handleScroll}
+      // Hide scrollbar for Webkit browsers
+      // (This is safe in Next.js app router, and can be combined with Tailwind if you have a plugin)
+    >
+      <style jsx>{`
+        div.scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
                 <div
             className={`  hidden sm:block bg-zinc-700 p-1  rounded-full absolute  cursor-pointer left-0  z-100 opacity-90 ${
               showLeftArrow == false ? `invisible` : "visible"
             } hover:bg-zinc-900`}
             onClick={() => scroll("left")}
           >
-            <MdOutlineKeyboardArrowLeft className="text-xl" />
+            <MdOutlineKeyboardArrowLeft className="text-sm " />
           </div>
 
-       <ul className={props.className}>
+       <ul className={className}>
          {navItems.map((item, index) => (
            <li
            key={index}
-             className={`px-4 py-1  cursor-pointer font-medium   transition-all duration-300 rounded-full 
+             className={`px-4 py-1 text-xs sm:text-sm cursor-pointer font-medium   transition-all duration-300 rounded-full 
              ${
                activeItem === index
                ? "bg-white text-black"
@@ -88,7 +103,7 @@ const ListRender = (props) => {
             } hover:bg-zinc-900`}
             onClick={() => scroll("right")}
           >
-            <MdOutlineKeyboardArrowRight className="text-xl" />
+            <MdOutlineKeyboardArrowRight className="text-sm" />
           </div>
  
             </div>

@@ -8,7 +8,7 @@ import {
   ToggleFullScreenContext,
   showRightContext,
   showPlaylistsContext,
-  middleWidthContex,
+  middleWidthContext,
 } from "@/Contexts/contexts.js";
 
 import Navbar from "@/Components/navbar";
@@ -30,7 +30,7 @@ function MainLayout({ children }) {
   const ContextShowRight = useContext(showRightContext);
   const ContextShowPlaylists = useContext(showPlaylistsContext);
   const ContextFullScreen = useContext(ToggleFullScreenContext);
-  const Context_middle_width = useContext(middleWidthContex);
+  const Context_middle_width = useContext(middleWidthContext);
 
   const ref = useWidthObserver(Context_middle_width.setMiddleWidth); // giving your own state setter
 
@@ -85,6 +85,8 @@ function MainLayout({ children }) {
     document.addEventListener("mouseup", onMouseUp);
   };
 
+
+  const [activeitemForleft, setActiveitemForleft] = useState(0)
   return (
     <>
       <section className="select-none w-[100%] h-[100%] flex flex-col items-center justify-between relative font-sans bg-black overflow-hidden">
@@ -101,6 +103,8 @@ function MainLayout({ children }) {
                     <BigLeft
                       leftWidth={leftWidth}
                       setLeftWidth={setLeftWidth}
+                      activeItem = {activeitemForleft}
+                      setActiveItem ={setActiveitemForleft}
                     />
                   </div>
                 ) : (
@@ -108,6 +112,7 @@ function MainLayout({ children }) {
                     <SmallLeft
                       leftWidth={leftWidth}
                       setLeftWidth={setLeftWidth}
+                      activeItem = {activeitemForleft}
                     />
                   </div>
                 )}
@@ -120,7 +125,7 @@ function MainLayout({ children }) {
               data-resizer-name="left"
               ref={resizerRef}
               onMouseDown={startResizing}
-              className="hidden sm:block  right-0 top-0 w-1  cursor-col-resize my-2  hover:bg-white"
+              className="hidden sm:block  right-0 top-0 w-1  cursor-col-resize active:cursor-grab my-2  hover:bg-white"
             ></div>
           )}
 
@@ -147,7 +152,7 @@ function MainLayout({ children }) {
                 data-resizer-name="right"
                 ref={resizerRef}
                 onMouseDown={startResizing}
-                className="hidden sm:block  right-0 top-0 w-1 cursor-col-resize my-2  hover:bg-white"
+                className="hidden sm:block  right-0 top-0 w-1 cursor-col-resize active:cursor-grab my-2  hover:bg-white"
               ></div>
             )}
           {ContextShowRight.showRight && (

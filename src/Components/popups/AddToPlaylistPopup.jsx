@@ -9,7 +9,7 @@ import { useState, useEffect, useRef, useTransition } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { usePlaylists } from "@/Contexts/playlistsContext";
+import { useLibrary } from "@/Contexts/libraryContext";
 import { RiSearchLine, RiSearchEyeFill } from "react-icons/ri";
 import { IoAddSharp } from "react-icons/io5";
 import { FaRegCircle } from "react-icons/fa";
@@ -36,8 +36,8 @@ export default function AddToPlaylistPopup({
 
   const {
     getPlaylistsWithContainKeyForSong,
-    fetchPlaylists,
-  } = usePlaylists();
+    fetchLibrary,
+  } = useLibrary();
   const popupRef = useRef(null);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
 
@@ -97,7 +97,7 @@ export default function AddToPlaylistPopup({
         text: `added to ${newPl.name}`,
         image: newPl.image,
       });
-      fetchPlaylists();
+      fetchLibrary();
       router.refresh();
       onClose();
     });
@@ -117,7 +117,7 @@ export default function AddToPlaylistPopup({
       toast({
         text: `Changes Saved`,
       });
-      fetchPlaylists();
+      fetchLibrary();
       router.refresh();
       onClose();
     });

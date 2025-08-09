@@ -3,7 +3,7 @@ import { useState, useEffect , useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { createPlaylistForUser } from "@/app/(protected)/actions/playlistActions";
-import { usePlaylists } from "@/Contexts/playlistsContext";
+import { useLibrary } from "@/Contexts/libraryContext";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { AnimatePresence } from "framer-motion";
 export default function CreatePlaylistPopup({ onClose, anchorRect }) {
@@ -36,7 +36,7 @@ export default function CreatePlaylistPopup({ onClose, anchorRect }) {
     return () => document.removeEventListener("mousedown", handle);
   }, [childRef, onClose]);
 
-  const { fetchPlaylists } = usePlaylists();
+  const { fetchLibrary } = useLibrary();
 
   const handleCreate = async () => {
     const newPl = await createPlaylistForUser();
@@ -45,7 +45,7 @@ export default function CreatePlaylistPopup({ onClose, anchorRect }) {
         text: `New Playlist Created: ${newPl.name}`,
         image: newPl.image,
       });
-      fetchPlaylists();
+      fetchLibrary();
     }
   };
 

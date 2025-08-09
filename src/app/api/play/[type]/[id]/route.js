@@ -5,47 +5,64 @@ import User from '@/models/User';
 import Album from '@/models/Album';
 import Artist from '@/models/Artist';
 import Song from '@/models/Song';
+import Playlist from '@/models/Playlist';
 
 export async function GET(req, { params }) {
-  const { type, id } = await params;
+  const { type, id } =await params;
 
   await connectDB();
 
   try {
     if (type === 'Playlist') {
-      const user = await User.findOne({ 'playlists._id': id }, {
-        playlists: { $elemMatch: { _id: id } },
-      }).populate({
-        path: 'playlists.songs.song',
-        populate: [
-          { path: 'artist', select: 'name image bio' },
-          { path: 'album', select: 'name image' },
-        ],
-      });
+      // Playlist: songs are referenced in Playlist.songs [{song, added}]
+      const playlist = await Playlist.findById(id)
+        .populate({
+          path: 'songs.song',
+          populate: [
+            { path: 'artist', select: 'name image bio type _id' },
+            { path: 'album', select: 'name image _id' },
+          ],
+        })
+        .lean();
 
-      if (!user || !user.playlists || user.playlists.length === 0)
-        return new Response(JSON.stringify({ error: 'Playlist not found or empty' }), { status: 404 });
+      if (!playlist)
+        return new Response(JSON.stringify({ error: 'Playlist not found' }), { status: 404 });
 
-      const playlist = user.playlists[0];
-      const songs = playlist.songs.map((entry) => entry.song);
+      const songs = Array.isArray(playlist.songs)
+        ? playlist.songs.map((entry) => entry.song).filter(Boolean)
+        : [];
+
+      if (songs.length === 0)
+        return new Response(JSON.stringify({ error: 'Playlist is empty' }), { status: 404 });
 
       return Response.json({
         songs,
         current: songs[0],
-        context: { type: playlist.type, id: playlist._id, name: playlist.name },
+        context: { type: playlist.type || 'Playlist', id: playlist._id, name: playlist.name },
       });
     }
 
     if (type === 'Album') {
-      const songs = await Song.find({ album: id })
-        .populate('artist', 'name image bio')
-        .populate('album', 'name image')
-        .sort({ createdAt: 1 });
+      // Album: songs are referenced in Album.songs (array of ObjectId)
+      const album = await Album.findById(id)
+        .populate({
+          path: 'songs',
+          populate: [
+            { path: 'artist', select: 'name image bio type _id' },
+            { path: 'album', select: 'name image _id' },
+          ],
+        })
+        .lean();
 
-      if (!songs || songs.length === 0)
+      if (!album)
+        return new Response(JSON.stringify({ error: 'Album not found' }), { status: 404 });
+
+      const songs = Array.isArray(album.songs)
+        ? album.songs.filter(Boolean)
+        : [];
+
+      if (songs.length === 0)
         return new Response(JSON.stringify({ error: 'Album has no songs' }), { status: 404 });
-
-      const album = await Album.findById(id);
 
       return Response.json({
         songs,
@@ -55,16 +72,27 @@ export async function GET(req, { params }) {
     }
 
     if (type === 'Artist') {
-      const songs = await Song.find({ artist: id })
-        .populate('artist', 'name image bio')
-        .populate('album', 'name image')
-        .sort({ createdAt: 1 })
-        .limit(10);
+      // Artist: songs are referenced in Artist.songs (array of ObjectId)
+      const artist = await Artist.findById(id)
+        .populate({
+          path: 'songs',
+          populate: [
+            { path: 'artist', select: 'name image bio type _id' },
+            { path: 'album', select: 'name image _id' },
+          ],
+          options: { sort: { createdAt: 1 }, limit: 10 },
+        })
+        .lean();
 
-      if (!songs || songs.length === 0)
+      if (!artist)
+        return new Response(JSON.stringify({ error: 'Artist not found' }), { status: 404 });
+
+      const songs = Array.isArray(artist.songs)
+        ? artist.songs.filter(Boolean)
+        : [];
+
+      if (songs.length === 0)
         return new Response(JSON.stringify({ error: 'Artist has no songs' }), { status: 404 });
-
-      const artist = await Artist.findById(id);
 
       return Response.json({
         songs,
@@ -75,8 +103,9 @@ export async function GET(req, { params }) {
 
     if (type === 'Song') {
       const song = await Song.findById(id)
-        .populate('artist', 'name image bio')
-        .populate('album', 'name image');
+        .populate('artist', 'name image bio type _id')
+        .populate('album', 'name image _id')
+        .lean();
 
       if (!song)
         return new Response(JSON.stringify({ error: 'Song not found' }), { status: 404 });

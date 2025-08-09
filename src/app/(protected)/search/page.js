@@ -9,12 +9,15 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { GLOWAL_SEARCH_TEXT_CONTEXT } from "@/Contexts/search.controls";
+import { CurrentUserProfileCircle } from "@/Components/Helper/profileCircle";
+import ListRender from "@/Components/Helper/listRender";
 const Search = () => {
   const inputRef = useRef(null);
   const Contex_Glowal_search_text = useContext(GLOWAL_SEARCH_TEXT_CONTEXT);
   const { searchedText, setSearchedText } = Contex_Glowal_search_text;
   // for dropdown
   const [isOpen, setIsOpen] = useState(false);
+  const [activeNavItem, setActiveNavItem] = useState(0);
   const containerRef = useRef(null);
 
   const searchParams = useSearchParams();
@@ -28,6 +31,10 @@ const Search = () => {
 
   return (
     <div className="relative h-screen  p-3 pb-50   overflow-auto">
+      <div className="mb-3 sm:hidden">
+        <CurrentUserProfileCircle text={"Search"} />
+      </div>
+
       {window.innerWidth <= 640 && (
         <div className=" z-1 max-w-[100%] flex justify-center items-center mb-3 bg-white sm:bg-zinc-800   rounded-lg sm:rounded-2xl h-10 border-3 border-transparent focus-within:border-gray-400 transition-all duration-300">
           <div className="w-full flex items-center gap-2 " ref={containerRef}>
@@ -49,7 +56,16 @@ const Search = () => {
           <CategoryGrid />
         </div>
       ) : (
-        <SearchPage searchQuery={query} />
+        <>
+          <ListRender
+            activeItem={activeNavItem}
+            setActiveItem={setActiveNavItem}
+            listItems={["All", "Songs", "Albums", "Artists", "Playlists" , "Profiles"]}
+            className="flex gap-2"
+          />
+
+          <SearchPage searchQuery={query} activeItem={activeNavItem} />
+        </>
       )}
     </div>
   );

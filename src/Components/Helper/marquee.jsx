@@ -95,6 +95,7 @@ import React, { useEffect, useRef, useState } from "react";
           willChange: "transform",
           whiteSpace: "nowrap",
         }}
+        onClick={props.onClick}
       >
         {props.text}
       </div>

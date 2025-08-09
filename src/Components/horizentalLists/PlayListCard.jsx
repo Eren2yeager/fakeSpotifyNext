@@ -1,14 +1,14 @@
+"use client"
+
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
-import { isPlayingContext, audioRefContext } from "../../Contexts/contexts";
 import { usePlayer } from "../../Contexts/playerContext";
 import { useRouter } from "next/navigation";
 const PlayListCard = (props) => {
-  const Context_isPlaying = useContext(isPlayingContext);
-  const Context_audio_ref = useContext(audioRefContext);
+
   const router = useRouter();
-  const { handlePlayFromType, conditionCheckForSong } = usePlayer();
+  const { handlePlayFromType, conditionCheckForSong , isPlaying } = usePlayer();
   const conditionCheck = conditionCheckForSong(props.item);
 
   return (
@@ -18,8 +18,8 @@ const PlayListCard = (props) => {
         router.push(`/playlists/${props.item._id}`);
       }}
     >
-      <div className=" w-[120px] sm:w-[180px]  overflow-hidden  m-1  ">
-        <div className="w-[100%] h-[120px] sm:h-[180px] ">
+      <div className=" w-[95px] sm:w-[150px]  overflow-hidden  m-1  ">
+        <div className="w-[100%] h-[95px] sm:h-[150px] ">
           <img
             className="w-[100%] h-[100%] object-cover rounded-[5px]  shadow-lg shadow-gray-950"
             src={`${props.item.image || "/images/notfound.png"}`}
@@ -37,14 +37,14 @@ const PlayListCard = (props) => {
           >
             {props.item.name}
           </div>
-          {/* <div className="song-artist  lg:text-wrap max-w-[95%]  lg:max-h-[3em] overflow-hidden truncate opacity-70 text-[0.7em]">
-              {props.artistName}
-            </div> */}
+          <div className="song-artist  lg:text-wrap max-w-[95%]  lg:max-h-[3em] overflow-hidden truncate opacity-70 text-[0.7em]">
+              {props.item?.type}
+            </div>
         </div>
         {props.item.songs.length > 0 && (
           <span
             className={`p-3  rounded-full bg-green-500  absolute ${
-              conditionCheck && Context_isPlaying.isPlaying
+              conditionCheck && isPlaying
                 ? "bottom-[30%]"
                 : "bottom-0 opacity-0"
             }  right-[15%]  group-hover:bottom-[30%] group-hover:opacity-100 transition-all duration-300 active:transform-[scale(0.95)]`}
@@ -55,7 +55,7 @@ const PlayListCard = (props) => {
           >
             <span>
               <span>
-                {conditionCheck && Context_isPlaying.isPlaying ? (
+                {conditionCheck && isPlaying ? (
                   <IoIosPause className="text-3xl  text-black cursor-pointer" />
                 ) : (
                   <IoIosPlay className="text-3xl pl-0.5 text-black cursor-pointer" />

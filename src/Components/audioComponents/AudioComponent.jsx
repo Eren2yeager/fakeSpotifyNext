@@ -1,39 +1,53 @@
 "use client"
 import React, { useContext,  useEffect , memo} from "react";
-import { audioRefContext, isPlayingContext ,showRightContext , showPlaylistsContext} from "@/Contexts/contexts";
-import {
-  currentTimeContext,
-  durationContext,
-} from "@/Contexts/audio.controls.";
+import { showRightContext , showPlaylistsContext} from "@/Contexts/contexts";
+
 import { usePlayer } from "@/Contexts/playerContext";
+import { useSession } from "next-auth/react";
 
 const AudioComponent = () => {
-  const ContexCurrentTime = useContext(currentTimeContext);
-  const ContextDuration = useContext(durationContext);
-  const ContextAudioRef = useContext(audioRefContext);
-  const ContextisPlaying = useContext(isPlayingContext);
+
   const ContextShowRight= useContext(showRightContext)
   const ContextShowPlaylists= useContext(showPlaylistsContext)
   
-  // const ContextCurrentSong = React.useContext(CURRENT_SONG_CONTEXT);
-  const { currentSong, queue, context } = usePlayer();
+
+  const { currentSong, isPlaying , setIsPlaying , durationRef , currentTimeRef , audioRef, nextTrack, context} = usePlayer();
+  const { data: session } = useSession();
   
 
 
 
 
   const onLoadedMetadata = () => {
-    ContextDuration.setDuration(ContextAudioRef.current?.duration);
+    durationRef.current = (audioRef.current?.duration);
   
-    if (ContextAudioRef.current) {
-      ContextAudioRef.current
+    if (audioRef.current) {
+      audioRef.current
         .play()
         .then(() => {
           ContextShowRight.setShowRight(true);
           if(window.innerWidth <= 1280){
             ContextShowPlaylists.setShowPlaylists(false)
           }
-          ContextisPlaying.setisPlaying(true); // ✅ only after successful play
+         setIsPlaying(true); // ✅ only after successful play
+         
+         // Record song in recents
+         if (session && currentSong) {
+           try {
+             fetch("/api/recents", {
+               method: "POST",
+               headers: { "Content-Type": "application/json" },
+               body: JSON.stringify({
+                 entityType: "Song",
+                 entityId: currentSong._id,
+                 songId: currentSong._id,
+                 parent: context
+               })
+             });
+           } catch (err) {
+             console.error("Failed to record song in recents:", err);
+           }
+         }
         })
         .catch((err) => {
           console.warn("Play failed:", err);
@@ -49,19 +63,22 @@ const AudioComponent = () => {
 
   // Update current time while playing
   const onTimeUpdate = () => {
-    ContexCurrentTime.setCurrentTime(ContextAudioRef.current?.currentTime);
+    currentTimeRef.current = (audioRef.current?.currentTime);
   };
 
 
 
 // handle play pause
   const handlePlayPause = () => {
-    if (ContextisPlaying.isPlaying) {
-      ContextAudioRef.current.pause();
-      ContextisPlaying.setisPlaying(false);
-    } else {
-      ContextAudioRef.current.play();
-      ContextisPlaying.setisPlaying(true);
+    if(currentSong){
+
+      if (isPlaying) {
+        audioRef.current.pause();
+       setIsPlaying(false);
+      } else {
+        audioRef.current.play();
+       setIsPlaying(true);
+      }
     }
   };
 
@@ -90,13 +107,28 @@ const AudioComponent = () => {
 
 
   useEffect(() => {
-    if (!currentSong || !ContextAudioRef.current) return;
+    if (!currentSong || !audioRef.current) return;
   
-    const audio = ContextAudioRef.current;
+    const audio = audioRef.current;
     audio.pause();
     audio.src = currentSong.fileUrl;
     audio.load();  // ✅ triggers onLoadedMetadata
   }, [currentSong]);
+
+  // Prevent audio reloading when switching browser tabs
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && audioRef.current && isPlaying) {
+        // Don't pause, just prevent reloading
+        audioRef.current.currentTime = audioRef.current.currentTime;
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isPlaying]);
   
 
   return (
@@ -105,7 +137,8 @@ const AudioComponent = () => {
       <audio
         onLoadedMetadata={onLoadedMetadata}
         onTimeUpdate={onTimeUpdate}
-        ref={ContextAudioRef}
+        onEnded={nextTrack}
+        ref={audioRef}
         src={currentSong?.fileUrl || null}
         autoPlay
       ></audio>

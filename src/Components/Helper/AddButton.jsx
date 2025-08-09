@@ -33,12 +33,12 @@ const AddButton = ({wantText,tailwindBg}) => {
       }}
   >
     <GrAdd
-      className={`text-xl transform transition-transform duration-300 ${
+      className={`text-sm transform transition-transform duration-300 ${
         showPopup ? " rotate-45" : "rotate-0"
       }`}
     />
     {wantText  && (
-     <p className="font-bold pl-1 hidden sm:block">Create</p> 
+     <p className="font-bold pl-1 hidden text-sm sm:block">Create</p> 
      )} 
 
     {showPopup && (

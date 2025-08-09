@@ -2,15 +2,13 @@ import React, { useEffect, useState, useContext, useRef } from "react";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
 import { IoAddOutline } from "react-icons/io5";
-import { isPlayingContext } from "../../Contexts/contexts";
 import Pillers from "./pillers";
 import { usePlayer } from "@/Contexts/playerContext";
 
 export const RecentSearchSongCard = (props) => {
   // these are contexts to control song
-  const Context_isPlaying = useContext(isPlayingContext);
   const { handlePlayFromType } = usePlayer();
-  const [conditionCheck, setConditionCheck] = useState(false);
+  const [conditionCheck, setConditionCheck , isPlaying] = useState(false);
 
   const handlePlayPause = async (item) => {
     setConditionCheck(handlePlayFromType(item));
@@ -30,7 +28,7 @@ export const RecentSearchSongCard = (props) => {
           }}
           className="absolute top-1/4 right-1/4 invisible group-hover:visible"
         >
-          {conditionCheck && Context_isPlaying.isPlaying ? (
+          {conditionCheck && isPlaying ? (
             <IoIosPause className="text-2xl cursor-pointer" />
           ) : (
             <IoIosPlay className="text-2xl cursor-pointer" />
@@ -45,7 +43,7 @@ export const RecentSearchSongCard = (props) => {
           }  `}
         >
           <div className="flex">
-            {conditionCheck && Context_isPlaying.isPlaying && (
+            {conditionCheck && isPlaying && (
               <div className="flex">
                 <Pillers />
                 &nbsp;&nbsp;
@@ -55,7 +53,7 @@ export const RecentSearchSongCard = (props) => {
           </div>
         </div>
         <div className=" text-xs max-w-[100%] truncate justify-start opacity-50  ">
-          {props.item.artist.name || "artist-Name"}
+          {props.item.artist?.name || "artist-Name"}
         </div>
       </div>
       <div className="z-10 h-[100%] w-[35px] rounded-r-2xl  ml-auto cursor-pointer transition-all duration-200">

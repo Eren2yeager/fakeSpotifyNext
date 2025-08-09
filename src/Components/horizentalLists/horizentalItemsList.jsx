@@ -1,9 +1,12 @@
+"use client"
+
 import React, { useState, useRef, useEffect, useContext } from "react";
 
 import SongCard from "./SongCard";
 import PlayListCard from "./PlayListCard";
 import ArtistCard from "./ArtistCard";
 import AlbumCard from "./AlbumCard";
+import ProfileCard from "./ProfileCard";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
 
@@ -126,7 +129,7 @@ const Card=(props)=>{
       (props.item.type==="Song") ? <SongCard item={props.item}/> : 
       (props.item.type==="Artist") ? <ArtistCard item={props.item} /> :
       (props.item.type==="Playlist") ? <PlayListCard item={props.item}/> : 
-      props.item.type==="Album" && <AlbumCard item={props.item} />
+      props.item.type==="Album" ? <AlbumCard item={props.item} />  : props.item.type =="Profile" && <ProfileCard  item={props.item}/>
 
     }
     </>

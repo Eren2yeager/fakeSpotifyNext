@@ -27,64 +27,139 @@ import mongoose from 'mongoose';
 /* -----------------------------------------------------------
    toggle like / unlike
 ----------------------------------------------------------- */
+import Playlist from "@/models/Playlist";
+
+/**
+ * Toggle like/unlike a song for the current user.
+ * Uses the new Playlist model and user's library.playlists.
+ */
 export async function toggleLikeSong(songId) {
   await connectDB();
   const session = await getServerSession(authOptions);
-  if (!session) throw new Error('Unauthorized');
+  if (!session) throw new Error("Unauthorized");
 
-  const user = await User.findOne({ email: session.user.email });
-  if (!user) throw new Error('User not found');
+  // Find the user and their "Liked Songs" playlist in their library
+  const user = await User.findOne(
+    { email: session.user.email },
+    { "library.playlists.playlist": 1 }
+  ).lean();
 
-//   await createLikedPlaylistIfMissing(user);
-
-  const likedPlaylist = user.playlists.find(p => p.specialtype === 'Liked');
-
-  const already = likedPlaylist.songs.some(
-    (s) => s.song.toString() === songId
-  );
-
-  if (already) {
-    // unlike ➖
-    likedPlaylist.songs = likedPlaylist.songs.filter(
-      (s) => s.song.toString() !== songId
-    );
-  } else {
-    // like ➕
-    likedPlaylist.songs.unshift({ song: songId });
+  if (!user || !user.library || !Array.isArray(user.library.playlists)) {
+    throw new Error("User not found");
   }
 
-  await user.save();
+  // Find the user's "Liked Songs" playlist (specialtype: 'Liked')
+  // We'll assume the "Liked Songs" playlist is always present in the user's library
+  // and is the only playlist with type 'Liked' or specialtype 'Liked'
+  // If not found, throw error (should be created at signup)
+  const playlistIds = user.library.playlists.map((entry) => entry.playlist);
+
+  // Find the actual Playlist document with type 'Liked'
+  const likedPlaylist = await Playlist.findOne({
+    _id: { $in: playlistIds },
+    specialtype: "Liked",
+  });
+
+  if (!likedPlaylist) throw new Error("Liked Songs playlist not found");
+
+  const songIdStr = songId.toString();
+  const already = Array.isArray(likedPlaylist.songs)
+    ? likedPlaylist.songs.some((s) => s.song && s.song.toString() === songIdStr)
+    : false;
+
+  if (already) {
+    // Unlike: remove the song from the playlist
+    likedPlaylist.songs = likedPlaylist.songs.filter(
+      (s) => s.song && s.song.toString() !== songIdStr
+    );
+  } else {
+    // Like: add the song to the beginning of the playlist
+    likedPlaylist.songs.unshift({ song: songId, added: new Date() });
+  }
+
+  await likedPlaylist.save();
   return { liked: !already };
 }
 
-/* -----------------------------------------------------------
-   add / remove song in any playlist (by playlistId)
------------------------------------------------------------ */
+/**
+ * Add a song to a playlist (by playlistId) for the current user.
+ * Only allows if the playlist is in the user's library.
+ */
 export async function addSongToPlaylist(songId, playlistId) {
   await connectDB();
   const session = await getServerSession(authOptions);
-  if (!session) throw new Error('Unauthorized');
+  if (!session) throw new Error("Unauthorized");
 
-  await User.updateOne(
-    { email: session.user.email, 'playlists._id': playlistId },
-    {
-      $addToSet: { 'playlists.$.songs': { song: songId } },
-    }
-  );
+  // Check that the playlist is in the user's library
+  const user = await User.findOne(
+    { email: session.user.email },
+    { "library.playlists.playlist": 1 }
+  ).lean();
+
+  if (
+    !user ||
+    !user.library ||
+    !Array.isArray(user.library.playlists) ||
+    !user.library.playlists.some(
+      (entry) => entry.playlist.toString() === playlistId.toString()
+    )
+  ) {
+    throw new Error("Playlist not found in user's library");
+  }
+
+  // Add the song to the playlist if not already present
+  const playlist = await Playlist.findById(playlistId);
+  if (!playlist) throw new Error("Playlist not found");
+
+  const songIdStr = songId.toString();
+  const already = Array.isArray(playlist.songs)
+    ? playlist.songs.some((s) => s.song && s.song.toString() === songIdStr)
+    : false;
+
+  if (!already) {
+    playlist.songs.push({ song: songId, added: new Date() });
+    await playlist.save();
+  }
 }
 
+/**
+ * Remove a song from a playlist (by playlistId) for the current user.
+ * Only allows if the playlist is in the user's library.
+ */
 export async function removeSongFromPlaylist(songId, playlistId) {
   await connectDB();
   const session = await getServerSession(authOptions);
-  if (!session) throw new Error('Unauthorized');
+  if (!session) throw new Error("Unauthorized");
 
-  await User.updateOne(
-    { email: session.user.email, 'playlists._id': playlistId },
-    {
-      $pull: { 'playlists.$.songs': { song: songId } },
-    }
-  );
+  // Check that the playlist is in the user's library
+  const user = await User.findOne(
+    { email: session.user.email },
+    { "library.playlists.playlist": 1 }
+  ).lean();
+
+  if (
+    !user ||
+    !user.library ||
+    !Array.isArray(user.library.playlists) ||
+    !user.library.playlists.some(
+      (entry) => entry.playlist.toString() === playlistId.toString()
+    )
+  ) {
+    throw new Error("Playlist not found in user's library");
+  }
+
+  // Remove the song from the playlist if present
+  const playlist = await Playlist.findById(playlistId);
+  if (!playlist) throw new Error("Playlist not found");
+
+  const songIdStr = songId.toString();
+  const beforeCount = Array.isArray(playlist.songs) ? playlist.songs.length : 0;
+  playlist.songs = Array.isArray(playlist.songs)
+    ? playlist.songs.filter((s) => s.song && s.song.toString() !== songIdStr)
+    : [];
+  const afterCount = playlist.songs.length;
+
+  if (afterCount !== beforeCount) {
+    await playlist.save();
+  }
 }
-
-
-

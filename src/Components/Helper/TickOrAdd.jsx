@@ -5,19 +5,19 @@ import {
   isSongInAnyPlaylist,
   isSongInSpecificPlaylist,
 } from "@/app/(protected)/actions/playlistChecks";
-import { usePlaylists } from "@/Contexts/playlistsContext";
+import { useLibrary } from "@/Contexts/libraryContext";
 import AddToPlaylistPopup from "../popups/AddToPlaylistPopup";
 import { toggleLikeSong } from "@/app/(protected)/actions/songActions";
 
 const TickOrAdd = ({song}) => {
   const [isPending, startTransition] = useTransition();
   const [Liked, setLiked] = useState(false);
-  const { playlists, getKeeperPlaylists , fetchPlaylists} = usePlaylists();
+  const { library, getKeeperPlaylists , fetchLibrary} = useLibrary();
 
   const handleToggleLike = () => {
     startTransition(async () => {
       await toggleLikeSong(song._id);
-      fetchPlaylists();
+      fetchLibrary();
     });
   };
 
@@ -36,7 +36,7 @@ const TickOrAdd = ({song}) => {
     if (song) {
       checkSongInAnyPlaylist();
     }
-  }, [playlists, Liked]);
+  }, [library, Liked]);
 
   const [showPopup, setShowPopup] = useState(false);
   const [anchor, setAnchor] = useState(null);

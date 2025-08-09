@@ -1,23 +1,26 @@
+"use client"
+
 import React, { useState, useRef, useEffect, useContext } from "react";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
-import { isPlayingContext, audioRefContext } from "../../Contexts/contexts";
 import { usePlayer } from "../../Contexts/playerContext";
-
-const  AlbumCard = (props) => {
-  const Context_isPlaying = useContext(isPlayingContext);
-  const Context_audio_ref = useContext(audioRefContext);
-  const { handlePlayFromType , conditionCheckForSong} = usePlayer();
+import { useRouter } from "next/navigation";
+const AlbumCard = (props) => {
+  const { handlePlayFromType, conditionCheckForSong , isPla} = usePlayer();
   const conditionCheck = conditionCheckForSong(props.item);
-
+  const router = useRouter();
 
   return (
-    <div className="p-2 rounded-[5px] group hover:bg-white/8 cursor-pointer transition-all duration-300 relative active:bg-white/15">
-      <div className=" w-[120px] sm:w-[180px]  overflow-hidden  m-1  ">
-        <div className="w-[100%] h-[120px] sm:h-[180px] ">
+    <div className="p-2 rounded-[5px] group hover:bg-white/8 cursor-pointer transition-all duration-300 relative active:bg-white/15"
+    onClick={(e) => {
+      router.push(`/albums/${props.item._id}`);
+    }}
+    >
+      <div className=" w-[95px] sm:w-[150px]  overflow-hidden  m-1  ">
+        <div className="w-[100%] h-[95px] sm:h-[150px] ">
           <img
             className="w-[100%] h-[100%] object-cover rounded-[5px]  shadow-lg shadow-gray-950"
-            src={`${props.item.image || "/images/notfound.png"}`}
+            src={`${props.item?.image || "/images/notfound.png"}`}
             alt=""
           />
         </div>
@@ -30,32 +33,35 @@ const  AlbumCard = (props) => {
               WebkitLineClamp: 2,
             }}
           >
-            {props.item.name}
+            {props.item?.name}
           </div>
-          {/* <div className="song-artist  lg:text-wrap max-w-[95%]  lg:max-h-[3em] overflow-hidden truncate opacity-70 text-[0.7em]">
-              {props.artistName}
-            </div> */}
+          <div className="song-artist  lg:text-wrap max-w-[95%]  lg:max-h-[3em] overflow-hidden truncate opacity-70 text-[0.7em]">
+              {props.item?.type}
+            </div>
         </div>
-        <span
-          className={`p-3  rounded-full bg-green-500  absolute ${
-            conditionCheck && Context_isPlaying.isPlaying
-              ? "bottom-[30%]"
-              : "bottom-0 opacity-0"
-          }  right-[15%]  group-hover:bottom-[30%] group-hover:opacity-100 transition-all duration-300 active:transform-[scale(0.95)]`}
-          onClick={() => {
-            handlePlayFromType(props.item);
-          }}
-        >
-          <span>
+        {props.item?.songs?.length > 0 && (
+          <span
+            className={`p-3  rounded-full bg-green-500  absolute ${
+              conditionCheck && isPlaying
+                ? "bottom-[30%]"
+                : "bottom-0 opacity-0"
+            }  right-[15%]  group-hover:bottom-[30%] group-hover:opacity-100 transition-all duration-300 active:transform-[scale(0.95)]`}
+            onClick={(e) => {
+              e.stopPropagation()
+              handlePlayFromType(props.item);
+            }}
+          >
             <span>
-              {conditionCheck && Context_isPlaying.isPlaying ? (
-                <IoIosPause className="text-3xl  text-black cursor-pointer" />
-              ) : (
-                <IoIosPlay className="text-3xl pl-0.5 text-black cursor-pointer" />
-              )}
+              <span>
+                {conditionCheck && isPlaying ? (
+                  <IoIosPause className="text-3xl  text-black cursor-pointer" />
+                ) : (
+                  <IoIosPlay className="text-3xl pl-0.5 text-black cursor-pointer" />
+                )}
+              </span>
             </span>
           </span>
-        </span>
+        )}
         {/* <img className="w-[25%] h-[25%] absolute bottom-0 right-[10%] opacity-0 group-hover:bottom-[35%] group-hover:opacity-100 transition-all duration-300" src="\src\images\playButton.svg" alt="" /> */}
       </div>
     </div>

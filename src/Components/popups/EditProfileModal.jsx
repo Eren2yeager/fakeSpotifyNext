@@ -8,12 +8,12 @@ import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { useUser } from "@/Contexts/userContex";
 import { Dialog } from "../ui/Dialog";
 
-export default function EditProfileModal({ currentUser, onClose ,open}) {
+export default function EditProfileModal({ currentUser, onClose ,open , onUpdate}) {
   const [pending, startTransition] = useTransition();
   const [name, setName] = useState(currentUser?.name || "");
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(
-    currentUser.image || "/images/default-user.png"
+    currentUser?.image || "/images/default-user.png"
   );
   const { fetchCurrentUserProfile } = useUser();
   const toast = useSpotifyToast();
@@ -47,6 +47,7 @@ export default function EditProfileModal({ currentUser, onClose ,open}) {
       const result = await res.json();
       if (result.success) {
         await fetchCurrentUserProfile();
+        onUpdate()
         toast({ text: "Profile updated", image: preview });
         onClose();
       }

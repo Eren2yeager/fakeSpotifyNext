@@ -3,7 +3,7 @@ import { BsThreeDots } from "react-icons/bs";
 import React, { useState , useEffect } from "react";
 import ThreeDotsPopUp from "../popups/songThreeDotsPopUp";
 import { AnimatePresence } from "framer-motion";
-const ThreeDots = ({ song, playlistId }) => {
+const ThreeDots = ({ song, playlistId , playlistCreaterId }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [anchor, setAnchor] = useState(null)
   
@@ -17,9 +17,9 @@ const ThreeDots = ({ song, playlistId }) => {
   }, [showPopup]);
 
   return (
-    <div>
+    <>
       <span
-        className="p-1 transform active:scale-90 hover:scale-110 transition-200 cursor-pointer"
+        className=" transform active:scale-90  transition-200 cursor-pointer"
         onClick={(e) => {
           setAnchor(e.currentTarget.getBoundingClientRect());
           setShowPopup(true);
@@ -37,8 +37,10 @@ const ThreeDots = ({ song, playlistId }) => {
       {showPopup && (
 
           <ThreeDotsPopUp
+            
             song={song}
             playlistId={playlistId}
+            playlistCreaterId={playlistCreaterId}
             anchorRect={anchor}
             onClose={() => {
               setShowPopup(false);
@@ -47,7 +49,7 @@ const ThreeDots = ({ song, playlistId }) => {
         
       )}
       {/* </AnimatePresence> */}
-    </div>
+    </>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, {useContext} from "react";
-import { middleWidthContex } from "@/Contexts/contexts";
+import { middleWidthContext } from "@/Contexts/contexts";
 const CategoryCard = ({ title, image, bgColor }) => {
     return (
       <div
@@ -29,7 +29,7 @@ const categories = [
 ];
 
 const CategoryGrid = () => {
-  const Context_middle_width = useContext(middleWidthContex);
+  const Context_middle_width = useContext(middleWidthContext);
   const { middleWidth } = Context_middle_width;
 
   return (

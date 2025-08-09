@@ -9,6 +9,9 @@ body {
 
 :root {
   --marquee-container-width: 250px;
+  --background :  #18181b;
+  --mild-background: #27272a;
+  --text-color : white;
 }
 /* Vignette overlays */
 
@@ -33,6 +36,8 @@ body {
   }
 
 }
+
+
 
 /* @keyframes spotifybounce {
   0%, 100% {

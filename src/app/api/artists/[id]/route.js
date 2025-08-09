@@ -20,14 +20,22 @@ export async function GET(req, { params }) {
 
   // Populate songs (with album details) and albums (with their details)
   console.log(id)
+  // The way you are using .populate() here is incorrect: you are passing two 'populate' keys in the same object, which means only the last one will be used.
+  // To populate both 'artist' and 'album' for each song, use an array for the 'populate' key.
+  // Also, to get album data for each song, you must populate 'songs.album' with the fields you want.
+
   const artist = await Artist.findById(id)
     .populate({
       path: "songs",
-      populate: { path: "artist", select: "_id name image bio" }
+      populate: [
+        { path: "artist", select: "_id name image bio type" },
+        { path: "album", select: "_id name image" }
+      ]
     })
     .populate({
       path: "albums"
     });
+  // Now, for each song in artist.songs, the 'album' field will be populated with _id, name, and image.
 
     console.log(artist)
   if (!artist) {

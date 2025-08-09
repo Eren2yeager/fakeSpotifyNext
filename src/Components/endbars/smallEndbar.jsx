@@ -11,7 +11,6 @@ import { IoLibraryOutline, IoLibrary } from "react-icons/io5";
 import { GrAdd } from "react-icons/gr";
 
 import RectangularSongCard from "./RectangularSongCard";
-import { CURRENT_SONG_CONTEXT } from "@/Contexts/audio.controls.";
 import { usePlayer } from "@/Contexts/playerContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -104,8 +103,8 @@ const SmallEndbar = (props) => {
         </div>
 
         <div className="flex flex-col items-center">
-          <Link href="/playlists">
-            {isActive("/playlists") ? (
+          <Link href="/library">
+            {isActive("/library") ? (
               <IoLibrary className="text-2xl font-bold" />
             ) : (
               <IoLibraryOutline className="text-2xl font-bold" />

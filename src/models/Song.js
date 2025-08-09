@@ -6,7 +6,7 @@ import Album from "./Album.js";
 
 const songSchema = new mongoose.Schema(
   {
-    type: { type:String , default: "Song"},
+    type: { type: String, default: "Song" },
     name: { type: String, required: true },
     genre: String,
     image: String,
@@ -21,7 +21,7 @@ const songSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Album",
     },
-
+    views: { type: Number, default: 0 }, // Track number of views/plays
   },
   { timestamps: true }
 );

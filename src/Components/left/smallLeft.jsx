@@ -7,36 +7,57 @@ import { usePathname } from "next/navigation";
 import { showRightContext } from "../../Contexts/contexts";
 import { createPlaylistForUser } from "@/app/(protected)/actions/playlistActions";
 import CreatePlaylistPopup from "../popups/createPlaylistPopup";
-import { usePlaylists } from "@/Contexts/playlistsContext";
+import { useLibrary } from "@/Contexts/libraryContext";
 import { useRouter } from "next/navigation";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import AddButton from "../Helper/AddButton";
 const PlayCard = (props) => {
   const pathname = usePathname();
-  const router =useRouter()
+  const router = useRouter();
   const isActive = (route) => pathname === route;
+
+
+  const handleItemClick =  () => {
+
+    if(props.item.type == "Playlist"){
+      if (pathname !== `/playlists/${props.item._id}`) {
+        router.push(`/playlists/${props.item._id}`);
+      }
+    }else if(props.item.type == "Artist") {
+      if (pathname !== `/artists/${props.item._id}`) {
+        router.push(`/artists/${props.item._id}`);
+        }
+
+    }else if(props.item.type == "Album") {
+      if (pathname !== `/albums/${props.item._id}`) {
+        router.push(`/albums/${props.item._id}`);
+        }
+
+    }
+  };
+
+ 
+
+
+
   return (
-      <img
-        src={`${props.imageUrl}`}
-        className={`min-w-[60px] max-w-[60px] min-h-[60px] max-h-[60px] p-1 object-cover rounded-xl ${
-          isActive(`/playlists/${props.playlist_id}`)
-            ? " bg-zinc-800"
-            : " hover:bg-zinc-800"
-        }`}
-        alt={props.playlist_name}
-        title={props.playlist_name}
-        onClick={() => {
-          if(pathname !== `/playlists/${props.playlist_id}`){
-            router.push(`/playlists/${props.playlist_id}`);
-          }
-        }}
-      />
+    <img
+      src={`${props.item.image}`}
+      className={`min-w-[60px] max-w-[60px] min-h-[60px] max-h-[60px] p-1 object-cover  ${
+        isActive(`/playlists/${props.item._id}`)
+          ? " bg-zinc-800"
+          : " hover:bg-zinc-800"
+      }  ${props.item.type === "Artist" ? "rounded-full" : "rounded-md"}`}
+      alt={props.item.name}
+      title={props.item.name}
+      onClick={handleItemClick}
+    />
   );
 };
 
 const SmallLeft = (props) => {
-  const [activeIndex, setActiveIndex] = useState(null);
-  const { playlists, fetchPlaylists } = usePlaylists();
+  const [items, setItems] = useState(null);
+  const { library, fetchLibrary } = useLibrary();
   const ContextShowPlaylists = React.useContext(showPlaylistsContext);
   const ContextShowRight = React.useContext(showRightContext);
   // for scrolling effect
@@ -54,16 +75,36 @@ const SmallLeft = (props) => {
     }
   };
 
-
+  useEffect(() => {
+    fetchLibrary();
+    if (!items) {
+      setItems(library?.all);
+    } else if (props.activeItem === 1) {
+      setItems(library?.playlists);
+    } else if (props.activeItem === 2) {
+      setItems(library?.artists);
+    } else if (props.activeItem === 3) {
+      setItems(library?.albums);
+    }
+  }, []);
 
   useEffect(() => {
-    fetchPlaylists();
-  },[]);
-
+    if (props.activeItem === 0) {
+      setItems(library?.all);
+    } else if (props.activeItem === 1) {
+      setItems(library?.playlists);
+    } else if (props.activeItem === 2) {
+      setItems(library?.albums);
+    } else if (props.activeItem === 3) {
+      setItems(library?.artists);
+    }
+  }, [library,props.activeItem]);
 
   return (
-    <div className={`small-left  w-[75px] h-[100%] bg-zinc-900 rounded-xl overflow-hidden`}>
-      {playlists && (
+    <div
+      className={`small-left  w-[75px] h-[100%] bg-zinc-900 rounded-xl overflow-hidden`}
+    >
+      {library && (
         <>
           <div
             className=" flex flex-col  justify-center  items-center  gap-3  w-[100%] h-[100px] p-2 transition-all duration-300  top-0 z-30 "
@@ -89,27 +130,24 @@ const SmallLeft = (props) => {
               </svg>
             </div>
 
-            <AddButton tailwindBg={"bg-zinc-800"}/>
+            <AddButton tailwindBg={"bg-zinc-800"} />
           </div>
 
           <div
             className="relative  max-h-full overflow-y-auto px-1 pb-30 "
             onScroll={handleScroll}
           >
-            {playlists?.map((playlist, index) => (
+            {items?.map((item, index) => (
               <div
                 key={index}
                 onClick={() => {
-                  setActiveIndex(index);
-                  console.log(playlists[index]);
+                  console.log(items[index]);
                 }}
               >
                 <PlayCard
                   key={index}
                   index={index}
-                  imageUrl={playlist.image || "/images/notfound.png"}
-                  playlist_name={playlist.name}
-                  playlist_id={playlist._id}
+                  item = {item}
                 ></PlayCard>
               </div>
             ))}

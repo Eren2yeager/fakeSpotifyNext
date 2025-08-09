@@ -1,0 +1,32 @@
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { connectDB } from "@/lib/mongoose";
+import User from "@/models/User";
+
+export async function DELETE(req, { params }) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+
+    await connectDB();
+    const { id } =await params;
+    const artistId = id;
+
+    // Remove the artist from the user's library.artists array
+    const result = await User.updateOne(
+      { email: session.user.email },
+      { $pull: { "library.artists": { artist: artistId } } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return new Response("Artist not found in library", { status: 404 });
+    }
+
+    return new Response(null, { status: 204 });
+  } catch (error) {
+    console.error("❌ Failed to remove artist from library:", error);
+    return new Response("Server Error", { status: 500 });
+  }
+}

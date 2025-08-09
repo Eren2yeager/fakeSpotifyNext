@@ -11,8 +11,11 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useUser } from "@/Contexts/userContex";
+import { useRouter } from "next/navigation";
+import ProfileCircle from "./Helper/profileCircle";
 const Navbar = memo(() => {
   const pathname = usePathname();
+  const router = useRouter();
   const ContextFullScreen = useContext(ToggleFullScreenContext);
   const { searchedText, setSearchedText } = useContext(
     GLOWAL_SEARCH_TEXT_CONTEXT
@@ -102,18 +105,20 @@ const Navbar = memo(() => {
           alt="notification-icon"
           className="notification-icon w-7 h-7 py-1 px-1 invert rounded-3xl cursor-pointer hover:bg-zinc-300 transition duration-300 hidden sm:block"
         />
-        <Link href="/profile" onClick={handleExitFullScreen}>
-          <div className="relative w-10 h-10 sm:flex items-center justify-center hidden sm:block cursor-pointer">
-            <div className="absolute inset-0 rounded-full bg-gray-600 opacity-40"></div>
-            {userProfile?.image && (
-              <img
-                src={userProfile?.image || session.user?.image || "/images/user.jpg"}
-                alt={userProfile?.name}
-                className=" relative max-w-7 max-h-7 min-w-7 min-h-7 brightness-110 rounded-full"
-              />
-            )}
-          </div>
-        </Link>
+
+        <div className="relative w-10 h-10 flex items-center justify-center  cursor-pointer">
+          <div className="absolute inset-0 rounded-full bg-gray-600 opacity-40"></div>
+
+          <ProfileCircle
+            image={
+              userProfile?.image || session.user?.image || "/images/user.jpg"
+            }
+            onClick={() => {
+              handleExitFullScreen();
+              router.push(`/profiles/${session.user._id}`);
+            }}
+          />
+        </div>
       </div>
     </header>
   );

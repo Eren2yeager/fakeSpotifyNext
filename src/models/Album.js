@@ -5,6 +5,7 @@ const albumSchema = new mongoose.Schema({
   type: { type:String , default: "Album"},
   specialtype: { type:String , default: "Album"},
   name: { type: String, required: true },
+  description: { type: String},
   image: { type: String ,default: "/images/notfound.png" },
   artist: {
     type: mongoose.Schema.Types.ObjectId,
@@ -12,7 +13,7 @@ const albumSchema = new mongoose.Schema({
     required: true
   },
   songs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Song" }],
-  releaseDate: { type: Date },
+  releaseDate: { type: Date , default: Date.now },
 
 }, { timestamps: true });
 

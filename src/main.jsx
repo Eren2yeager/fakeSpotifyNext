@@ -2,21 +2,16 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import {
   ToggleFullScreenContext,
-  audioRefContext,
   showRightContext,
-  isPlayingContext,
   imagePreviewContext,
   showPlaylistsContext,
-  middleWidthContex,
+  middleWidthContext,
 } from "./Contexts/contexts.js";
-import {
-  currentTimeContext,
-  durationContext,
-} from "@/Contexts/audio.controls..js";
+
 import { PlayerProvider } from "@/Contexts/playerContext.jsx";
 
 import { GLOWAL_SEARCH_TEXT_CONTEXT } from "@/Contexts/search.controls.js";
-import { PlaylistsProvider } from "./Contexts/playlistsContext.jsx";
+import { LibraryProvider } from "./Contexts/libraryContext.jsx";
 import { SpotifyToastProvider } from "./Contexts/SpotifyToastContext.jsx";
 import { UserProvider } from "./Contexts/userContex.jsx";
 const BodyToRender = ({ children }) => {
@@ -36,10 +31,9 @@ const BodyToRender = ({ children }) => {
   return (
     <SpotifyToastProvider>
       <UserProvider>
-        <audioRefContext.Provider value={ContextAudioRef}>
-          <isPlayingContext.Provider value={{ isPlaying, setisPlaying }}>
+
             <PlayerProvider>
-              <PlaylistsProvider>
+              <LibraryProvider>
                 <ToggleFullScreenContext.Provider
                   value={{ toggleFullScreen, settoggleFullScreen }}
                 >
@@ -50,31 +44,24 @@ const BodyToRender = ({ children }) => {
                       <showRightContext.Provider
                         value={{ showRight, setShowRight }}
                       >
-                        <durationContext.Provider
-                          value={{ duration, setDuration }}
-                        >
-                          <currentTimeContext.Provider
-                            value={{ currentTime, setCurrentTime }}
-                          >
+        
                             <GLOWAL_SEARCH_TEXT_CONTEXT.Provider
                               value={{ searchedText, setSearchedText }}
                             >
-                              <middleWidthContex.Provider
+                              <middleWidthContext.Provider
                                 value={{ middleWidth, setMiddleWidth }}
                               >
                                 {children}
-                              </middleWidthContex.Provider>
+                              </middleWidthContext.Provider>
                             </GLOWAL_SEARCH_TEXT_CONTEXT.Provider>
-                          </currentTimeContext.Provider>
-                        </durationContext.Provider>
+                      
                       </showRightContext.Provider>
                     </showPlaylistsContext.Provider>
                   </imagePreviewContext.Provider>
                 </ToggleFullScreenContext.Provider>
-              </PlaylistsProvider>
+              </LibraryProvider>
             </PlayerProvider>
-          </isPlayingContext.Provider>
-        </audioRefContext.Provider>
+
       </UserProvider>
     </SpotifyToastProvider>
   );

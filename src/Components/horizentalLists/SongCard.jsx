@@ -1,17 +1,17 @@
+"use client"
+
 import React, { useContext, useState } from "react";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
-import { isPlayingContext, audioRefContext } from "@/Contexts/contexts";
 import { usePlayer } from "@/Contexts/playerContext";
 
 const SongCard = (props) => {
-  const Context_isPlaying = useContext(isPlayingContext);
-  const { handlePlayFromType, conditionCheckForSong } = usePlayer();
+  const { handlePlayFromType, conditionCheckForSong , isPlaying} = usePlayer();
   const conditionCheck = conditionCheckForSong(props.item);
   return (
     <div className="p-2 rounded-[5px] group hover:bg-white/8 cursor-pointer transition-all duration-300 relative active:bg-white/15">
-      <div className=" w-[120px] sm:w-[180px]  overflow-hidden  m-1  ">
-        <div className="w-[100%] h-[120px] sm:h-[180px] ">
+      <div className=" w-[95px] sm:w-[150px]  overflow-hidden  m-1  ">
+        <div className="w-[100%] h-[95px] sm:h-[150px] ">
           <img
             className="w-[100%] h-[100%] object-cover rounded-[5px]  shadow-lg shadow-gray-950"
             src={`${props.item.image || "/images/notfound.png"}`}
@@ -35,18 +35,19 @@ const SongCard = (props) => {
         </div>
         <span
           className={`p-3  rounded-full bg-green-500  absolute ${
-            conditionCheck && Context_isPlaying.isPlaying
+            conditionCheck && isPlaying
               ? "bottom-[30%]"
               : "bottom-0 opacity-0"
           }  right-[15%]  group-hover:bottom-[30%] group-hover:opacity-100 transition-all duration-300 active:transform-[scale(0.95)]`}
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation()
             handlePlayFromType(props.item);
           }}
         >
           <span>
             {/* <IoIosPlay className='text-3xl pl-1  invert'/> */}
             <span>
-              {conditionCheck && Context_isPlaying.isPlaying ? (
+              {conditionCheck && isPlaying ? (
                 <IoIosPause className="text-3xl  text-black cursor-pointer" />
               ) : (
                 <IoIosPlay className="text-3xl pl-0.5 text-black cursor-pointer" />

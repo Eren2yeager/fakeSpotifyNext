@@ -16,7 +16,7 @@ function Home() {
 
   useEffect(async () => {
     setLoading(true)
-    await fetch("http://localhost:5000/api/songs")
+    await fetch("/api/library/playlists")
      .then(res => {
        if (!res.ok) {
          throw new Error("Failed to fetch playlists");

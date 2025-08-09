@@ -25,6 +25,7 @@ const fetchUserData = async (userId) => {
 
   if (!res.ok) throw new Error("Failed to fetch user");
   const data = await res.json();
+
   return data.user;
 };
 
@@ -41,6 +42,7 @@ const fetchUserData = async (userId) => {
   
     if (!res.ok) throw new Error("Failed to fetch user");
     const data = await res.json();
+    console.log(data.user)
     setUserProfile(data.user)
     return data.user;
   };

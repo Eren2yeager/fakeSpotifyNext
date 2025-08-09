@@ -1,10 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import { audioRefContext, isPlayingContext } from "../../Contexts/contexts";
-import AudioComponent from "../audioComponents/AudioComponent";
-import {
-  durationContext,
-  currentTimeContext,
-} from "../../Contexts/audio.controls.";
+
 
 import LiveSeekbar from "../audioComponents/LiveSeekbar";
 
@@ -14,47 +9,46 @@ import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
 import { MdSkipNext } from "react-icons/md";
 import { BsRepeat } from "react-icons/bs";
+import { BsRepeat1 } from "react-icons/bs";
 import AudioVisualizer from "../audioComponents/AudioVisulizer";
-
+import { usePlayer } from "@/Contexts/playerContext";
 const EndMiddle = (props) => {
-  const ContextAudioRef = useContext(audioRefContext);
-  const ContextisPlaying = useContext(isPlayingContext);
 
-  const [toggleShuffle, setToggleShuffle] = useState(false);
-  const [toggleRepeat, setToggleRepeat] = useState(false);
-
+  const { 
+    currentSong, isPlaying, setIsPlaying, durationRef, currentTimeRef, audioRef,
+    isShuffling, repeatMode, toggleShuffle, cycleRepeat, nextTrack, prevTrack
+  } = usePlayer();
   const handlePlayPause = () => {
-    if (ContextisPlaying.isPlaying) {
-      ContextAudioRef.current.pause();
-    } else {
-      ContextAudioRef.current.play();
+    if (currentSong) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
     }
-    ContextisPlaying.setisPlaying(!ContextisPlaying.isPlaying);
   };
 
   return (
     <>
       <div className="flex flex-col justify-center gap-5 sm:gap-2 py-2 items-center w-[100%] ">
         <div className="w-full  sm:hidden">
-
-           <LiveSeekbar showTime ={true} />
+          <LiveSeekbar showTime={true} />
         </div>
         <div className="up flex gap-8 items-center w-full sm:w-fit justify-around">
           <RxShuffle
             className={`text-xl  cursor-pointer ${
-              toggleShuffle
+              isShuffling
                 ? `text-green-400 `
                 : `text-gray-400 hover:animate-pulse `
             } transition-all duration-300`}
-            onClick={() => {
-              setToggleShuffle(!toggleShuffle);
-              setToggleRepeat(false);
-            }}
+            onClick={toggleShuffle}
             title="Shuffle"
           />
           <MdSkipPrevious
             className="text-4xl sm:text-3xl  text-gray-400  hover:animate-pulse transition-all duration-300  cursor-pointer"
             title="Previous"
+            onClick={prevTrack}
           />
           <span className="text-2xl font-bold text-center">
             <span
@@ -62,7 +56,7 @@ const EndMiddle = (props) => {
               onClick={handlePlayPause}
             >
               <span>
-                {ContextisPlaying.isPlaying ? (
+                {isPlaying ? (
                   <IoIosPause
                     className=" text-black self-center text-5xl sm:text-2xl  "
                     title="Pause"
@@ -79,28 +73,24 @@ const EndMiddle = (props) => {
           <MdSkipNext
             className="text-4xl sm:text-3xl  text-gray-400  hover:animate-pulse transition-all duration-100  cursor-pointer"
             title="Next"
+            onClick={nextTrack}
           />
           <BsRepeat
             className={`text-xl  cursor-pointer ${
-              toggleRepeat
+              repeatMode !== "off"
                 ? `text-green-400 `
                 : `text-gray-400 hover:animate-pulse `
             }  transition-all duration-300`}
-            onClick={() => {
-              setToggleRepeat(!toggleRepeat);
-              setToggleShuffle(false);
-            }}
-            title="Repeat"
+            onClick={cycleRepeat}
+            title={`Repeat ${repeatMode === "all" ? "All" : repeatMode === "one" ? "One" : "Off"}`}
           />
         </div>
         <div className="w-full hidden sm:block">
-
-           <LiveSeekbar  showTime ={true} width="w-[60%]" />
-
+          <LiveSeekbar showTime={true} width="w-[60%]" />
         </div>
       </div>
 
-    {/* this is glowal audio component that will serve its current time and duration for all other seekbars */}
+      {/* this is glowal audio component that will serve its current time and duration for all other seekbars */}
       {/* if this component renders it will affect the audio component */}
     </>
   );

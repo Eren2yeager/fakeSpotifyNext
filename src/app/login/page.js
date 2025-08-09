@@ -37,12 +37,7 @@ import { FaGithub, FaGoogle } from "react-icons/fa";
           <FaGithub />
           Continue with GitHub
         </button>
-        <button
-          onClick={() => signOut()}
-          className="flex items-center gap-3 px-6 py-3 w-full justify-center bg-[#333] text-white rounded-full font-semibold hover:scale-105 transition-transform"
-        >
-          signOut           
-        </button>
+
 
 
       </div>

@@ -2,8 +2,7 @@ import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   ToggleFullScreenContext,
   showRightContext,
-  isPlayingContext,
-  audioRefContext,
+
   showPlaylistsContext,
 } from "../../Contexts/contexts";
 import LiveSeekbar from "../audioComponents/LiveSeekbar";
@@ -18,23 +17,21 @@ import MarqueeDiv from "/src/Components/Helper/marquee";
 import TickOrAdd from "../Helper/TickOrAdd";
 
 import { useTransition } from "react";
-
+import { usePlayer } from "@/Contexts/playerContext";
 const RectangularSongCard = (props) => {
   const ContextFullScreen = useContext(ToggleFullScreenContext);
   const ContextShowRight = useContext(showRightContext);
   const ContextShowPlaylists = useContext(showPlaylistsContext);
-  const ContextisPlaying = useContext(isPlayingContext);
-  const ContextAudioRef = useContext(audioRefContext);
-
+  const { currentSong,  context, play , isPlaying , setIsPlaying ,audioRef} = usePlayer();
   const handlePlayPause = (e) => {
     e.stopPropagation();
 
-    if (ContextisPlaying.isPlaying) {
-      ContextAudioRef.current.pause();
+    if (isPlaying) {
+      audioRef.current.pause();
     } else {
-      ContextAudioRef.current.play();
+      audioRef.current.play();
     }
-    ContextisPlaying.setisPlaying(!ContextisPlaying.isPlaying);
+    setIsPlaying(!isPlaying);
   };
 
   const handleClick = () => {
@@ -64,7 +61,7 @@ const RectangularSongCard = (props) => {
         style={{ background: `${props.bgColor}` }}
       >
         <div
-          className={`playlist-card flex ${props.className} items-center bg-gradient-to-tr w-[100%] p-1 `}
+          className={`playlist-card flex ${props.className} items-center bg-gradient-to-tr max-w-[100%] p-1 `}
         >
           <div className="max-w-[80%] flex justify-start items-center">
             <div className="group min-w-[50px] h-[50px] bg-zinc-900 rounded-lg relative">
@@ -99,7 +96,7 @@ const RectangularSongCard = (props) => {
                   <MarqueeDiv text={props.song?.name || ""} />
 
                   <MarqueeDiv
-                    text={props.song?.artist.name || ""}
+                    text={props.song?.artist?.name || ""}
                     className="text-[0.8em] opacity-70 "
                   />
                 </>
@@ -109,14 +106,14 @@ const RectangularSongCard = (props) => {
                     {props.song?.name || "prop not provided"}
                   </div>
                   <div className="max-w-[100%] justify-start text-[14px] truncate">
-                    {props.song?.artist.name || "prop not provided"}
+                    {props.song?.artist?.name || "prop not provided"}
                   </div>
                 </>
               )}
             </div>
           </div>
 
-          <div className="min-w-[100px]  flex gap-5 justify-center items-center p-3">
+          <div className="max-w-[20%]  flex gap-2 justify-between items-center p-2">
             {/* show add to library button */}
             {(props.showAddTolibraryButton && props.song) && (
                   <TickOrAdd song={props.song}/>
@@ -124,9 +121,9 @@ const RectangularSongCard = (props) => {
 
             {/* show play button */}
             {props.showPlayButton && (
-              <div className="block sm:hidden">
-                <span className="cursor-pointer" onClick={handlePlayPause}>
-                  {ContextisPlaying.isPlaying ? (
+
+                <span className="cursor-pointer block sm:hidden" onClick={handlePlayPause}>
+                  {isPlaying ? (
                     <IoIosPause
                       className=" text-white self-center text-4xl "
                       title="Pause"
@@ -138,7 +135,6 @@ const RectangularSongCard = (props) => {
                     />
                   )}
                 </span>
-              </div>
             )}
           </div>
         </div>

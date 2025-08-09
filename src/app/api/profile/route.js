@@ -5,6 +5,8 @@ import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
 import cloudinary from "@/lib/cloudinary";
+
+
 export async function POST(req) {
   const session = await getServerSession(authOptions);
   if (!session?.user)
@@ -18,13 +20,51 @@ export async function POST(req) {
     const userId = formData.get("userId");
 
     await connectDB();
-    const user = await User.findById(userId);
+    // Populate 'followers' and 'following' with user info (id, name, image)
+    // Yes, you are doing it right! This code finds the user by ID and populates the followers and following fields with the specified user info.
+    const user = await User.findById(userId)
+      .populate({ path: 'followers.users', select: '_id type name image' })
+      .populate({ path: 'followers.artists', select: '_id type name image' })
+      .populate({ path: 'following.users', select: '_id type name image' })
+      .populate({ path: 'following.artists', select: '_id type name image' })
+
+
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ user });
+    // Get public playlists and populate songs and createdBy
+    // user.library.playlists is an array of { playlist, added }
+    // We want to get the actual Playlist documents for public playlists
+    // and populate their songs and createdBy
+
+    // Import Playlist model here to avoid circular import issues
+    const Playlist = (await import('@/models/Playlist')).default;
+
+    // Get all playlist IDs from user's library
+    const playlistIds = user.library?.playlists?.map(pl => pl.playlist) || [];
+
+    // Find public playlists
+    const publicPlaylists = await Playlist.find({
+      _id: { $in: playlistIds },
+      isPublic: true
+    })
+      .populate({
+        path: 'songs',
+        populate: { path: 'artist album', select: '_id name image fileUrl' }
+      })
+      .populate({
+        path: 'createdBy',
+        select: '_id name image type'
+      });
+
+    // Attach publicPlaylists to user object for response
+    // (convert user toObject to allow adding new property)
+    const userObj = user.toObject();
+    userObj.publicPlaylists = publicPlaylists;
+
+    return NextResponse.json({ user: userObj });
   }
 
   // for edit profile

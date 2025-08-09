@@ -5,7 +5,6 @@ import {
   showPlaylistsContext
 } from "../../Contexts/contexts";
 
-import { audioRefContext } from "../../Contexts/contexts";
 
 import { MdLyrics } from "react-icons/md";
 import { MdOutlineLyrics } from "react-icons/md";
@@ -17,25 +16,23 @@ import { GoScreenFull } from "react-icons/go";
 import { GoScreenNormal } from "react-icons/go";
 import { HiQueueList } from "react-icons/hi2";
 import { HiOutlineQueueList } from "react-icons/hi2";
-
+import { usePlayer } from "@/Contexts/playerContext";
 import CustomInputRange from "../Helper/customInputRange";
 
 const EndRight = () => {
   const [sliderValue, setsliderValue] = useState(100);
   const [toggleLyrics, settoggleLyrics] = useState(false);
-  const [toggleQueue, settoggleQueue] = useState(false);
   const ContextFullScreen = useContext(ToggleFullScreenContext);
-  const ContextAudioRef = useContext(audioRefContext);
   const ContextShowRight = useContext(showRightContext);
   const ContextShowPlaylists = useContext(showPlaylistsContext);
-
+  const {openQueue, setOpenQueue ,audioRef} = usePlayer();
   const [localValue, setLocalValue] = useState(0);
 
   const handleVolumeChange = (value) => {
     setsliderValue(value);
     const newVolume = value / 500;
-    if (ContextAudioRef.current) {
-      ContextAudioRef.current.volume = newVolume;
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
     }
   };
 
@@ -44,8 +41,8 @@ const EndRight = () => {
   const handleClick = () => {
     setsliderValue(sliderValue > 0 ? 0 : 100);
     const newVolume = parseInt(sliderValue > 0 ? 0 : 100, 10) / 100;
-    if (ContextAudioRef.current) {
-      ContextAudioRef.current.volume = newVolume;
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
     }
   };
   const handleFullScreen = () => {
@@ -61,6 +58,18 @@ const EndRight = () => {
       ContextFullScreen.settoggleFullScreen(
         !ContextFullScreen.toggleFullScreen
       );
+
+    }
+  };
+  const handleOpenQueue = () => {
+    if (ContextShowRight.showRight) {
+      setOpenQueue(!openQueue);
+    } else {
+      ContextShowRight.setShowRight(true);
+      if(window.innerWidth <= 1280){
+        ContextShowPlaylists.setShowPlaylists(false)
+      }
+      setOpenQueue(!openQueue);
 
     }
   };
@@ -86,21 +95,17 @@ const EndRight = () => {
           />
         )}
 
-        {toggleQueue ? (
+        {openQueue ? (
           <HiQueueList
             className="text-xl cursor-pointer"
             title="Queue"
-            onClick={() => {
-              settoggleQueue(!toggleQueue);
-            }}
+            onClick={handleOpenQueue}
           />
         ) : (
           <HiOutlineQueueList
             className="text-xl cursor-pointer"
             title="Queue"
-            onClick={() => {
-              settoggleQueue(!toggleQueue);
-            }}
+            onClick={handleOpenQueue}
           />
         )}
       </div>

@@ -2,7 +2,7 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
-import { imagePreviewContext, middleWidthContex } from "@/Contexts/contexts";
+import { imagePreviewContext, middleWidthContext } from "@/Contexts/contexts";
 import { useParams } from "next/navigation";
 import { FaRegClock } from "react-icons/fa";
 import { IoAddOutline } from "react-icons/io5";
@@ -10,24 +10,28 @@ import { FaArrowLeft } from "react-icons/fa6";
 
 import { RiSearchLine } from "react-icons/ri";
 import { usePlayer } from "@/Contexts/playerContext";
-import { audioRefContext, isPlayingContext } from "@/Contexts/contexts";
 import MiddlePlaylistSongCard from "@/Components/playlistCards/middlePlaylistSongCard";
 import SuggestBgColor from "@/functions/bgSuggester";
 import { useRouter } from "next/navigation";
 import EditPlaylistModal from "@/Components/popups/updatePlaylistModel";
 import { PiNotePencil } from "react-icons/pi";
-import { usePlaylists } from "@/Contexts/playlistsContext";
+import { useLibrary } from "@/Contexts/libraryContext";
 import AudioVisulizer from "@/Components/audioComponents/AudioVisulizer";
 import NotFound from "@/Components/Helper/not-found";
 import { useSession } from "next-auth/react";
 import ThreeDotsLoader from "@/Components/Helper/ThreeDotsLoader";
 import { useUser } from "@/Contexts/userContex";
+import ProfileCircle from "@/Components/Helper/profileCircle";
+import SavePlaylistButton from "@/Components/playlistsComponents/saveButton";
+import valueFormator from "@/functions/valueFormator";
+import AlbumPlaylistThreeDots from "@/Components/Helper/AlbumPlaylistThreeDots";
 const MiddlePlaylistView = () => {
   const router = useRouter();
   const { data: session } = useSession();
-  const { playlists } = usePlaylists();
-  const Context_isPlaying = useContext(isPlayingContext);
-  const Context_middle_width = useContext(middleWidthContex);
+  const { library } = useLibrary();
+  const [isUpdated, setIsUpdated] = useState(false);
+
+  const Context_middle_width = useContext(middleWidthContext);
   const { middleWidth } = Context_middle_width;
   const { fetchCurrentUserProfile, userProfile } = useUser();
 
@@ -44,6 +48,7 @@ const MiddlePlaylistView = () => {
 
   const [isFetching, setisFetching] = useState(true);
   useEffect(() => {
+    setIsUpdated(false);
     if (!userProfile) {
       fetchCurrentUserProfile();
     }
@@ -74,7 +79,7 @@ const MiddlePlaylistView = () => {
       .catch((err) => {
         console.error("❌ Error fetching playlists:", err);
       });
-  }, [slug, playlists]);
+  }, [slug, library, isUpdated]);
 
   const handleIconClick = () => {
     setShowInput(true);
@@ -142,7 +147,7 @@ const MiddlePlaylistView = () => {
   // for hovering show playbutton
 
   // to play the song from playlist or just a song
-  const { handlePlayFromType, conditionCheckForSong } = usePlayer();
+  const { handlePlayFromType, conditionCheckForSong , isPlaying ,setIsPlaying} = usePlayer();
 
   // it will tell the what is currenty playlist
   const conditionCheck = conditionCheckForSong(playlist);
@@ -166,19 +171,20 @@ const MiddlePlaylistView = () => {
           className={`scroll-container  relative w-[100%] h-[100%] rounded-xl  overflow-y-auto text-white bg-zinc-900`}
           onScroll={handleScroll}
         >
-          { !playlist?.specialtype && (
-            <EditPlaylistModal
-              open={isModalOpen}
-              playlist={playlist}
-              onClose={() => setIsModalOpen(false)}
-            />
-          )}
+          {!playlist?.specialtype &&
+            playlist?.createdBy._id === userProfile?._id && (
+              <EditPlaylistModal
+                open={isModalOpen}
+                playlist={playlist}
+                onClose={() => setIsModalOpen(false)}
+              />
+            )}
           <div className=" w-[100%]   rounded-xl flex flex-col">
             <div
               className={`transition-all duration-300   w-[100%] z-11  flex  ${
                 middleWidth > 640
-                  ? "flex-row justify-start h-[250px] "
-                  : "flex-col  items-center justify-end h-[300px]"
+                  ? "flex-row justify-start"
+                  : "flex-col  items-center justify-end"
               }    p-5 gap-3 overflow-hidden shadow-lg shadow-black/35 `}
               style={{ background: `${bgColor || "transparent"}` }}
             >
@@ -198,7 +204,8 @@ const MiddlePlaylistView = () => {
                     ? "min-w-[150px]   max-w-[150px] h-[150px]"
                     : middleWidth > 640 && middleWidth < 1024
                     ? "min-w-[170px] max-w-[170px] h-[170px]  self-end"
-                    : middleWidth > 1024 && "min-w-[200px] h-[200px] self-end"
+                    : middleWidth > 1024 &&
+                      "min-w-[200px] h-[200px] max-w-[200px]   self-end"
                 } relative group overflow-hidden rounded-xl shadow-lg shadow-black`} // className={`${middleWidth <= 640 ? "w-[150px] h-[150px]" :  " min-w-[170px] h-[170px]"} xl:min-w-[200px] min-h-[200px]  relative group`}
                 onClick={() => {
                   setIsModalOpen(true);
@@ -207,16 +214,17 @@ const MiddlePlaylistView = () => {
                 <img
                   src={playlist?.image || `/images/notfound.png`}
                   alt="playlist-img"
-                  className={`w-full h-full object-cover rounded-xl  cursor-pointer `}
+                  className={`max-w-full max-h-full min-w-full min-h-full  object-cover rounded-xl  cursor-pointer `}
                 />
-                {!playlist?.specialtype && (
-                  <div className="w-[100%] h-[100%] hover:flex  absolute top-0 right-0 hidden group-hover:block rounded-xl  hover:bg-black/45 cursor-pointer">
-                    <PiNotePencil
-                      className="mx-auto my-auto brightness-150 text-white"
-                      size={50}
-                    />
-                  </div>
-                )}
+                {!playlist?.specialtype &&
+                  playlist?.createdBy._id === userProfile?._id && (
+                    <div className="w-[100%] h-[100%] hover:flex  absolute top-0 right-0 hidden group-hover:block rounded-xl  hover:bg-black/45 cursor-pointer">
+                      <PiNotePencil
+                        className="mx-auto my-auto brightness-150 text-white"
+                        size={50}
+                      />
+                    </div>
+                  )}
               </div>
               {/* ______________________________________________________________________________________________________________________________________________ */}
               <div
@@ -231,6 +239,9 @@ const MiddlePlaylistView = () => {
                     middleWidth > 640 ? "block" : "hidden"
                   }`}
                 >
+                  {" "}
+                  {playlist.isPublic ? "Public" : "Private"}
+                  &nbsp;
                   {playlist?.type}
                 </p>
                 <p
@@ -249,36 +260,78 @@ const MiddlePlaylistView = () => {
                 >
                   {playlist?.name || ""}
                 </p>
-                <div className="font-sans flex  gap-1  max-w-full truncate">
-                  <span className={``}>
-                    {playlist ? (
-                      <div className="flex items-center">
-                        <img
-                          src={
-                            userProfile?.image ||
-                            session.user?.image ||
-                            "/images/user.jpg"
-                          }
-                          alt={userProfile?.name || session.user?.name}
-                          title={userProfile?.name || session.user?.name}
-                          className=" max-w-6 max-h-6 min-w-6 min-h-6 rounded-full"
-                        />
-                        <span className="font-bold text-white">
-                          &nbsp;{userProfile?.name || session.user?.name}{" "}
-                        </span>
-                      </div>
-                    ) : (
-                      ""
-                    )}
-                  </span>
+
+                {!playlist.specialtype && (
+                  <p
+                    className={`${
+                      middleWidth < 640 ? "text-sm" : ""
+                    } text-sm font-sans font-semibold text-white/50 text-balance   max-w-[100%] overflow-hidden text-ellipsis break-words truncate transition-all duration-300 `}
+                    style={{
+                      display: "-webkit-box",
+                      WebkitBoxOrient: "vertical",
+                      WebkitLineClamp: 2,
+                    }}
+                  >
+                    {playlist?.description || ""}
+                  </p>
+                )}
+
+                <div className={`${middleWidth > 640 ? "hidden" : ""}`}>
+                  {playlist ? (
+                    <ProfileCircle
+                      image={playlist?.createdBy.image || "/images/user.jpg"}
+                      text={playlist?.createdBy?.name}
+                      onClick={() => {
+                        router.push(
+                          `/profiles/${
+                            playlist.createdBy._id || playlist.createdBy
+                          }`
+                        );
+                      }}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </div>
+                <div className="font-sans flex  gap-1 items-center  max-w-full truncate">
+                  {playlist ? (
+                    <div className={`${middleWidth < 640 ? "hidden" : ""}`}>
+                      <ProfileCircle
+                        image={playlist?.createdBy.image || "/images/user.jpg"}
+                        text={playlist?.createdBy?.name}
+                        onClick={() => {
+                          router.push(
+                            `/profiles/${
+                              playlist.createdBy._id || playlist.createdBy
+                            }`
+                          );
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    ""
+                  )}
                   <span
                     className={`font-sans transition-all duration-300  ${
                       middleWidth > 640 ? "hidden" : ""
                     }`}
                   >
-                    {playlist?.type !== undefined ? ` • ${playlist?.type}` : ""}
+                    {playlist?.type !== undefined
+                      ? `${playlist.isPublic ? "Public" : "Private"} ${
+                          playlist?.type
+                        }`
+                      : ""}
                   </span>
 
+                  {playlist.isPublic && (
+                    <span className="opacity-80">
+                      {playlist?.savedBy?.length
+                        ? playlist.savedBy.length == 1
+                          ? ` • ${valueFormator(playlist.savedBy.length)} save`
+                          : ` • ${valueFormator(playlist.savedBy.length)} saves`
+                        : ""}
+                    </span>
+                  )}
                   <span className="opacity-80">
                     {playlist?.songs?.length
                       ? playlist.songs.length == 1
@@ -316,7 +369,7 @@ const MiddlePlaylistView = () => {
                       }}
                     >
                       <span>
-                        {conditionCheck && Context_isPlaying.isPlaying ? (
+                        {conditionCheck && isPlaying ? (
                           <IoIosPause className="text-3xl  text-black cursor-pointer" />
                         ) : (
                           <IoIosPlay className="text-3xl pl-0.5 text-black cursor-pointer" />
@@ -324,10 +377,35 @@ const MiddlePlaylistView = () => {
                       </span>
                     </div>
                     {scrolled && (
-                      <p className="font-bold font-sans text-xl px-3 mr-auto">
+                      <p className="font-bold font-sans text-xl px-3 mr-auto max-w-full truncate">
                         {playlist.name || "Playlist"}
                       </p>
                     )}
+
+                    <p
+                      className={`font-bold font-sans text-xl px-3 mr-auto max-w-full truncate ${
+                        scrolled ? "hidden" : ""
+                      }`}
+                    >
+                      {playlist?.createdBy._id !== session.user._id &&
+                        playlist?.isPublic == true && (
+                          <SavePlaylistButton
+                            id={playlist._id}
+                            onUpdate={() => {
+                              setIsUpdated(true);
+                            }}
+                          />
+                        )}
+                    </p>
+
+                    <p
+                      className={`font-bold font-sans text-xl px-3 mr-auto max-w-full truncate ${
+                        scrolled ? "hidden" : ""
+                      }`}
+                    >
+    <AlbumPlaylistThreeDots item={playlist} type={playlist.type} />
+                      
+                    </p>
 
                     <div className="max-w-[200px] flex   items-center justify-start backdrop-blur-3xl bg-white/8   transition-all duration-300  rounded-full h-10 border-2 border-transparent  cursor-pointer ">
                       <RiSearchLine
@@ -455,11 +533,12 @@ const MiddlePlaylistView = () => {
                           id: playlist._id,
                           name: playlist.name,
                         }}
-                        allSongs={playlist.songs}
+                        allSongs={playlist.songs.map(s => s.song)}
                         titleWidth={titleWidth}
                         albumWidth={albumWidth}
                         dateAddedWidth={dateAddedWidth}
                         playlistId={playlist._id}
+                        playlistCreaterId={playlist?.createdBy._id}
                       />
                     </div>
                   ))}

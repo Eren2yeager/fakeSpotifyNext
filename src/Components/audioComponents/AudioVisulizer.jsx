@@ -46,7 +46,6 @@ const AudioVisualizer = () => {
         src="https://eren2yeager.github.io/songs/audios/Legends%20Never%20Die%20(ft.%20Against%20The%20Current)%20%EF%BD%9C%20Worlds%202017%20-%20League%20of%20Legends%20(1).mp3"
         controls
         className="mb-4"
-        autoPlay
       />
       <div className="flex items-end h-32 gap-1 w-full max-w-xl">
         {bars.map((value, index) => (

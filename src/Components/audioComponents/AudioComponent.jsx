@@ -11,7 +11,7 @@ const AudioComponent = () => {
   const ContextShowPlaylists= useContext(showPlaylistsContext)
   
 
-  const { currentSong, isPlaying , setIsPlaying , durationRef , currentTimeRef , audioRef, nextTrack, context} = usePlayer();
+  const { currentSong, isPlaying , setIsPlaying , durationRef , currentTimeRef , audioRef, nextTrack, context, positionSec} = usePlayer();
   const { data: session } = useSession();
   
 
@@ -22,40 +22,49 @@ const AudioComponent = () => {
     durationRef.current = (audioRef.current?.duration);
   
     if (audioRef.current) {
-      audioRef.current
-        .play()
-        .then(() => {
-          ContextShowRight.setShowRight(true);
-          if(window.innerWidth <= 1280){
-            ContextShowPlaylists.setShowPlaylists(false)
-          }
-         setIsPlaying(true); // ✅ only after successful play
-         
-         // Record song in recents
-         if (session && currentSong) {
-           try {
-             fetch("/api/recents", {
-               method: "POST",
-               headers: { "Content-Type": "application/json" },
-               body: JSON.stringify({
-                 entityType: "Song",
-                 entityId: currentSong._id,
-                 songId: currentSong._id,
-                 parent: context
-               })
-             });
-           } catch (err) {
-             console.error("Failed to record song in recents:", err);
-           }
-         }
-        })
-        .catch((err) => {
-          console.warn("Play failed:", err);
-        });
+      // Seek to last known position if any
+      if (positionSec && positionSec > 0) {
+        try {
+          audioRef.current.currentTime = positionSec;
+        } catch {}
+      }
+
+      // Only play if user intended playback
+      if (isPlaying) {
+        audioRef.current
+          .play()
+          .then(() => {
+            ContextShowRight.setShowRight(true);
+            if(window.innerWidth <= 1280){
+              ContextShowPlaylists.setShowPlaylists(false)
+            }
+            setIsPlaying(true); // ✅ only after successful play
+            
+            // Record song in recents
+            if (session && currentSong) {
+              try {
+                fetch("/api/recents", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    entityType: "Song",
+                    entityId: currentSong._id,
+                    songId: currentSong._id,
+                    parent: context
+                  })
+                });
+              } catch (err) {
+                console.error("Failed to record song in recents:", err);
+              }
+            }
+          })
+          .catch((err) => {
+            console.warn("Play failed:", err);
+          });
+      }
     }
   };
    
-
 
 
 
@@ -140,7 +149,6 @@ const AudioComponent = () => {
         onEnded={nextTrack}
         ref={audioRef}
         src={currentSong?.fileUrl || null}
-        autoPlay
       ></audio>
     </div>
   );

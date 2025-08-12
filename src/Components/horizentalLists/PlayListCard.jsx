@@ -1,20 +1,50 @@
 "use client"
 
-import React, { useState, useRef, useEffect, useContext } from "react";
+import React from "react";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
 import { usePlayer } from "../../Contexts/playerContext";
-import { useRouter } from "next/navigation";
-const PlayListCard = (props) => {
+import { useRouter, usePathname } from "next/navigation";
 
+const PlayListCard = (props) => {
   const router = useRouter();
-  const { handlePlayFromType, conditionCheckForSong , isPlaying } = usePlayer();
+  const pathname = usePathname();
+  const { handlePlayFromType, conditionCheckForSong, isPlaying } = usePlayer();
   const conditionCheck = conditionCheckForSong(props.item);
+
+  // Helper to update recentSearchesArray only if on /search route
+  const updateRecentSearchesIfSearchRoute = () => {
+    if (pathname === "/search") {
+      let recentSearchesArray = [];
+      try {
+        const stored = localStorage.getItem("recentSearchesArray");
+        if (stored) {
+          recentSearchesArray = JSON.parse(stored);
+        }
+      } catch (e) {
+        recentSearchesArray = [];
+      }
+
+      // Optionally: prevent duplicates (by _id)
+      const alreadyExists = recentSearchesArray.some(
+        (item) => item._id === props.item._id
+      );
+      if (!alreadyExists) {
+        recentSearchesArray.unshift(props.item);
+      }
+
+      localStorage.setItem(
+        "recentSearchesArray",
+        JSON.stringify(recentSearchesArray)
+      );
+    }
+  };
 
   return (
     <div
       className="p-2 rounded-[5px] group hover:bg-white/8 cursor-pointer transition-all duration-300 relative active:bg-white/15"
       onClick={(e) => {
+        updateRecentSearchesIfSearchRoute();
         router.push(`/playlists/${props.item._id}`);
       }}
     >
@@ -38,8 +68,8 @@ const PlayListCard = (props) => {
             {props.item.name}
           </div>
           <div className="song-artist  lg:text-wrap max-w-[95%]  lg:max-h-[3em] overflow-hidden truncate opacity-70 text-[0.7em]">
-              {props.item?.type}
-            </div>
+            {props.item?.type}
+          </div>
         </div>
         {props.item.songs.length > 0 && (
           <span
@@ -50,6 +80,7 @@ const PlayListCard = (props) => {
             }  right-[15%]  group-hover:bottom-[30%] group-hover:opacity-100 transition-all duration-300 active:transform-[scale(0.95)]`}
             onClick={(e) => {
               e.stopPropagation();
+              updateRecentSearchesIfSearchRoute();
               handlePlayFromType(props.item);
             }}
           >

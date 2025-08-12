@@ -17,11 +17,12 @@ import { TiTick } from "react-icons/ti";
 import { FaArrowLeft } from "react-icons/fa6";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import NotFound from "../Helper/not-found";
+import ThreeDotsLoader from "../Helper/ThreeDotsLoader";
 
 /**********************
  * SERVER‑ACTION IMPORTS
  **********************/
-import Portal from "../Helper/Portal";
+// Using inline portal UI similar to AddToPlaylistPopup
 export default function AddSongToAlbumPopup({
   album,
   anchorRect,
@@ -29,30 +30,61 @@ export default function AddSongToAlbumPopup({
   onClose,
   onUpdate
 }) {
-  const [songs, setSongs] = useState([]);
+  const [songs, setSongs] = useState(null);
   const [search, setSearch] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [isFetching, setIsFetching] = useState(false);
   const [changesMade, setChangesMade] = useState(false);
   const toast = useSpotifyToast();
   const router = useRouter();
 
+  const popupRef = useRef(null);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+  useEffect(() => {
+    if (!anchorRect) return;
+    const { innerWidth, innerHeight } = window;
+    const popupW = 300;
+    const popupH = 400;
+    let top = anchorRect.bottom + 8;
+    let left = anchorRect.left;
+    if (left + popupW > innerWidth) left = innerWidth - popupW - 8;
+    if (top + popupH > innerHeight) top = anchorRect.top - popupH - 8;
+    if (top < 8) top = 8;
+    setCoords({ top, left });
+  }, [anchorRect]);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(e.target) &&
+        changesMade == false
+      )
+        onClose();
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [onClose, changesMade]);
+
    
  
   const fetchSongs = async () => {
-    const res = await fetch("/api/artistDashboard/songs");
-    if (!res.ok) {
-      return;
+    try {
+      setIsFetching(true);
+      const res = await fetch("/api/artistDashboard/songs");
+      if (!res.ok) {
+        setSongs([]);
+        return;
+      }
+      const data = await res.json();
+      const songsWithoutAlbum = data.filter((song) => !song.album);
+      setSongs(songsWithoutAlbum);
+    } finally {
+      setIsFetching(false);
     }
-    const data = await res.json();
-    // Only set songs that do not have an album assigned
-    const songsWithoutAlbum = data.filter(song => !song.album);
-    setSongs(songsWithoutAlbum);
-    console.log("Fetched artist (songs without album):");
   };
   useEffect(() => {
-    startTransition(async () => {
-      await fetchSongs();
-    });
+    fetchSongs();
   }, []);
 
   
@@ -98,9 +130,11 @@ export default function AddSongToAlbumPopup({
 
   
 
-  const visibleSongs = songs
-    .filter((a) => a.name.toLowerCase().includes(search.toLowerCase()))
-    .map((a) => ({ ...a, original: a.original ?? a.contains }));
+  const visibleSongs = Array.isArray(songs)
+    ? songs
+        .filter((a) => a.name.toLowerCase().includes(search.toLowerCase()))
+        .map((a) => ({ ...a, original: a.original ?? a.contains }))
+    : [];
 
 
 
@@ -112,17 +146,29 @@ export default function AddSongToAlbumPopup({
 
 
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[9998] bg-transparent"
       onClick={(e) => {
-        e.stopPropagation(); // prevent event from reaching things behind
+        e.stopPropagation();
         onClose();
       }}
     >
-      <Portal open={open} anchorRect={anchorRect} onClose={onClose}>
+      <motion.div
+        ref={popupRef}
+        initial={window.innerWidth <= 640 && { y: 300, opacity: 0 }}
+        exit={window.innerWidth <= 640 && { y: -200, opacity: 0 }}
+        animate={window.innerWidth <= 640 && { y: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        style={
+          window.innerWidth >= 640 ? { top: coords.top, left: coords.left } : { bottom: "0" }
+        }
+        className="fixed z-[10000] w-screen sm:w-[300px] h-screen sm:max-h-[400px] rounded-lg bg-zinc-900 p-3 shadow-xl border border-zinc-700 text-white overflow-y-auto sm:overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+        onDoubleClick={(e) => e.stopPropagation()}
+      >
         <div
-          className=" flex gap-5 mb-2 items-center"
+          className="flex gap-5 mb-2 items-center"
           onClick={(e) => {
             e.stopPropagation();
             onClose();
@@ -131,61 +177,70 @@ export default function AddSongToAlbumPopup({
           <FaArrowLeft className="text-lg sm:hidden" />
           <h4 className="font-bold ">Add to Album</h4>
         </div>
-        <p className="flex items-center justify-between gap-2 bg-white/15 rounded px-2 py-1 mb-2">
+        <p className="flex items-center justify-between gap-2 bg-zinc-800 rounded px-2 py-1 mb-2">
           <RiSearchLine className="text-xl" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Find a playlist"
+            placeholder="Find a song"
             className="w-full   outline-none"
           />
         </p>
 
-
-        <div className="sm:max-h-[100%] pb-50 overflow-y-auto  overflow-x-hidden">
-          {visibleSongs?.length === 0 && (
+        <div className="sm:max-h-100 pb-50 overflow-y-auto  overflow-x-hidden">
+          {isFetching || songs === null ? (
+            <div className="w-full h-[120px] flex items-center justify-center">
+              <ThreeDotsLoader />
+            </div>
+          ) : visibleSongs.length === 0 ? (
             <NotFound
-      
-              text={"Single Songs not found"}
+              text={songs.length === 0 ? "You have no single songs yet" : "No matching songs"}
               position={"top"}
+              buttonText={songs.length === 0 ? "Upload Song" : undefined}
+              buttonOnClick={
+                songs.length === 0
+                  ? () => {
+                      onClose?.();
+                      router.push("/artistDashboard/songs");
+                    }
+                  : undefined
+              }
             />
-          )}
-
-          {visibleSongs?.map((song) => (
-            <div
-              key={song._id}
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleSong(song._id, song.contains);
-                e.preventDefault();
-              }}
-              disabled={isPending}
-              className="flex items-center justify-between gap-2 px-1.5 py-1.5 hover:bg-zinc-800 cursor-pointer rounded "
-            >
-              {" "}
-              <div className="flex gap-1 justify-start truncate">
-                <img
-                  src={`${song?.image}`}
-                  className={`min-w-[60px] max-w-[60px] min-h-[60px] max-h-[60px] p-1 object-cover rounded-xl `}
-                  alt={song?.name}
-                  title={song?.name}
-                />
-                <div className="w-full flex-col justify-center items-between flex  px-2 truncate">
-                  <div className="w-full justify-start text-[14px] font-semibold truncate">
-                    {song?.name || "Playlist-Name"}
+          ) : (
+            visibleSongs.map((song) => (
+              <div
+                key={song._id}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleSong(song._id, song.contains);
+                  e.preventDefault();
+                }}
+                disabled={isPending}
+                className="flex items-center justify-between gap-2 px-1.5 py-1.5 hover:bg-zinc-800 cursor-pointer rounded "
+              >
+                <div className="flex gap-1 justify-start truncate">
+                  <img
+                    src={`${song?.image}`}
+                    className={`min-w-[60px] max-w-[60px] min-h-[60px] max-h-[60px] p-1 object-cover rounded-xl `}
+                    alt={song?.name}
+                    title={song?.name}
+                  />
+                  <div className="w-full flex-col justify-center items-between flex  px-2 truncate">
+                    <div className="w-full justify-start text-[14px] font-semibold truncate">
+                      {song?.name || "Song"}
+                    </div>
                   </div>
-
+                </div>
+                <div>
+                  {song.contains ? (
+                    <TiTick className="text-xl text-black bg-green-500 rounded-full" />
+                  ) : (
+                    <FaRegCircle className="text-xl" />
+                  )}
                 </div>
               </div>
-              <div>
-                {song.contains ? (
-                  <TiTick className="text-xl text-black bg-green-500 rounded-full" />
-                ) : (
-                  <FaRegCircle className="text-xl" />
-                )}
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         <div className="flex justify-center  sm:justify-end bg-transparent sm:bg-zinc-900 p-2 gap-2 sticky sm:absolute bottom-0 right-0 w-full ">
@@ -201,12 +256,12 @@ export default function AddSongToAlbumPopup({
               onClick={changesMade ? applyChanges : onClose}
               disabled={isPending}
             >
-              {isPending  ? "Saving" : "Done"}
-              
+              {isPending ? "Saving" : "Done"}
             </button>
           )}
         </div>
-      </Portal>
-    </div>
-  )
+      </motion.div>
+    </div>,
+    document.body
+  );
 }

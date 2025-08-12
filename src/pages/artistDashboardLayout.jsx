@@ -29,7 +29,7 @@ const ArtistDashboardLayout = ({ children }) => {
   return (
     <>
       {/* create new popup  */}
-      { (
+      {showCreateNewPopup && (
         <CreateNewPopup
           open={showCreateNewPopup}
           onClose={() => {

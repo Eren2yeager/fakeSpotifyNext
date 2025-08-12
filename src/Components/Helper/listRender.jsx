@@ -1,13 +1,10 @@
-import React,{useState ,useRef ,useEffect} from 'react'
+import React, { useState, useRef, useEffect } from "react";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { MdOutlineKeyboardArrowLeft } from "react-icons/md";
 
-const ListRender = ({activeItem , setActiveItem , listItems , className}) => {
-
-  
-
-   const navItems = listItems || ["item1", "item2", "item3"];
-   // for horzental scrolling effect without user scroll
+const ListRender = ({ activeItem, setActiveItem, listItems, className }) => {
+  const navItems = listItems || ["item1", "item2", "item3"];
+  // for horzental scrolling effect without user scroll
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
   const parentRef = useRef(null);
@@ -24,7 +21,7 @@ const ListRender = ({activeItem , setActiveItem , listItems , className}) => {
   useEffect(() => {
     const observer = new ResizeObserver(checkOverflow);
     if (parentRef.current) observer.observe(parentRef.current);
- 
+
     return () => {
       observer.disconnect();
     };
@@ -54,10 +51,10 @@ const ListRender = ({activeItem , setActiveItem , listItems , className}) => {
       }
     }
   };
-  
-   return (
+
+  return (
     <div
-      className="overflow-x-auto inset-0 overflow-y-hidden flex items-center scrollbar-hide"
+      className="overflow-x-auto inset-0 overflow-y-hidden flex items-center scrollbar-hide  "
       style={{
         scrollbarWidth: "none", // Firefox
         msOverflowStyle: "none", // IE 10+
@@ -72,42 +69,43 @@ const ListRender = ({activeItem , setActiveItem , listItems , className}) => {
           display: none;
         }
       `}</style>
-                <div
-            className={`  hidden sm:block bg-zinc-700 p-1  rounded-full absolute  cursor-pointer left-0  z-100 opacity-90 ${
-              showLeftArrow == false ? `invisible` : "visible"
-            } hover:bg-zinc-900`}
-            onClick={() => scroll("left")}
-          >
-            <MdOutlineKeyboardArrowLeft className="text-sm " />
-          </div>
+      <div
+        className={`  hidden sm:block p-1  rounded-full cursor-pointer absolute   left-0  z-2  ${
+          showLeftArrow == false ? `invisible` : "visible"
+        } bg-zinc-900`}
+        onClick={() => scroll("left")}
+      >
+        <MdOutlineKeyboardArrowLeft className="text-md " />
+      </div>
 
-       <ul className={className}>
-         {navItems.map((item, index) => (
-           <li
-           key={index}
-             className={`px-4 py-1 text-xs sm:text-sm cursor-pointer font-medium   transition-all duration-300 rounded-full 
+      <ul className={`relative z-1 ${className}`}>
+        {navItems.map((item, index) => (
+          <li
+            key={index}
+            className={`px-4 py-1 text-xs sm:text-sm cursor-pointer font-medium   transition-all duration-300 rounded-full 
              ${
                activeItem === index
-               ? "bg-white text-black"
-               : " bg-white/5 text-white "
+                 ? "bg-white text-black"
+                 : " bg-white/5 text-white "
              }`}
-             onClick={() =>{ setActiveItem(index);console.log(activeItem);}} // Update active on click
-           >
-             {item}
-           </li>
-         ))}
-       </ul>
-       <div
-            className={`  hidden sm:block bg-zinc-700 p-1  rounded-full cursor-pointer absolute   right-0  z-100 opacity-90 ${
-              showRightArrow == false ? `invisible` : "visible"
-            } hover:bg-zinc-900`}
-            onClick={() => scroll("right")}
+            onClick={() => {
+              setActiveItem(index);
+            }} // Update active on click
           >
-            <MdOutlineKeyboardArrowRight className="text-sm" />
-          </div>
- 
-            </div>
-   )
-}
+            {item}
+          </li>
+        ))}
+      </ul>
+      <div
+        className={`  hidden sm:block  p-1  rounded-full cursor-pointer absolute   right-0  z-1  ${
+          showRightArrow == false ? `invisible` : "visible"
+        } bg-zinc-900`}
+        onClick={() => scroll("right")}
+      >
+        <MdOutlineKeyboardArrowRight className="text-md" />
+      </div>
+    </div>
+  );
+};
 
-export default React.memo(ListRender)
+export default React.memo(ListRender);

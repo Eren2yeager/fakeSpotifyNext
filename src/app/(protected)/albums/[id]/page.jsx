@@ -70,7 +70,7 @@ const MiddlePlaylistView = () => {
 
         console.error("❌ Error fetching albums:", err);
       });
-  }, [slug , isUpdated]);
+  }, [slug, isUpdated]);
 
   const handleIconClick = () => {
     setShowInput(true);
@@ -138,7 +138,7 @@ const MiddlePlaylistView = () => {
   // for hovering show playbutton
 
   // to play the song from album or just a song
-  const { handlePlayFromType, conditionCheckForSong , isPlaying} = usePlayer();
+  const { handlePlayFromType, conditionCheckForSong, isPlaying } = usePlayer();
 
   // it will tell the what is currenty album
   const conditionCheck = conditionCheckForSong(album);
@@ -288,164 +288,158 @@ const MiddlePlaylistView = () => {
                 background: `linear-gradient(0deg,#19191b 80%, ${bgColor}80 )`,
               }}
             >
+              <div
+                className={`sticky top-0 z-10 h-[60px]  flex  items-center justify-between  transition-colors duration-150   py-3 px-5 `}
+                style={{
+                  background: `${
+                    scrolled ? bgColor || "#18181b" : "transparent"
+                  }`,
+                }}
+              >
+                {/* album play button */}
+                <div
+                  className="p-2.5  rounded-full bg-green-500  transition-all duration-300  cursor-pointer"
+                  onClick={() => {
+                    handlePlayFromType(album);
+                  }}
+                >
+                  <span>
+                    {conditionCheck && isPlaying ? (
+                      <IoIosPause className="text-3xl  text-black cursor-pointer" />
+                    ) : (
+                      <IoIosPlay className="text-3xl pl-0.5 text-black cursor-pointer" />
+                    )}
+                  </span>
+                </div>
 
-                  <div
-                    className={`sticky top-0 z-10 h-[60px]  flex  items-center justify-between  transition-colors duration-150   py-3 px-5 `}
-                    style={{
-                      background: `${
-                        scrolled ? bgColor || "#18181b" : "transparent"
-                      }`,
+                {scrolled && (
+                  <p className="font-bold font-sans text-xl px-3 mr-auto max-w-full">
+                    {album.name || "Playlist"}
+                  </p>
+                )}
+
+                <div
+                  className={`font-bold font-sans text-xl px-3 mr-auto max-w-full truncate  flex gap-5  ${
+                    scrolled ? "hidden" : ""
+                  }`}
+                >
+                  <SaveAlbumButton
+                    id={album._id}
+                    onUpdate={() => {
+                      setIsUpdated(true);
                     }}
+                  />
+                  <div className="flex items-center">
+
+                  <AlbumPlaylistThreeDots item={album} type={album.type} />
+                  </div>
+                </div>
+         
+
+                <div className="max-w-[200px] flex   items-center justify-start backdrop-blur-3xl bg-white/8   transition-all duration-300  rounded-full h-10 border-2 border-transparent  cursor-pointer ">
+                  <RiSearchLine
+                    className="search-icon  m-2  text-xl text-white"
+                    onClick={handleIconClick}
+                  />
+                  <div
+                    className={`${
+                      showInput ? `w-[70%]` : `w-[0]`
+                    }  overflow-hidden flex justify-start relative`}
                   >
-                    {/* album play button */}
+                    <input
+                      type="text"
+                      className={`input_button w-auto text-amber-50  outline-none transition-all duration-300 `}
+                      placeholder="Search in album"
+                      ref={inputRef}
+                      value={searchText}
+                      onChange={(e) => {
+                        setSearchText(e.target.value);
+                      }}
+                      onBlur={handleBlur}
+                    />
+                  </div>
+                  <div
+                    className={`${
+                      searchText.length > 0 ? "visible" : "invisible"
+                    }   ${
+                      showInput ? "block" : "hidden"
+                    }  z-10 h-[100%] w-[35px] rounded-r-2xl  ml-auto cursor-pointer transition-all duration-200 `}
+                  >
                     <div
-                      className="p-2.5  rounded-full bg-green-500  transition-all duration-300  cursor-pointer"
+                      className="transform rotate-45 active:scale-90 p-0.5 hover:scale-125"
                       onClick={() => {
-                        handlePlayFromType(album);
+                        setSearchText("");
+                        inputRef.current?.focus();
                       }}
                     >
-                      <span>
-                        {conditionCheck && isPlaying ? (
-                          <IoIosPause className="text-3xl  text-black cursor-pointer" />
-                        ) : (
-                          <IoIosPlay className="text-3xl pl-0.5 text-black cursor-pointer" />
-                        )}
-                      </span>
-                    </div>
-
-                    {scrolled && (
-                      <p className="font-bold font-sans text-xl px-3 mr-auto max-w-full">
-                        {album.name || "Playlist"}
-                      </p>
-                    )}
-
-                    <p
-                      className={`font-bold font-sans text-xl px-3 mr-auto max-w-full truncate ${
-                        scrolled ? "hidden" : ""
-                      }`}
-                    >
-                      <SaveAlbumButton
-                        id={album._id}
-                        onUpdate={() => {
-                          setIsUpdated(true);
-                        }}
-                      />
-                    </p>
-                    <p
-                      className={`font-bold font-sans text-xl px-3 mr-auto max-w-full truncate ${
-                        scrolled ? "hidden" : ""
-                      }`}
-                    >
-    <AlbumPlaylistThreeDots item={album} type={album.type} />
-                      
-                    </p>
-
-                    <div className="max-w-[200px] flex   items-center justify-start backdrop-blur-3xl bg-white/8   transition-all duration-300  rounded-full h-10 border-2 border-transparent  cursor-pointer ">
-                      <RiSearchLine
-                        className="search-icon  m-2  text-xl text-white"
-                        onClick={handleIconClick}
-                      />
-                      <div
-                        className={`${
-                          showInput ? `w-[70%]` : `w-[0]`
-                        }  overflow-hidden flex justify-start relative`}
-                      >
-                        <input
-                          type="text"
-                          className={`input_button w-auto text-amber-50  outline-none transition-all duration-300 `}
-                          placeholder="Search in album"
-                          ref={inputRef}
-                          value={searchText}
-                          onChange={(e) => {
-                            setSearchText(e.target.value);
-                          }}
-                          onBlur={handleBlur}
-                        />
-                      </div>
-                      <div
-                        className={`${
-                          searchText.length > 0 ? "visible" : "invisible"
-                        }   ${
-                          showInput ? "block" : "hidden"
-                        }  z-10 h-[100%] w-[35px] rounded-r-2xl  ml-auto cursor-pointer transition-all duration-200 `}
-                      >
-                        <div
-                          className="transform rotate-45 active:scale-90 p-0.5 hover:scale-125"
-                          onClick={() => {
-                            setSearchText("");
-                            inputRef.current?.focus();
-                          }}
-                        >
-                          <IoAddOutline className="text-3xl " />
-                        </div>
-                      </div>
+                      <IoAddOutline className="text-3xl " />
                     </div>
                   </div>
+                </div>
+              </div>
 
+              <div
+                className={`group/titleHeader sticky  top-[60px] z-10 px-3  h-10 flex items-center border-b-[0.5px] border-b-[#747474b2]  text-sm font-medium text-gray-300 bg-slate-500    ${
+                  scrolled ? "bg-zinc-900 px-8" : "bg-transparent mx-5 "
+                }`}
+              >
+                <div className="w-[40px]  truncate ">#</div>
+                <div
+                  //   style={{ width: `${titleWidth}px` }}
+                  className={`truncate relative flex items-center w-full`}
+                >
+                  <span className="">Title</span>
                   <div
-                    className={`group/titleHeader sticky  top-[60px] z-10 px-3  h-10 flex items-center border-b-[0.5px] border-b-[#747474b2]  text-sm font-medium text-gray-300 bg-slate-500    ${
-                      scrolled ? "bg-zinc-900 px-8" : "bg-transparent mx-5 "
-                    }`}
-                  >
-                    <div className="w-[40px]  truncate ">#</div>
-                    <div
-                      //   style={{ width: `${titleWidth}px` }}
-                      className={`truncate relative flex items-center w-full`}
-                    >
-                      <span className="">Title</span>
-                      <div
-                        data-resizer-name="title"
-                        ref={resizerRef}
-                        onMouseDown={startResizing}
-                        className="hidden sm:block absolute right-0 top-0 h-full w-1 cursor-col-resize bg-transparent group-hover/titleHeader:bg-white"
-                      ></div>
-                    </div>
+                    data-resizer-name="title"
+                    ref={resizerRef}
+                    onMouseDown={startResizing}
+                    className="hidden sm:block absolute right-0 top-0 h-full w-1 cursor-col-resize bg-transparent group-hover/titleHeader:bg-white"
+                  ></div>
+                </div>
 
-                    <div className=" w-[150px] max-w-[100%] ml-auto truncate hidden sm:block sm:flex justify-center">
-                      <FaRegClock className="" />
-                    </div>
-                  </div>
-                  {searchResults.length === 0 && (
-                    <NotFound
-                      icon={
-                        <lord-icon
-                          src="https://cdn.lordicon.com/wjyqkiew.json"
-                          trigger="loop"
-                          delay="1000"
-                          state="morph-cross"
-                          colors={`primary:#ffffff,secondary:${bgColor}`}
-                          style={{ width: 150, height: 150 }}
-                        ></lord-icon>
-                      }
-                      text={"Not found"}
-                      position={"top"}
-                    />
-                  )}
+                <div className=" w-[150px] max-w-[100%] ml-auto truncate hidden sm:block sm:flex justify-center">
+                  <FaRegClock className="" />
+                </div>
+              </div>
+              {searchResults.length === 0 && (
+                <NotFound
+                  icon={
+                    <lord-icon
+                      src="https://cdn.lordicon.com/wjyqkiew.json"
+                      trigger="loop"
+                      delay="1000"
+                      state="morph-cross"
+                      colors={`primary:#ffffff,secondary:${bgColor}`}
+                      style={{ width: 150, height: 150 }}
+                    ></lord-icon>
+                  }
+                  text={"Not found"}
+                  position={"top"}
+                />
+              )}
 
-                  {searchResults?.map((item, index) => (
-                    <div className="px-5" key={index}>
-                      <MiddlePlaylistSongCard
-                        index={index}
-                        item={item}
-                        added={item.createdAt}
-                        showIndexes={true}
-                        context={{
-                          type: album.type,
-                          id: album._id,
-                          name: album.name,
-                        }}
-                        allSongs={album.songs}
-                        titleWidth={titleWidth}
-                        albumWidth={albumWidth}
-                        dateAddedWidth={dateAddedWidth}
-                        albumId={album._id}
-                        wantAdded={false}
-                        wantAlbum={false}
-                      />
-                    </div>
-                  ))}
-                
-              
+              {searchResults?.map((item, index) => (
+                <div className="px-5" key={index}>
+                  <MiddlePlaylistSongCard
+                    index={index}
+                    item={item}
+                    added={item.createdAt}
+                    showIndexes={true}
+                    context={{
+                      type: album.type,
+                      id: album._id,
+                      name: album.name,
+                    }}
+                    allSongs={album.songs}
+                    titleWidth={titleWidth}
+                    albumWidth={albumWidth}
+                    dateAddedWidth={dateAddedWidth}
+                    albumId={album._id}
+                    wantAdded={false}
+                    wantAlbum={false}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>

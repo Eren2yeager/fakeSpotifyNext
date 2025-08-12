@@ -8,7 +8,7 @@ const songSchema = new mongoose.Schema(
   {
     type: { type: String, default: "Song" },
     name: { type: String, required: true },
-    genre: String,
+    genres: { type: [String], default: [] },
     image: String,
     duration: { type: String }, // optional, or calculate from file
     fileUrl: { type: String, required: true }, // MP3 or stream URL

@@ -26,6 +26,7 @@ import AddToPlaylistPopup from "./AddToPlaylistPopup";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { usePlayer } from "@/Contexts/playerContext";
 /*************************
  * Helper item component  *
  *************************/
@@ -52,14 +53,15 @@ export default function ThreeDotsPopUp({
   onClose,
 }) {
   const [liked, setLiked] = useState(false);
-  const {data :session}  = useSession()
+  const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const toast = useSpotifyToast();
-  const { checkSongIsInLikedSongs, fetchLibrary } =
-    useLibrary();
-
+  const { checkSongIsInLikedSongs, fetchLibrary } = useLibrary();
+  const { addToQueue , userInsertQueue, setUserInsertQueue } = usePlayer();
+  const [checkInUserInsertedQueue, setCheckInUserInsertedQueue] = useState(null)
   const [childRef, setChildRef] = useState(null); // <-- track nested popup DOM
+  const [isUpdated, setIsUpdated] = useState(false)
   /* dynamic coords */
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   useEffect(() => {
@@ -89,7 +91,7 @@ export default function ThreeDotsPopUp({
   /* liked check */
   const refreshLiked = () =>
     startTransition(async () => {
-      const includes = checkSongIsInLikedSongs(song._id);
+      const includes =await checkSongIsInLikedSongs(song._id);
       if (includes) {
         setLiked(true);
       } else {
@@ -97,7 +99,12 @@ export default function ThreeDotsPopUp({
       }
     });
 
-  useEffect(refreshLiked, [song._id]);
+  useEffect(()=>{
+    setIsUpdated(false)
+    refreshLiked()
+    setCheckInUserInsertedQueue(userInsertQueue.some((s) => s._id === song._id))
+  
+  }, [song._id , isUpdated]);
 
   /* handlers */
   const handleRemoveSong = (e) => {
@@ -124,6 +131,22 @@ export default function ThreeDotsPopUp({
       fetchLibrary();
       onClose();
     });
+  };
+
+  const toggleAddToQueue = async () => {
+    // Check if song is already in userInsertQueue
+    const isInQueue = userInsertQueue.some((s) => s._id === song._id);
+    if (isInQueue) {
+      // Remove from queue
+      setUserInsertQueue(prev => prev.filter((s) => s._id !== song._id));
+      toast({ text: "Removed from queue" });
+    } else {
+      // Add to queue
+      setUserInsertQueue(prev => [...prev, song]);
+      toast({ text: "Added to queue" });
+    }
+    setIsUpdated(true)
+    onClose();
   };
 
   // for background inactivity
@@ -217,7 +240,7 @@ export default function ThreeDotsPopUp({
             setOuterRef={setChildRef} /* pass ref up */
           />
         )}
-        {(playlistId && playlistCreaterId == session.user._id) && (
+        {playlistId && playlistCreaterId == session.user._id && (
           <MenuItem
             startIcon={
               <RiDeleteBin7Line className="cursor-pointer" size={20} />
@@ -246,10 +269,26 @@ export default function ThreeDotsPopUp({
             onClick={handleToggleLike}
           />
         )}
-        <MenuItem
-          startIcon={<BiAddToQueue className="cursor-pointer" size={20} />}
-          label="Add to queue"
-        />
+        {checkInUserInsertedQueue ? (
+          <MenuItem
+            startIcon={
+              <RiDeleteBin7Line
+                className="cursor-pointer"
+                size={20}
+              />
+            }
+            label="Remove from Queue"
+            onClick={toggleAddToQueue}
+          />
+        ) : (
+          <MenuItem
+            startIcon={
+              <BiAddToQueue className="cursor-pointer" size={20} />
+            }
+            label="Add to Queue"
+            onClick={toggleAddToQueue}
+          />
+        )}
         <MenuItem
           startIcon={
             <MdOutlinePersonOutline className="cursor-pointer" size={20} />

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef, useEffect } from "react";
+import React, { useState, useContext, useRef, useEffect, useMemo } from "react";
 import {
   ToggleFullScreenContext,
   showRightContext,
@@ -25,6 +25,7 @@ import { HiQueueList } from "react-icons/hi2";
 import { HiOutlineQueueList } from "react-icons/hi2";
 import Followbutton from "./artistsComponents/followbutton";
 import { useSession } from "next-auth/react";
+import QueueSongCard from "./playlistCards/queueSongCard";
 const PlayCard = (props) => {
   return (
     <div className="playlist-card flex  justify-between items-center  bg-zinc-800 h-[75px] p-2  rounded-xl hover:bg-zinc-700 group/playcard my-2">
@@ -74,7 +75,7 @@ const Right = () => {
 
   const [selectedSong, setSelectedSong] = useState(null);
   const [bgColor, setBgColor] = useState(null);
-  const { currentSong, context, openQueue, setOpenQueue } = usePlayer();
+  const { currentSong, context, openQueue, setOpenQueue , originalQueue, userInsertQueue, playOrder, currentPlayOrderIndex, isShuffling, originalQueueRelatedContext } = usePlayer();
   const router = useRouter();
   const { data: session } = useSession();
   const [isUpdated, setIsUpdated] = useState(false);
@@ -162,6 +163,16 @@ const Right = () => {
       window.removeEventListener("resize", updateListener);
     };
   });
+
+  // Compute what's next: userInsertQueue first, then remainder from originalQueue
+  const remainingSongs = useMemo(() => {
+    if (!originalQueue || originalQueue.length === 0) return [];
+    if (!Array.isArray(playOrder) || playOrder.length === 0) return [];
+    const start = typeof currentPlayOrderIndex === "number" ? currentPlayOrderIndex + 1 : 0;
+    if (start >= playOrder.length) return [];
+    const indices = playOrder.slice(start);
+    return indices.map((idx) => originalQueue[idx]).filter(Boolean);
+  }, [originalQueue, playOrder, currentPlayOrderIndex, isShuffling]);
 
   return (
     // ... (other imports above, keep as is)
@@ -298,14 +309,14 @@ const Right = () => {
               </div>
 
               <div className="font-bold transform sm:translate-x-[-35px] group-hover/right:translate-x-[-0px] transition-all duration-150 mr-auto max-w-full truncate">
-                <MarqueeDiv text={context.name || ""} />
+                <MarqueeDiv text={context?.name || ""} />
               </div>
               <div className=" max-h-[100%] justify-center items-center rounded-full flex font-bold  transition-all duration-100  gap-2">
                 <div className="sm:hidden group-hover/right:block max-h-[100%] flex items-center">
                   <ThreeDots
                     song={currentSong}
                     playlistId={
-                      context.type == "Playlist" ? context.id : undefined
+                      context?.type == "Playlist" ? context?.id : undefined
                     }
                   />
                 </div>
@@ -424,18 +435,20 @@ const Right = () => {
                       >
                         {selectedSong?.artist?.name || "UnKnown Artist"}
                       </p>
-                      if it has 5 songs and user click 3 then it will show next 2 song)
-                      <Followbutton
-                        followObject={{
-                          followerId: session.user._id,
-                          followerType: session.user.type,
-                          targetId: currentSong?.artist?._id,
-                          targetType: currentSong?.artist?.type,
-                        }}
-                        onUpdate={() => {
-                          setIsUpdated(true);
-                        }}
-                      />
+
+                      {session.user._id && currentSong?.artist?._id && (
+                        <Followbutton
+                          followObject={{
+                            followerId: session.user._id,
+                            followerType: session.user.type,
+                            targetId: currentSong?.artist?._id,
+                            targetType: currentSong?.artist?.type || "Artist",
+                          }}
+                          onUpdate={() => {
+                            setIsUpdated(true);
+                          }}
+                        />
+                      )}
 
                       {/* {console.log(currentSong)} */}
                     </div>
@@ -453,23 +466,42 @@ const Right = () => {
                     }}
                   />
                     </p> */}
-
-                    <article className="p-3 text-sm   max-h-[calc(16*5)] transition-all duration-300">
-                      <ShowMoreShowLess
-                        text={selectedSong?.artist?.bio || ""}
-                        maxLength={`80`}
-                        className="text-white/50"
-                      />
-                    </article>
+                    {selectedSong?.artist?.bio && (
+                      <article className="p-3 text-sm   max-h-[calc(16*5)] transition-all duration-300">
+                        <ShowMoreShowLess
+                          text={selectedSong?.artist?.bio || ""}
+                          maxLength={`80`}
+                          className="text-white/50"
+                        />
+                      </article>
+                    )}
                   </div>
                 </div>
 
                 {ContextFullScreen.toggleFullScreen && (
-                  <div
-                    className={`hidden sm:block artist-article max-w-[400px] h-fit rounded-xl  bg-zinc-800 mb-1 pb-1 transition-all duration-500  shadow-xl shadow-gray-950 p-3 `}
-                  >
-                    <h1 className="text-2xl font-bold px-2">Next in queue</h1>
-                    <PlayCard />
+                  <div className="hidden sm:block w-full max-w-[400px] h-fit rounded-xl bg-zinc-800 mb-1 transition-all duration-500 shadow-xl shadow-gray-950">
+                    <div className="px-3 pt-3">
+                      <h2 className="text-xl font-bold">Up Next</h2>
+                    </div>
+                    <div className="mt-2 px-2 pb-2 flex flex-col gap-1">
+                      {(() => {
+                        const combined = [...userInsertQueue, ...remainingSongs];
+                        if (combined.length === 0) {
+                          return <div className="text-white/60 text-sm px-2 py-3 text-center border-2 border-white rounded-full font-extrabold">No upcoming songs</div>;
+                        }
+                        const song = combined[0];
+                        const isFromUserInsert = userInsertQueue.length > 0;
+                        return (
+                          <QueueSongCard
+                            key={(song?._id || 0) + "-next-one"}
+                            index={0}
+                            item={song}
+                            context={isFromUserInsert ? { type: "Queue", id: song._id, name: "Queue" } : originalQueueRelatedContext}
+                            allSongs={isFromUserInsert ? userInsertQueue : remainingSongs}
+                          />
+                        );
+                      })()}
+                    </div>
                   </div>
                 )}
               </div>
@@ -489,7 +521,7 @@ const Right = () => {
             ? { width: "400px", position: "relative" }
             : { position: "absolute" }
         }
-        className="w-full   h-full top-0 right-0  bottom-0   rounded-lg bg-zinc-900  shadow-xl border border-zinc-700 text-white overflow-y-auto overflow-x-hidden "
+        className="w-full   h-full top-0 right-0  bottom-0   rounded-md bg-zinc-900  shadow-xl  text-white overflow-y-auto overflow-x-hidden "
       />
     </div>
   );

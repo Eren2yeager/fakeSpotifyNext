@@ -41,7 +41,7 @@ const SaveAlbumButton = ({id , onUpdate}) => {
         });
       }}
       className={`
-        p-1
+        px-3
         rounded-full
         border-2 border-white/50
         bg-transparent
@@ -49,9 +49,8 @@ const SaveAlbumButton = ({id , onUpdate}) => {
         text-sm
         font-semibold
         transition-all duration-200
-        w-auto
-        min-w-[100px]
-        max-w-[200px]
+
+
         ${pending ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}
       `}
     >
@@ -63,30 +62,3 @@ const SaveAlbumButton = ({id , onUpdate}) => {
 export default SaveAlbumButton
 
 
-{/* <button
-disabled={pending}
-onClick={() => {
-  startTransition(async () => {
-    await toggleSavedAlbum(id);
-    const res = await isSavedAlbum(id);
-    setIsAlbumSaved(res);
-    fetchLibrary()
-    if (onUpdate) onUpdate();
-  });
-}}
-className={`
-  rounded-full
-
-  bg-transparent
-  text-white
-  text-sm
-  font-semibold
-  transition-all duration-200
-  w-auto
-  flex items-center justify-center
-  ${pending ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}
-`}
->
-{isAlbumSaved ? <TiTick className="cursor-pointer bg-green-500   text-black  rounded-full" size={30}  /> : <IoMdAddCircleOutline className="cursor-pointer" size={30} />}
-
-</button> */}

@@ -52,7 +52,7 @@ const CreateNewPopup = ({ open, onClose, anchorRect , onUpdate}) => {
         <AnimatePresence>
           {open && (
             <Portal open={open} anchorRect={anchorRect} onClose={onClose}>
-              { (
+              {showUploadSongPopup && (
                 <AddSongPopup
                   open={showUploadSongPopup}
                   onClose={() => {
@@ -61,7 +61,7 @@ const CreateNewPopup = ({ open, onClose, anchorRect , onUpdate}) => {
                   onUpdate={onUpdate}
                 />
               )}
-              {(
+              {showCreateAlbumPopup && (
                 <AddAlbumPopup
                   open={showCreateAlbumPopup}
                   onClose={() => {

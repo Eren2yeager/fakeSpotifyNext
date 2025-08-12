@@ -69,7 +69,7 @@ const userSchema = new mongoose.Schema(
       isShuffling: { type: Boolean, default: false },
       repeatMode: { type: String, enum: ["off", "all", "one"], default: "off" },
       autoplayEnabled: { type: Boolean, default: true },
-      positionSec: { type: Number, default: 0 },
+      // positionSec removed; using ephemeral currentTimeRef only client-side
       updatedAt: { type: Date, default: Date.now },
     },
     recents: {

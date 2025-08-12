@@ -6,58 +6,70 @@ import { IoIosPause } from "react-icons/io";
 import Pillers from "@/Components/Helper/pillers";
 import { usePlayer } from "@/Contexts/playerContext";
 import TickOrAdd from "../Helper/TickOrAdd";
-import {useLibrary } from "@/Contexts/libraryContext";
+import { useLibrary } from "@/Contexts/libraryContext";
 import ThreeDots from "../Helper/ThreeDots";
-import { useRouter } from "next/navigation";
-const SearchPlaylistSongCard = (props) => {
+import { useRouter, usePathname } from "next/navigation";
 
+const SearchPlaylistSongCard = (props) => {
   const [isHovering, setIsHovering] = useState(NaN);
 
-  const { currentSong,  context, play , isPlaying , setIsPlaying , durationRef , currentTimeRef , audioRef} = usePlayer();
+  const {
+    currentSong,
+    context,
+    play,
+    isPlaying,
+    setIsPlaying,
+    durationRef,
+    currentTimeRef,
+    audioRef,
+  } = usePlayer();
 
   const { library } = useLibrary();
-  const router = useRouter()
-  let conditionCheck;
-  conditionCheck =
+  const router = useRouter();
+  const pathname = usePathname();
+
+  let conditionCheck =
     currentSong?._id == props.item._id && context.id === props.context.id;
 
+  // Helper to update recentSearchesArray only if on /search route
+  const updateRecentSearchesIfSearchRoute = () => {
+    if (pathname === "/search") {
+      let recentSearchesArray = [];
+      try {
+        const stored = localStorage.getItem("recentSearchesArray");
+        if (stored) {
+          recentSearchesArray = JSON.parse(stored);
+        }
+      } catch (e) {
+        recentSearchesArray = [];
+      }
 
+      // Optionally: prevent duplicates (by _id)
+      const alreadyExists = recentSearchesArray.some(
+        (item) => item._id === props.item._id
+      );
+      if (!alreadyExists) {
+        recentSearchesArray.unshift(props.item);
+      }
 
-    
+      localStorage.setItem(
+        "recentSearchesArray",
+        JSON.stringify(recentSearchesArray)
+      );
+    }
+  };
+
   const handlePlay = () => {
     if (currentSong == null || !conditionCheck) {
       play(props.allSongs, props.item, props.context);
-          // Get current recent searches from localStorage, or start with empty array
-    let recentSearchesArray = [];
-    try {
-      const stored = localStorage.getItem("recentSearchesArray");
-      if (stored) {
-        recentSearchesArray = JSON.parse(stored);
-      }
-    } catch (e) {
-      // If parsing fails, reset to empty array
-      recentSearchesArray = [];
-    }
-
-    // Optionally: prevent duplicates (by _id)
-    const alreadyExists = recentSearchesArray.some(
-      (item) => item._id === props.item._id
-    );
-    if (!alreadyExists) {
-      recentSearchesArray.unshift(props.item);
-    }
-
-    localStorage.setItem(
-      "recentSearchesArray",
-      JSON.stringify(recentSearchesArray)
-    );
+      updateRecentSearchesIfSearchRoute();
     } else {
       if (conditionCheck && isPlaying) {
         audioRef.current.pause();
-       setIsPlaying(false);
+        setIsPlaying(false);
       } else {
         audioRef.current.play();
-       setIsPlaying(true);
+        setIsPlaying(true);
       }
     }
   };
@@ -65,32 +77,7 @@ const SearchPlaylistSongCard = (props) => {
   // just set the song
   const handleSongSet = () => {
     play(props.allSongs, props.item, props.context);
-    // Get current recent searches from localStorage, or start with empty array
-    let recentSearchesArray = [];
-    try {
-      const stored = localStorage.getItem("recentSearchesArray");
-      if (stored) {
-        recentSearchesArray = JSON.parse(stored);
-      }
-    } catch (e) {
-      // If parsing fails, reset to empty array
-      recentSearchesArray = [];
-    }
-
-    // Optionally: prevent duplicates (by _id)
-    const alreadyExists = recentSearchesArray.some(
-      (item) => item._id === props.item._id
-    );
-    if (!alreadyExists) {
-      recentSearchesArray.unshift(props.item);
-    }
-
-    localStorage.setItem(
-      "recentSearchesArray",
-      JSON.stringify(recentSearchesArray)
-    );
-
-
+    updateRecentSearchesIfSearchRoute();
   };
 
   useEffect(() => {}, [props.item, library]);
@@ -150,7 +137,7 @@ const SearchPlaylistSongCard = (props) => {
             <span className=" max-w-full truncate">{props.item.name}</span>
           </div>
           <div className="text-sm  max-w-full truncate">
-          <span
+            <span
               className="hover:underline"
               onClick={() => {
                 props.item?.artist._id &&

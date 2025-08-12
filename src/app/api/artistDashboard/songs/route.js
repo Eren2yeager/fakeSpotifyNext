@@ -26,12 +26,13 @@ export async function POST(req) {
 
     await connectDB();
     const name = formData.get("name");
-    const genre = formData.get("genre");
+    // Accept multiple genres via repeated form fields
+    const genres = formData.getAll("genres").map((g) => String(g).trim()).filter(Boolean);
     const image = formData.get("image");
     const audioFile = formData.get("audioFile");
 
     // Basic validation for required fields
-    if (!name || !genre || !image || !audioFile) {
+    if (!name || genres.length === 0 || !image || !audioFile) {
       return Response.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -104,7 +105,7 @@ export async function POST(req) {
       song = await Song.create({
         artist: artist._id,
         name: name,
-        genre: genre,
+        genres: genres,
         image: image_secure_url,
         fileUrl: audio_secure_url,
         duration: duration,
@@ -137,7 +138,7 @@ export async function PUT(req) {
   const formData = await req.formData();
   const id = formData.get("id");
   const name = formData.get("name");
-  const genre = formData.get("genre");
+  const genres = formData.getAll("genres").map((g) => String(g).trim()).filter(Boolean);
   const image = formData.get("image");
 
   await connectDB();
@@ -145,7 +146,7 @@ export async function PUT(req) {
   // Build update object only with provided fields
   const update = {};
   if (name !== undefined && name !== null) update.name = name;
-  if (genre !== undefined && genre !== null) update.genre = genre;
+  if (genres && genres.length > 0) update.genres = genres;
 
   // Handle image upload from file input
   if (image && typeof image === "object" && image.arrayBuffer) {

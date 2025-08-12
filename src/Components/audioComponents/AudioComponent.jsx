@@ -20,38 +20,26 @@ const AudioComponent = () => {
 
   const onLoadedMetadata = () => {
     durationRef.current = (audioRef.current?.duration);
-  
+
     if (audioRef.current) {
-      audioRef.current
-        .play()
-        .then(() => {
-          ContextShowRight.setShowRight(true);
-          if(window.innerWidth <= 1280){
-            ContextShowPlaylists.setShowPlaylists(false)
-          }
-         setIsPlaying(true); // ✅ only after successful play
-         
-         // Record song in recents
-         if (session && currentSong) {
-           try {
-             fetch("/api/recents", {
-               method: "POST",
-               headers: { "Content-Type": "application/json" },
-               body: JSON.stringify({
-                 entityType: "Song",
-                 entityId: currentSong._id,
-                 songId: currentSong._id,
-                 parent: context
-               })
-             });
-           } catch (err) {
-             console.error("Failed to record song in recents:", err);
-           }
-         }
-        })
-        .catch((err) => {
-          console.warn("Play failed:", err);
-        });
+      if (isPlaying) {
+        audioRef.current
+          .play()
+          .then(() => {
+            ContextShowRight.setShowRight(true);
+            if(window.innerWidth <= 1280){
+              ContextShowPlaylists.setShowPlaylists(false)
+            }
+            setIsPlaying(true); // ✅ only after successful play
+
+          })
+          .catch((err) => {
+            console.warn("Play failed:", err);
+          });
+      } else {
+        // Do not auto-play if not already playing
+        // Optionally, you can set currentTime or other state here if needed
+      }
     }
   };
    
@@ -66,6 +54,32 @@ const AudioComponent = () => {
     currentTimeRef.current = (audioRef.current?.currentTime);
   };
 
+  // Record recents and increment view for every song play
+  useEffect(() => {
+    if (!currentSong || !session) return;
+
+    let entityType = "Song";
+    let entityId = currentSong._id;
+    if (context?.type === "Album" || context?.type === "Playlist" || context?.type === "Artist") {
+      entityType = context.type;
+      entityId = context.id;
+    }
+
+    fetch("/api/recents", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        entityType,
+        entityId,
+        songId: currentSong._id,
+      }),
+    }).catch((err) => {
+      console.error("Failed to record recents:", err);
+    });
+
+    // Increment song view count (fire-and-forget)
+    fetch(`/api/songs/${currentSong._id}/view`, { method: "POST" }).catch(() => {});
+  }, [currentSong?._id, session, context]);
 
 
 // handle play pause
@@ -108,27 +122,27 @@ const AudioComponent = () => {
 
   useEffect(() => {
     if (!currentSong || !audioRef.current) return;
-  
-    const audio = audioRef.current;
-    audio.pause();
-    audio.src = currentSong.fileUrl;
-    audio.load();  // ✅ triggers onLoadedMetadata
-  }, [currentSong]);
 
-  // Prevent audio reloading when switching browser tabs
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden && audioRef.current && isPlaying) {
-        // Don't pause, just prevent reloading
-        audioRef.current.currentTime = audioRef.current.currentTime;
-      }
-    };
+    // Reload the audio element only when the song actually changes
+    audioRef.current.pause();
+    audioRef.current.src = currentSong.fileUrl;
+    audioRef.current.load();  // ✅ triggers onLoadedMetadata
+  }, [currentSong?._id , context?._id]);
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [isPlaying]);
+  // // Prevent audio reloading when switching browser tabs
+  // useEffect(() => {
+  //   const handleVisibilityChange = () => {
+  //     if (document.hidden && audioRef.current && isPlaying) {
+  //       // Don't pause, just prevent reloading
+  //       audioRef.current.currentTime = audioRef.current.currentTime;
+  //     }
+  //   };
+
+  //   document.addEventListener('visibilitychange', handleVisibilityChange);
+  //   return () => {
+  //     document.removeEventListener('visibilitychange', handleVisibilityChange);
+  //   };
+  // }, [isPlaying]);
   
 
   return (
@@ -140,7 +154,6 @@ const AudioComponent = () => {
         onEnded={nextTrack}
         ref={audioRef}
         src={currentSong?.fileUrl || null}
-        autoPlay
       ></audio>
     </div>
   );

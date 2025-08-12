@@ -2,6 +2,7 @@
 import { GrAdd } from "react-icons/gr";
 
 import { useState } from "react";
+import GENRES from "@/data/genres.json";
 import { useTransition } from "react";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { useUser } from "@/Contexts/userContex";
@@ -12,7 +13,7 @@ const AddSongPopup = ({open, onClose , onUpdate}) => {
   const [pending, startTransition] = useTransition();
   const  toast = useSpotifyToast();
   const [name, setName] = useState("");
-  const [genre, setGenre] = useState("");
+  const [selectedGenres, setSelectedGenres] = useState([]);
   const [image, setImage] = useState(null);
   const [audioFile, setAudioFile] = useState(null);
   const [preview, setPreview] = useState(
@@ -32,7 +33,7 @@ const AddSongPopup = ({open, onClose , onUpdate}) => {
     const formData = new FormData();
     formData.set("type", "addSong");
     formData.set("name", name);
-    formData.set("genre", genre);
+    selectedGenres.forEach((g) => formData.append("genres", g));
 
     if (image) formData.set("image", image);
     if (audioFile) formData.set("audioFile", audioFile);
@@ -75,7 +76,9 @@ const AddSongPopup = ({open, onClose , onUpdate}) => {
           className="flex flex-col items-center md:items-start md:flex-row gap-6"
         >
           {/* Image Preview */}
-          <label className="group w-45 h-45 bg-neutral-800 rounded-md flex items-center justify-center cursor-pointer overflow-hidden relative">
+          <div className="flex items-center w-auto h-auto">
+
+          <label className="group  w-45 h-45 bg-neutral-800 rounded-md flex items-center justify-center cursor-pointer overflow-hidden relative">
             <input
               type="file"
               accept="image/*"
@@ -92,9 +95,10 @@ const AddSongPopup = ({open, onClose , onUpdate}) => {
               <PiNotePencil
                 className="mx-auto my-auto brightness-150 text-white"
                 size={50}
-              />
+                />
             </div>
           </label>
+                </div>
           <div className="flex flex-col w-full flex-1 gap-3">
             <div>
               <label className="block mb-1 text-sm text-gray-300">Song name</label>
@@ -109,16 +113,28 @@ const AddSongPopup = ({open, onClose , onUpdate}) => {
               />
             </div>
             <div>
-              <label className="block mb-1 text-sm text-gray-300">Genre</label>
-              <input
-                type="text"
-                value={genre}
-                onChange={(e) => setGenre(e.target.value)}
-                disabled={pending}
-                className="w-full p-3 bg-zinc-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="Enter Genre"
-                required
-              />
+              <label className="block mb-1 text-sm text-gray-300">Genres</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-auto p-2 bg-zinc-800  rounded-xl">
+                {GENRES.map(({name: g, color}) => {
+                  const active = selectedGenres.includes(g);
+                  return (
+                    <button
+                      type="button"
+                      key={g}
+                      onClick={() =>
+                        setSelectedGenres((prev) =>
+                          prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]
+                        )
+                      }
+                      className={`text-left px-2 py-1 rounded-full border`}
+                      style={{ backgroundColor: active ? color : "#3f3f46", color: active ? "#fff" : "#e5e7eb" }}
+                    >
+                      {g}
+                    </button>
+                  );
+                })}
+              </div>
+              {/* <div className="mt-2 text-xs text-gray-400">Selected: {selectedGenres.join(", ") || "None"}</div> */}
             </div>
 
 

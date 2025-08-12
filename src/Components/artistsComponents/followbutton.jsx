@@ -51,19 +51,19 @@ const Followbutton = ({followObject , onUpdate}) => {
       }}
       className={`
         p-0.5 rounded-full
+        px-3
         border-2 border-white/50
         bg-transparent
         text-white
         text-sm
         font-semibold
         transition-all duration-200
-        w-auto
-        min-w-[100px]
-        max-w-[200px]
-        ${pending ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}
+      
+    
+        ${pending ? "cursor-not-allowed" : "cursor-pointer"}
       `}
     >
-      {isCurrentUserFollowingIt ? "Unfollow" : "Follow"}
+      {isCurrentUserFollowingIt ? "Following" : "Follow"}
     </button>
   )
 }

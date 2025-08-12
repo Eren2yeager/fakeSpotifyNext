@@ -156,7 +156,7 @@ export default function AddToPlaylistPopup({
           ? { top: coords.top, left: coords.left }
           : { bottom: "0" }
       }
-      className="fixed z-[10000] w-screen  sm:w-[300px] h-screen sm:max-h-[400px]   rounded-lg bg-zinc-900 p-3 shadow-xl border border-zinc-700 text-white overflow-y-auto sm:overflow-hidden"
+      className="fixed z-[10000] w-screen  sm:w-[300px] h-screen sm:max-h-[400px]   rounded-lg bg-zinc-900 p-3 shadow-xl  text-white overflow-y-auto sm:overflow-hidden"
       onClick={(e) => {
         e.stopPropagation();
       }}

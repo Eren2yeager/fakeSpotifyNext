@@ -86,7 +86,7 @@ export const LibraryProvider = ({ children }) => {
 
       // If the playlist is found and has songs
       if (
-        playlist?.playlists &&
+
         Array.isArray(playlist.songs) &&
         playlist.songs.length > 0
       ) {
@@ -104,12 +104,12 @@ export const LibraryProvider = ({ children }) => {
 
       // If the playlist is found and has songs
       if (
-        playlist?.playlists &&
+       
         Array.isArray(playlist.songs) &&
         playlist.songs.length > 0
       ) {
         // Check if the song_id exists in the playlist's songs
-        return playlist.songs.some((songData) => songData.song._id === song_id);
+        return playlist.songs.some((songData) => songData.song._id.toString() === song_id.toString());
       }
     }
     return false; // Return false if the playlist is not found or has no songs

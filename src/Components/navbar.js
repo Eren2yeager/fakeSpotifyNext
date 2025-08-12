@@ -9,7 +9,7 @@ import { GLOWAL_SEARCH_TEXT_CONTEXT } from "../Contexts/search.controls";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
+
 import { useUser } from "@/Contexts/userContex";
 import { useRouter } from "next/navigation";
 import ProfileCircle from "./Helper/profileCircle";
@@ -46,6 +46,8 @@ const Navbar = memo(() => {
   const handleExitFullScreen = () => {
     ContextFullScreen.settoggleFullScreen(false);
   };
+
+  const [openMessages, setOpenMessages] = useState(false);
 
   return (
     <header className="w-full sm:flex justify-center sm:justify-between items-center sm:px-5 pt-2 p-1">
@@ -98,13 +100,15 @@ const Navbar = memo(() => {
         </div>
       </div>
 
-      <div className="flex flex-row gap-2 items-center">
-        <img
-          title="Updates 🔔"
+      <div className="flex flex-row  items-center">
+        {/* <img
+          title="Messages"
           src="/images/notification.svg"
-          alt="notification-icon"
+          alt="messages-icon"
           className="notification-icon w-7 h-7 py-1 px-1 invert rounded-3xl cursor-pointer hover:bg-zinc-300 transition duration-300 hidden sm:block"
-        />
+          onClick={() => setOpenMessages(true)}
+        /> */}
+        {/* <MessagesPortal open={openMessages} onClose={() => setOpenMessages(false)} /> */}
 
         <div className="relative w-10 h-10 flex items-center justify-center  cursor-pointer">
           <div className="absolute inset-0 rounded-full bg-gray-600 opacity-40"></div>

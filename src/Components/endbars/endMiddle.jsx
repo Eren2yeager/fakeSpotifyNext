@@ -15,9 +15,11 @@ import { usePlayer } from "@/Contexts/playerContext";
 const EndMiddle = (props) => {
 
   const { 
-    currentSong, isPlaying, setIsPlaying, durationRef, currentTimeRef, audioRef,
+    currentSong, isPlaying, setIsPlaying, durationRef, currentTimeRef, audioRef, autoplayEnabled,
     isShuffling, repeatMode, toggleShuffle, cycleRepeat, nextTrack, prevTrack
   } = usePlayer();
+
+  const isInAutoplay = !!autoplayEnabled;
   const handlePlayPause = () => {
     if (currentSong) {
       if (isPlaying) {
@@ -36,15 +38,22 @@ const EndMiddle = (props) => {
           <LiveSeekbar showTime={true} />
         </div>
         <div className="up flex gap-8 items-center w-full sm:w-fit justify-around">
-          <RxShuffle
-            className={`text-xl  cursor-pointer ${
-              isShuffling
-                ? `text-green-400 `
-                : `text-gray-400 hover:animate-pulse `
-            } transition-all duration-300`}
+          <button
+            type="button"
             onClick={toggleShuffle}
             title="Shuffle"
-          />
+            tabIndex={0}
+            aria-pressed={isShuffling}
+            disabled={isInAutoplay}
+            aria-disabled={isInAutoplay}
+            className={`text-xl transition-all duration-300 flex items-center justify-center
+              ${isShuffling ? "text-green-400" : "text-gray-400 hover:animate-pulse"}
+              ${isInAutoplay ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
+              bg-transparent border-none p-0 m-0`}
+            style={{ background: "none", border: "none" }}
+          >
+            <RxShuffle />
+          </button>
           <MdSkipPrevious
             className="text-4xl sm:text-3xl  text-gray-400  hover:animate-pulse transition-all duration-300  cursor-pointer"
             title="Previous"
@@ -71,19 +80,33 @@ const EndMiddle = (props) => {
             </span>
           </span>
           <MdSkipNext
-            className="text-4xl sm:text-3xl  text-gray-400  hover:animate-pulse transition-all duration-100  cursor-pointer"
+            className="text-4xl sm:text-3xl  text-gray-400   transition-all duration-100  cursor-pointer"
             title="Next"
             onClick={nextTrack}
           />
-          <BsRepeat
-            className={`text-xl  cursor-pointer ${
-              repeatMode !== "off"
-                ? `text-green-400 `
-                : `text-gray-400 hover:animate-pulse `
-            }  transition-all duration-300`}
+          <button
+            type="button"
             onClick={cycleRepeat}
-            title={`Repeat ${repeatMode === "all" ? "All" : repeatMode === "one" ? "One" : "Off"}`}
-          />
+            title={repeatMode === "one" ? "Repeat One" : `Repeat ${repeatMode === "all" ? "All" : "Off"}`}
+            disabled={isInAutoplay}
+            tabIndex={0}
+            aria-disabled={isInAutoplay}
+            className={`text-xl transition-all duration-300 flex items-center justify-center
+              ${repeatMode === "one"
+                ? "text-green-400"
+                : repeatMode === "all"
+                  ? "text-green-400"
+                  : "text-gray-400 hover:animate-pulse"}
+              ${isInAutoplay ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
+              bg-transparent border-none p-0 m-0`}
+            style={{ background: "none", border: "none" }}
+          >
+            {repeatMode === "one" ? (
+              <BsRepeat1 />
+            ) : (
+              <BsRepeat />
+            )}
+          </button>
         </div>
         <div className="w-full hidden sm:block">
           <LiveSeekbar showTime={true} width="w-[60%]" />

@@ -46,7 +46,7 @@ const SavePlaylistButton = ({ id, onUpdate }) => {
         });
       }}
       className={`
-        p-1
+        px-3
         rounded-full
         border-2 border-white/50
         bg-transparent
@@ -54,9 +54,7 @@ const SavePlaylistButton = ({ id, onUpdate }) => {
         text-sm
         font-semibold
         transition-all duration-200
-        w-auto
-        min-w-[100px]
-        max-w-[200px]
+
         ${pending ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}
       `}
     >

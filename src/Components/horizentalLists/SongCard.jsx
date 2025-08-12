@@ -4,12 +4,49 @@ import React, { useContext, useState } from "react";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
 import { usePlayer } from "@/Contexts/playerContext";
+import { useRouter, usePathname } from "next/navigation";
 
 const SongCard = (props) => {
-  const { handlePlayFromType, conditionCheckForSong , isPlaying} = usePlayer();
+  const { handlePlayFromType, conditionCheckForSong, isPlaying } = usePlayer();
   const conditionCheck = conditionCheckForSong(props.item);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Helper to update recentSearchesArray only if on /search route
+  const updateRecentSearchesIfSearchRoute = () => {
+    if (pathname === "/search") {
+      let recentSearchesArray = [];
+      try {
+        const stored = localStorage.getItem("recentSearchesArray");
+        if (stored) {
+          recentSearchesArray = JSON.parse(stored);
+        }
+      } catch (e) {
+        recentSearchesArray = [];
+      }
+
+      // Optionally: prevent duplicates (by _id)
+      const alreadyExists = recentSearchesArray.some(
+        (item) => item._id === props.item._id
+      );
+      if (!alreadyExists) {
+        recentSearchesArray.unshift(props.item);
+      }
+
+      localStorage.setItem(
+        "recentSearchesArray",
+        JSON.stringify(recentSearchesArray)
+      );
+    }
+  };
+
   return (
-    <div className="p-2 rounded-[5px] group hover:bg-white/8 cursor-pointer transition-all duration-300 relative active:bg-white/15">
+    <div
+      className="p-2 rounded-[5px] group hover:bg-white/8 cursor-pointer transition-all duration-300 relative active:bg-white/15"
+      onClick={() => {
+        updateRecentSearchesIfSearchRoute();
+      }}
+    >
       <div className=" w-[95px] sm:w-[150px]  overflow-hidden  m-1  ">
         <div className="w-[100%] h-[95px] sm:h-[150px] ">
           <img
@@ -40,12 +77,12 @@ const SongCard = (props) => {
               : "bottom-0 opacity-0"
           }  right-[15%]  group-hover:bottom-[30%] group-hover:opacity-100 transition-all duration-300 active:transform-[scale(0.95)]`}
           onClick={(e) => {
-            e.stopPropagation()
+            e.stopPropagation();
+            updateRecentSearchesIfSearchRoute();
             handlePlayFromType(props.item);
           }}
         >
           <span>
-            {/* <IoIosPlay className='text-3xl pl-1  invert'/> */}
             <span>
               {conditionCheck && isPlaying ? (
                 <IoIosPause className="text-3xl  text-black cursor-pointer" />

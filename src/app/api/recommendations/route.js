@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Song from "@/models/Song";
 import User from "@/models/User";
+import Album from "@/models/Album";
+import Playlist from "@/models/Playlist";
 
 export async function GET(req) {
   await connectDB();
@@ -19,7 +21,7 @@ export async function GET(req) {
   // Load seed song if needed to get genre/artist
   let seedSong = null;
   if (seedSongId) {
-    seedSong = await Song.findById(seedSongId).populate("artist", "name image _id").lean();
+    seedSong = await Song.findById(seedSongId).populate("artist", "name image _id bio").lean();
   }
 
   const excludeSet = new Set(exclude.map(String));
@@ -32,24 +34,48 @@ export async function GET(req) {
     const artistId = seedArtistId || seedSong.artist._id;
     queries.push(
       Song.find({ artist: artistId, _id: { $ne: seedSongId } })
-        .populate("artist", "name image _id")
+        .populate("artist", "name image _id bio")
         .sort({ views: -1, createdAt: -1 })
         .limit(limit * 3)
         .lean()
     );
   }
-  // Tier B: same genre other artists
-  if (seedSong?.genre) {
+  // Tier B: same genres other artists (any overlap)
+  if (Array.isArray(seedSong?.genres) && seedSong.genres.length > 0) {
     queries.push(
-      Song.find({ genre: seedSong.genre, _id: { $ne: seedSongId } })
-        .populate("artist", "name image _id")
+      Song.find({ genres: { $in: seedSong.genres }, _id: { $ne: seedSongId } })
+        .populate("artist", "name image _id bio")
         .sort({ views: -1, createdAt: -1 })
         .limit(limit * 3)
         .lean()
     );
+  }
+  // Tier C: same album other tracks
+  if (seedAlbumId || seedSong?.album) {
+    const albumId = seedAlbumId || seedSong.album;
+    queries.push(
+      Song.find({ album: albumId, _id: { $ne: seedSongId } })
+        .populate("artist", "name image _id bio")
+        .sort({ views: -1, createdAt: -1 })
+        .limit(limit * 2)
+        .lean()
+    );
+  }
+  // Tier D: from the same playlist context
+  if (seedPlaylistId) {
+    const playlist = await Playlist.findById(seedPlaylistId)
+      .populate({ path: "songs.song", select: "name image artist album _id fileUrl genres views createdAt", populate: [{ path: "artist", select: "name image _id bio" }] })
+      .lean();
+    if (playlist?.songs?.length) {
+      const songsFromPlaylist = playlist.songs
+        .map(s => s.song)
+        .filter(Boolean)
+        .filter(s => String(s._id) !== String(seedSongId));
+      queries.push(Promise.resolve(songsFromPlaylist.slice(0, limit * 2)));
+    }
   }
 
-  // Tier C: user affinity (if logged in)
+  // Tier E: user affinity (if logged in) [kept simple]
   let affinityArtists = new Map();
   let affinityGenres = new Map();
   if (session) {
@@ -63,7 +89,16 @@ export async function GET(req) {
     // From nested recents we will rely on Tier A/B. Keep simple for v1.
   }
 
-  const results = (await Promise.all(queries)).flat();
+  let results = (await Promise.all(queries)).flat();
+  // Tier F: fallback by top viewed across site if still not enough
+  if (!results || results.length < limit) {
+    const topViewed = await Song.find({})
+      .populate("artist", "name image _id bio")
+      .sort({ views: -1, createdAt: -1 })
+      .limit(limit * 3)
+      .lean();
+    results = [...results, ...topViewed];
+  }
   // Dedup by id and filter excludes
   const seen = new Set();
   const deduped = [];

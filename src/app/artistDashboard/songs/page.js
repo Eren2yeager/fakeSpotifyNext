@@ -2,29 +2,21 @@
 import React, { useState, useEffect } from "react";
 import { useTransition } from "react";
 import ThreeDotsLoader from "@/Components/Helper/ThreeDotsLoader";
-import {
-  Plus,
-  Play,
-  MoreHorizontal,
-  Music,
-  Disc,
-  Users,
-  TrendingUp,
-} from "lucide-react";
+import { Plus, Music } from "lucide-react";
 
 import {
   Card,
-  StatsCards,
   Button,
   Badge,
 } from "@/Components/ArtistdashboardComponents/artistDashboardHelpers";
+import ArtistSongRow from "@/Components/ArtistdashboardComponents/ArtistSongRow";
 import AddSongPopup from "@/Components/ArtistdashboardComponents/AddSongPopUp";
-import { SongCardArtist } from "@/Components/ArtistdashboardComponents/artistDashboardHelpers";
 import dateFormatter from "@/functions/dateFormatter";
 import NotFound from "@/Components/Helper/not-found";
 import ArtistSongThreeDots from "@/Components/ArtistdashboardComponents/artistSongThreeDots";
+
 const page = () => {
-  const [isUpdated, setIsUpdated] = useState(false)
+  const [isUpdated, setIsUpdated] = useState(false);
 
   const [pending, startTransition] = useTransition();
   const [songs, setSongs] = useState(null);
@@ -38,15 +30,15 @@ const page = () => {
     setSongs(data);
     console.log("Fetched artist:");
   };
+
   useEffect(() => {
-    setIsUpdated(false)
+    setIsUpdated(false);
     startTransition(async () => {
       await fetchSongs();
     });
   }, [isUpdated]);
 
   const [showPopup, setShowPopup] = useState(false);
-  
 
   return (
     <>
@@ -56,13 +48,15 @@ const page = () => {
         </div>
       ) : (
         <>
-          { (
+          {showPopup && (
             <AddSongPopup
               open={showPopup}
               onClose={() => {
                 setShowPopup(false);
               }}
-              onUpdate={()=>{setIsUpdated(true)}}
+              onUpdate={() => {
+                setIsUpdated(true);
+              }}
             />
           )}
           {songs?.length == 0 && (
@@ -92,57 +86,28 @@ const page = () => {
               <Card className="p-6 w-full">
                 <div className="space-y-4 w-full">
                   {songs?.map((song) => (
-                    <div
-                      key={song._id}
-                      className="flex flex-col gap-2 sm:flex-row items-center sm:justify-between p-4 rounded-lg border hover:shadow-sm transition-all w-full"
-                    >
-                      <div className="flex items-center space-x-4 self-start max-w-full flex-1 min-w-0">
-                        {/* <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <Play className="h-4 w-4" />
-                        </Button> */}
-                        <div className="min-w-16 min-h-16 max-w-16 max-h-16 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                          {song.image ? (
-                            <img
-                              src={song.image}
-                              alt={song.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Music className="h-6 w-6 text-muted-foreground" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <h4 className="font-semibold truncate" title={song.name}>
-                            {song.name}
-                          </h4>
-                          <p
-                            className="text-sm text-muted-foreground truncate"
-                            title={`${song.genre} • ${song.duration}`}
-                          >
-                            {song.genre} • {song.duration}
-                          </p>
-                        </div>
+                    <ArtistSongRow key={song._id} song={song}>
+                      <div className="text-right">
+                        <p
+                          className="text-sm font-medium truncate max-w-[120px] sm:max-w-[180px] md:max-w-[240px] lg:max-w-[320px]"
+                          title={song.album ? song.album.name : "Single"}
+                        >
+                          {song.album ? song.album.name : "Single"}
+                        </p>
+                        <p className="text-xs text-nowrap text-muted-foreground">
+                          {dateFormatter(song.createdAt)}
+                        </p>
                       </div>
-                      <div className="flex items-center space-x-6 self-end sm:self-auto flex-shrink-0">
-                        <div className="text-right">
-                          <p
-                            className="text-sm font-medium truncate max-w-[120px] sm:max-w-[180px] md:max-w-[240px] lg:max-w-[320px]"
-                            title={song.album ? song.album.name : "Single"}
-                          >
-                            {song.album ? song.album.name : "Single"}
-                          </p>
-                          <p className="text-xs text-nowrap text-muted-foreground">
-                            {dateFormatter(song.createdAt)}
-                          </p>
-                        </div>
-                        <Badge variant={song.album ? "default" : "secondary"}>
-                          {song.album ? "Album" : "Single"}
-                        </Badge>
-                        <ArtistSongThreeDots song={song} onUpdate={()=>{setIsUpdated(true)}}/>
-                      </div>
-                    </div>
+                      <Badge variant={song.album ? "default" : "secondary"}>
+                        {song.album ? "Album" : "Single"}
+                      </Badge>
+                      <ArtistSongThreeDots
+                        song={song}
+                        onUpdate={() => {
+                          setIsUpdated(true);
+                        }}
+                      />
+                    </ArtistSongRow>
                   ))}
                 </div>
               </Card>
@@ -152,5 +117,6 @@ const page = () => {
       )}
     </>
   );
-}
+};
+
 export default page;

@@ -13,8 +13,8 @@ export async function POST(req) {
     }
 
     const songs = await Song.find({ _id: { $in: songIds } })
-      .populate("artist", "name _id")
-      .populate("album", "name _id")
+      .populate("artist", "name image bio  _id")
+      .populate("album", "name image _id")
       .lean();
 
     return NextResponse.json({ songs });

@@ -10,12 +10,8 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import {
-  Card,
-  StatsCards,
-  Button,
-  Badge,
-} from "@/Components/ArtistdashboardComponents/artistDashboardHelpers";
+import { Card, StatsCards, Button, Badge } from "@/Components/ArtistdashboardComponents/artistDashboardHelpers";
+import ArtistSongRow from "@/Components/ArtistdashboardComponents/ArtistSongRow";
 import { useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import ThreeDotsLoader from "@/Components/Helper/ThreeDotsLoader";
@@ -189,48 +185,11 @@ const ArtistOverview = () => {
 
               <div className="space-y-4 w-full">
                 {artist?.songs?.map((song) => (
-                  <div
-                    key={song._id}
-                    className="flex flex-col gap-2 sm:flex-row items-center sm:justify-between p-4 rounded-lg border hover:shadow-sm transition-all w-full"
-                  >
-                    <div className="flex items-center space-x-4 self-start max-w-full flex-1 min-w-0">
-                      {/* <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <Play className="h-4 w-4" />
-                    </Button> */}
-                      <div className="min-w-16 min-h-16 max-w-16 max-h-16 rounded-md overflow-hidden bg-muted flex-shrink-0">
-                        {song.image ? (
-                          <img
-                            src={song.image}
-                            alt={song.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Music className="h-6 w-6 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <h4
-                          className="font-semibold truncate"
-                          title={song.name}
-                        >
-                          {song.name}
-                        </h4>
-                        <p
-                          className="text-sm text-muted-foreground truncate"
-                          title={`${song.genre} • ${song.duration}`}
-                        >
-                          {song.genre} • {song.duration}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-6 self-end sm:self-auto flex-shrink-0">
-                      <Badge variant={song.album ? "default" : "secondary"}>
-                        {song.album ? "Album" : "Single"}
-                      </Badge>
-                    </div>
-                  </div>
+                  <ArtistSongRow key={song._id} song={song}>
+                    <Badge variant={song.album ? "default" : "secondary"}>
+                      {song.album ? "Album" : "Single"}
+                    </Badge>
+                  </ArtistSongRow>
                 ))}
               </div>
             </Card>

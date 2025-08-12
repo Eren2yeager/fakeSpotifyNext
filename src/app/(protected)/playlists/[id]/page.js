@@ -147,7 +147,8 @@ const MiddlePlaylistView = () => {
   // for hovering show playbutton
 
   // to play the song from playlist or just a song
-  const { handlePlayFromType, conditionCheckForSong , isPlaying ,setIsPlaying} = usePlayer();
+  const { handlePlayFromType, conditionCheckForSong, isPlaying, setIsPlaying } =
+    usePlayer();
 
   // it will tell the what is currenty playlist
   const conditionCheck = conditionCheckForSong(playlist);
@@ -172,7 +173,7 @@ const MiddlePlaylistView = () => {
           onScroll={handleScroll}
         >
           {!playlist?.specialtype &&
-            playlist?.createdBy._id === userProfile?._id && (
+            (playlist?.createdBy?.toString()=== userProfile?._id.toString() || playlist?.createdBy?._id  === userProfile?._id) && (
               <EditPlaylistModal
                 open={isModalOpen}
                 playlist={playlist}
@@ -217,7 +218,7 @@ const MiddlePlaylistView = () => {
                   className={`max-w-full max-h-full min-w-full min-h-full  object-cover rounded-xl  cursor-pointer `}
                 />
                 {!playlist?.specialtype &&
-                  playlist?.createdBy._id === userProfile?._id && (
+                  playlist?.createdBy?._id === userProfile?._id && (
                     <div className="w-[100%] h-[100%] hover:flex  absolute top-0 right-0 hidden group-hover:block rounded-xl  hover:bg-black/45 cursor-pointer">
                       <PiNotePencil
                         className="mx-auto my-auto brightness-150 text-white"
@@ -279,12 +280,12 @@ const MiddlePlaylistView = () => {
                 <div className={`${middleWidth > 640 ? "hidden" : ""}`}>
                   {playlist ? (
                     <ProfileCircle
-                      image={playlist?.createdBy.image || "/images/user.jpg"}
+                      image={playlist?.createdBy?.image || "/images/user.jpg"}
                       text={playlist?.createdBy?.name}
                       onClick={() => {
                         router.push(
                           `/profiles/${
-                            playlist.createdBy._id || playlist.createdBy
+                            playlist.createdBy?._id || playlist.createdBy
                           }`
                         );
                       }}
@@ -297,12 +298,12 @@ const MiddlePlaylistView = () => {
                   {playlist ? (
                     <div className={`${middleWidth < 640 ? "hidden" : ""}`}>
                       <ProfileCircle
-                        image={playlist?.createdBy.image || "/images/user.jpg"}
+                        image={playlist?.createdBy?.image || "/images/user.jpg"}
                         text={playlist?.createdBy?.name}
                         onClick={() => {
                           router.push(
                             `/profiles/${
-                              playlist.createdBy._id || playlist.createdBy
+                              playlist.createdBy?._id || playlist.createdBy
                             }`
                           );
                         }}
@@ -378,34 +379,37 @@ const MiddlePlaylistView = () => {
                     </div>
                     {scrolled && (
                       <p className="font-bold font-sans text-xl px-3 mr-auto max-w-full truncate">
-                        {playlist.name || "Playlist"}
+                        {playlist?.name || "Playlist"}
                       </p>
                     )}
 
-                    <p
-                      className={`font-bold font-sans text-xl px-3 mr-auto max-w-full truncate ${
-                        scrolled ? "hidden" : ""
-                      }`}
-                    >
-                      {playlist?.createdBy._id !== session.user._id &&
-                        playlist?.isPublic == true && (
-                          <SavePlaylistButton
+                <div
+                  className={`font-bold font-sans text-xl px-3 mr-auto max-w-full truncate  flex gap-5  ${
+                    scrolled ? "hidden" : ""
+                  }`}
+                >
+                     <SavePlaylistButton
                             id={playlist._id}
                             onUpdate={() => {
                               setIsUpdated(true);
                             }}
                           />
-                        )}
-                    </p>
+                  <div className="flex items-center">
 
-                    <p
+                  <AlbumPlaylistThreeDots item={playlist} type={playlist?.type} />
+                  </div>
+                </div>
+
+                    {/* <p
                       className={`font-bold font-sans text-xl px-3 mr-auto max-w-full truncate ${
                         scrolled ? "hidden" : ""
                       }`}
                     >
-    <AlbumPlaylistThreeDots item={playlist} type={playlist.type} />
-                      
-                    </p>
+                      <AlbumPlaylistThreeDots
+                        item={playlist}
+                        type={playlist.type}
+                      />
+                    </p> */}
 
                     <div className="max-w-[200px] flex   items-center justify-start backdrop-blur-3xl bg-white/8   transition-all duration-300  rounded-full h-10 border-2 border-transparent  cursor-pointer ">
                       <RiSearchLine
@@ -533,12 +537,12 @@ const MiddlePlaylistView = () => {
                           id: playlist._id,
                           name: playlist.name,
                         }}
-                        allSongs={playlist.songs.map(s => s.song)}
+                        allSongs={playlist.songs.map((s) => s.song)}
                         titleWidth={titleWidth}
                         albumWidth={albumWidth}
                         dateAddedWidth={dateAddedWidth}
                         playlistId={playlist._id}
-                        playlistCreaterId={playlist?.createdBy._id}
+                        playlistCreaterId={playlist?.createdBy?._id}
                       />
                     </div>
                   ))}

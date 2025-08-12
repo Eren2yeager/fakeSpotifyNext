@@ -12,28 +12,26 @@ function Home() {
   const [homeJson, setHomeJson] = useState(null)
 
   const [activeItem, setActiveItem] = useState(0)
-  const listItems=["All", "Music", "Podcasts"]
+  const listItems=["All", "Music", "Playlists"]
 
-  useEffect(async () => {
-    setLoading(true)
-    await fetch("/api/library/playlists")
-     .then(res => {
-       if (!res.ok) {
-         throw new Error("Failed to fetch playlists");
-       }
-       return res.json();
-     })
-     .then(data => {
-      setHomeJson(data);
-     })
-     .catch(err => {
-       console.error("❌ Error fetching playlists:", err);
-       setIsError(true)
-     })
-     .finally(()=>{
-      setLoading(false)
-       
-     })
+  useEffect(() => {
+    let ignore = false;
+    const load = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/home?limit=24");
+        if (!res.ok) throw new Error("Failed to fetch home");
+        const data = await res.json();
+        if (!ignore) setHomeJson(data);
+      } catch (err) {
+        console.error("❌ Error fetching home:", err);
+        if (!ignore) setIsError(true);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    };
+    load();
+    return () => { ignore = true; }
   }, [activeItem])
     
   const middleNavRef = useRef(null);
@@ -83,7 +81,8 @@ function Home() {
         <ListRender
           listItems={listItems}
           className="flex gap-3 px-5  h-full p-3  sticky top-0 z-30"
-          activeItem={{activeItem, setActiveItem}}
+          activeItem={activeItem}
+          setActiveItem={setActiveItem}
           />
       </div>
 
@@ -95,20 +94,28 @@ function Home() {
         onScroll={handleScroll}
         > 
         <GridCellContainer />
-        {/* mapping of home data */}
-
-        
-        {homeJson?.length >0 && homeJson.map((item, index) => {
-          return(
-            <div key={index}>
-            <HorizentalItemsList
-            heading={"Recemonded!"}
-            listItems={homeJson}
-            />
-            </div>
-          )
-          
-        })}
+        {/* Home sections */}
+        {activeItem === 0 && (
+          <>
+            <HorizentalItemsList heading={"New Releases"} listItems={(homeJson?.newReleaseAlbums||[]).map(a=>({ ...a, type: "Album" }))} />
+            <HorizentalItemsList heading={"From Artists You Follow"} listItems={(homeJson?.newSongsFromArtists||[]).map(s=>({ ...s, type: "Song" }))} />
+            <HorizentalItemsList heading={"Playlists From People You Follow"} listItems={(homeJson?.playlistsFromFollowing||[]).map(p=>({ ...p, type: "Playlist" }))} />
+            <HorizentalItemsList heading={"Trending Now"} listItems={(homeJson?.trendingSongs||[]).map(s=>({ ...s, type: "Song" }))} />
+          </>
+        )}
+        {activeItem === 1 && (
+          <>
+            <HorizentalItemsList heading={"New Releases"} listItems={(homeJson?.newReleaseAlbums||[]).map(a=>({ ...a, type: "Album" }))} />
+            <HorizentalItemsList heading={"Trending Songs"} listItems={(homeJson?.trendingSongs||[]).map(s=>({ ...s, type: "Song" }))} />
+            <HorizentalItemsList heading={"New From Followed Artists"} listItems={(homeJson?.newSongsFromArtists||[]).map(s=>({ ...s, type: "Song" }))} />
+          </>
+        )}
+        {activeItem === 2 && (
+          <>
+            <HorizentalItemsList heading={"Playlists From People You Follow"} listItems={(homeJson?.playlistsFromFollowing||[]).map(p=>({ ...p, type: "Playlist" }))} />
+            <HorizentalItemsList heading={"New Releases (Albums)"} listItems={(homeJson?.newReleaseAlbums||[]).map(a=>({ ...a, type: "Album" }))} />
+          </>
+        )}
 
 
       </div>

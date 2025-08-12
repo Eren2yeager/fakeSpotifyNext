@@ -2,6 +2,7 @@
 import { GrAdd } from "react-icons/gr";
 
 import { useState } from "react";
+import GENRES from "@/data/genres.json";
 import { useTransition } from "react";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { useUser } from "@/Contexts/userContex";
@@ -12,7 +13,7 @@ const EditSongPopup = ({ song, open, onClose , onUpdate }) => {
   const [pending, startTransition] = useTransition();
   const toast = useSpotifyToast();
   const [name, setName] = useState(song?.name);
-  const [genre, setGenre] = useState(song?.genre);
+  const [selectedGenres, setSelectedGenres] = useState(Array.isArray(song?.genres) ? song.genres : (song?.genre ? [song.genre] : []));
   const [image, setImage] = useState(song?.image);
   const [preview, setPreview] = useState(song?.image);
 
@@ -30,7 +31,7 @@ const EditSongPopup = ({ song, open, onClose , onUpdate }) => {
     formData.set("type", "addSong");
     formData.set("id", song._id);
     formData.set("name", name);
-    formData.set("genre", genre);
+    selectedGenres.forEach((g) => formData.append("genres", g));
 
     if (image) formData.set("image", image);
 
@@ -109,16 +110,28 @@ const EditSongPopup = ({ song, open, onClose , onUpdate }) => {
             />
           </div>
           <div>
-            <label className="block mb-1 text-sm text-gray-300 mr-auto">Genre</label>
-            <input
-              type="text"
-              value={genre}
-              onChange={(e) => setGenre(e.target.value)}
-              disabled={pending}
-              className="w-full p-3 bg-zinc-800 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Enter Genre"
-              required
-            />
+            <label className="block mb-1 text-sm text-gray-300 mr-auto">Genres</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-auto p-2 bg-zinc-800 rounded-lg">
+              {GENRES.map(({name: g, color}) => {
+                const active = selectedGenres.includes(g);
+                return (
+                  <button
+                    type="button"
+                    key={g}
+                    onClick={() =>
+                      setSelectedGenres((prev) =>
+                        prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]
+                      )
+                    }
+                    className={`text-left px-2 py-1 rounded`}
+                    style={{ backgroundColor: active ? color : "#3f3f46", color: active ? "#fff" : "#e5e7eb" }}
+                  >
+                    {g}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-2 text-xs text-gray-400">Selected: {selectedGenres.join(", ") || "None"}</div>
           </div>
 
           <button

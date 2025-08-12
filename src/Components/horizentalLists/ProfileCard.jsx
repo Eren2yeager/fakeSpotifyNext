@@ -66,7 +66,6 @@ const ProfileCard = (props) => {
             {props.item?.type}
           </div>
         </div>
-        {/* <img className="w-[25%] h-[25%] absolute bottom-0 right-[10%] opacity-0 group-hover:bottom-[35%] group-hover:opacity-100 transition-all duration-300" src="\src\images\playButton.svg" alt="" /> */}
       </div>
     </div>
   );

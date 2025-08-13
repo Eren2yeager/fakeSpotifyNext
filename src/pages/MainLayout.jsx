@@ -1,5 +1,5 @@
 "use client";
-import { useState, useContext, useRef, useEffect , memo } from "react";
+import { useState, useContext, useRef, useEffect, memo } from "react";
 import ImagePreviewer from "@/Components/Helper/ImagePreviewer.jsx";
 import { useWidthObserver } from "@/Components/Helper/WidthObserver";
 
@@ -24,7 +24,6 @@ function MainLayout({ children }) {
   useEffect(() => {
     renderCount.current++;
   });
-  console.log( "render counts: ",renderCount.current);
 
   const ContextShowRight = useContext(showRightContext);
   const ContextShowPlaylists = useContext(showPlaylistsContext);
@@ -70,8 +69,8 @@ function MainLayout({ children }) {
         setSubject(Math.min(350, Math.max(240, newWidth))); // minimum 300px and max-400px
 
         leftWidth <= 240
-          ? ContextShowPlaylists.setShowPlaylists(false)
-          : ContextShowPlaylists.setShowPlaylists(true);
+          ? ContextShowPlaylists?.setShowPlaylists(false)
+          : ContextShowPlaylists?.setShowPlaylists(true);
       }
     };
 
@@ -84,8 +83,7 @@ function MainLayout({ children }) {
     document.addEventListener("mouseup", onMouseUp);
   };
 
-
-  const [activeitemForleft, setActiveitemForleft] = useState(0)
+  const [activeitemForleft, setActiveitemForleft] = useState(0);
   return (
     <>
       <section className="select-none w-[100%] h-[100%] flex flex-col items-center justify-between relative font-sans bg-black overflow-hidden">
@@ -94,7 +92,7 @@ function MainLayout({ children }) {
         </div>
 
         <main className="w-[100%] h-[100%]  flex  text-white   gap-0.5 p-1.5  relative overflow-hidden transition-all duration-500 ">
-          {!ContextFullScreen.toggleFullScreen && (
+          {!ContextFullScreen?.toggleFullScreen && (
             <>
               <div className="sm:flex  hidden sm:block transition-all duration-300 justify-self-start ">
                 {ContextShowPlaylists?.showPlaylists ? (
@@ -102,8 +100,8 @@ function MainLayout({ children }) {
                     <BigLeft
                       leftWidth={leftWidth}
                       setLeftWidth={setLeftWidth}
-                      activeItem = {activeitemForleft}
-                      setActiveItem ={setActiveitemForleft}
+                      activeItem={activeitemForleft}
+                      setActiveItem={setActiveitemForleft}
                     />
                   </div>
                 ) : (
@@ -111,7 +109,7 @@ function MainLayout({ children }) {
                     <SmallLeft
                       leftWidth={leftWidth}
                       setLeftWidth={setLeftWidth}
-                      activeItem = {activeitemForleft}
+                      activeItem={activeitemForleft}
                     />
                   </div>
                 )}
@@ -119,7 +117,7 @@ function MainLayout({ children }) {
             </>
           )}
           {/* resizer left */}
-          {!ContextFullScreen.toggleFullScreen && (
+          {!ContextFullScreen?.toggleFullScreen && (
             <div
               data-resizer-name="left"
               ref={resizerRef}
@@ -130,7 +128,7 @@ function MainLayout({ children }) {
 
           <div
             className={`w-[100%] overflow-hidden ${
-              ContextFullScreen.toggleFullScreen
+              ContextFullScreen?.toggleFullScreen
                 ? `hidden transition-all duration -1`
                 : ``
             } `}
@@ -141,12 +139,12 @@ function MainLayout({ children }) {
             >
               {/* outlet */}
               {children}
-              {console.log(Context_middle_width.middleWidth)}
+              {console.log(Context_middle_width?.middleWidth)}
             </div>
           </div>
 
-          {!ContextFullScreen.toggleFullScreen &&
-            ContextShowRight.showRight && (
+          {!ContextFullScreen?.toggleFullScreen &&
+            ContextShowRight?.showRight && (
               <div
                 data-resizer-name="right"
                 ref={resizerRef}
@@ -154,10 +152,10 @@ function MainLayout({ children }) {
                 className="hidden sm:block  right-0 top-0 w-1 cursor-col-resize active:cursor-grab my-2  hover:bg-white"
               ></div>
             )}
-          {ContextShowRight.showRight && (
+          {ContextShowRight?.showRight && (
             <div
               className={`${
-                ContextFullScreen.toggleFullScreen
+                ContextFullScreen?.toggleFullScreen
                   ? "w-[100%] block"
                   : "w-[300px] hidden"
               } sm:block  `}

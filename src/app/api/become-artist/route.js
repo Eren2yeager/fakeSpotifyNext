@@ -1,5 +1,5 @@
 // pages/api/become-artist.js
-"use server"
+
 import {connectDB} from "@/lib/mongoose";
 import Artist from "@/models/Artist";
 import User from "@/models/User";

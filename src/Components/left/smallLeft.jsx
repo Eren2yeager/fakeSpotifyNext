@@ -2,11 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { GrAdd } from "react-icons/gr";
 
 import { showPlaylistsContext } from "../../Contexts/contexts";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { showRightContext } from "../../Contexts/contexts";
-import { createPlaylistForUser } from "@/app/(protected)/actions/playlistActions";
-import CreatePlaylistPopup from "../popups/createPlaylistPopup";
+
 import { useLibrary } from "@/Contexts/libraryContext";
 import { useRouter } from "next/navigation";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";

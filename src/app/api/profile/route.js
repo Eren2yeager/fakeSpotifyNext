@@ -4,7 +4,6 @@ import { connectDB } from "@/lib/mongoose";
 import User from "@/models/User";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth/[...nextauth]/route";
-import cloudinary from "@/lib/cloudinary";
 
 
 export async function POST(req) {
@@ -81,7 +80,7 @@ export async function POST(req) {
 
     if (image && typeof image === "object") {
       const buffer = Buffer.from(await image.arrayBuffer());
-
+      const cloudinary = (await import("@/lib/cloudinary")).default;
       const uploaded = await new Promise((resolve, reject) => {
         cloudinary.uploader
           .upload_stream(

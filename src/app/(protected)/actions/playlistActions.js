@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongoose";
 import User from "@/models/User";
-import cloudinary from "@/lib/cloudinary";
 
 import Playlist from "@/models/Playlist";
 
@@ -51,8 +50,7 @@ export async function createPlaylistForUser() {
 
 //  to edit a playlist
 
-// ✅ Edit a playlist (with Cloudinary image upload)
-// If you use cloudinary, make sure it's imported
+
 
 export async function editPlaylist(playlistId, formData) {
   const session = await getServerSession(authOptions);
@@ -79,7 +77,7 @@ export async function editPlaylist(playlistId, formData) {
   // Handle new image upload if it's a File
   if (image && typeof image === "object") {
     const buffer = Buffer.from(await image.arrayBuffer());
-
+    const cloudinary = (await import("@/lib/cloudinary")).default;
     const uploaded = await new Promise((resolve, reject) => {
       cloudinary.uploader
         .upload_stream(

@@ -14,7 +14,7 @@ export async function GET() {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    console.log(artist);
+
     await connectDB();
 
     // Find the artist by _id (from session), and populate songs and albums

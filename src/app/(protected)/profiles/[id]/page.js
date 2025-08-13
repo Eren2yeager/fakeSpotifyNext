@@ -59,7 +59,7 @@ const Profile = () => {
               SuggestBgColor(img)
                 .then((color) => {
                   setBgColor(color);
-                  console.log("bg :", color);
+        
                 })
                 .catch((err) => {
                   console.error("Error getting average color:", err);
@@ -80,7 +80,7 @@ const Profile = () => {
             try {
               const color = await SuggestBgColor(data.image);
               setBgColor(color); // or color.rgb
-              console.log("bg :", color);
+        
             } catch (err) {
               console.error("Error getting average color:", err);
             }

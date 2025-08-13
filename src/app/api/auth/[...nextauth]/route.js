@@ -67,7 +67,7 @@ export const authOptions = {
       if(dbUser.image){
         session.user.image = dbUser.image;
       }
-      console.log(session)
+
       return session;
     },
   },

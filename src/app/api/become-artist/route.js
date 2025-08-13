@@ -43,7 +43,7 @@ export async function POST(req) {
       image: secure_url,
     });
   
-    console.log(artist)
+
     user.artist = artist._id;
     user.isArtist = true;
     session.user.isArtist = true;

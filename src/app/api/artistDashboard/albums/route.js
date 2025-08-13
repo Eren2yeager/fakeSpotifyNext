@@ -1,3 +1,4 @@
+"use server"
 import { getArtistFromSession } from "@/app/(protected)/actions/artistActions";
 import { connectDB } from "@/lib/mongoose";
 import Album from "@/models/Album";

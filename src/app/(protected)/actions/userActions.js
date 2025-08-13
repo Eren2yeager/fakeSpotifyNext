@@ -1,6 +1,5 @@
 "use server";
 
-import cloudinary from "@/lib/cloudinary";
 import { revalidatePath } from "next/cache";
 import User from "@/models/User";
 import { connectDB } from "@/lib/mongoose";
@@ -25,7 +24,7 @@ export async function editUserProfile(formData) {
     if (image && typeof image === "object") {
       const buffer = await image.arrayBuffer();
       const bytes = Buffer.from(buffer);
-
+      const cloudinary = (await import("@/lib/cloudinary")).default;
       const uploaded = await new Promise((resolve, reject) => {
         cloudinary.uploader
           .upload_stream(

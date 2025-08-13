@@ -118,7 +118,7 @@ export async function POST(req) {
     }
 
     // Optionally, avoid logging sensitive info in production
-    console.log(song);
+
 
     return new Response(JSON.stringify({ message: true, song: song }), {
       status: 200,

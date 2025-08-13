@@ -16,7 +16,7 @@ function RootLayout({ children }) {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  console.log(" session from dsh", session);
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");

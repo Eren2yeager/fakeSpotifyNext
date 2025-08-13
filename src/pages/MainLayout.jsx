@@ -1,6 +1,5 @@
 "use client";
 import { useState, useContext, useRef, useEffect , memo } from "react";
-import { Outlet } from "react-router-dom";
 import ImagePreviewer from "@/Components/Helper/ImagePreviewer.jsx";
 import { useWidthObserver } from "@/Components/Helper/WidthObserver";
 

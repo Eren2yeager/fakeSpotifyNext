@@ -16,7 +16,6 @@ import { useRouter } from "next/navigation";
 import EditPlaylistModal from "@/Components/popups/updatePlaylistModel";
 import { PiNotePencil } from "react-icons/pi";
 import { useLibrary } from "@/Contexts/libraryContext";
-import AudioVisulizer from "@/Components/audioComponents/AudioVisulizer";
 import NotFound from "@/Components/Helper/not-found";
 import { useSession } from "next-auth/react";
 import ThreeDotsLoader from "@/Components/Helper/ThreeDotsLoader";
@@ -569,9 +568,7 @@ const MiddlePlaylistView = () => {
               )}
             </div>
           </div>
-          {/* <div className="w-full h-full">
-        <AudioVisulizer audioRef={Context_audio_ref.current} />
-      </div> */}
+
         </div>
       )}
     </>

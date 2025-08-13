@@ -10,7 +10,6 @@ import { IoIosPause } from "react-icons/io";
 import { MdSkipNext } from "react-icons/md";
 import { BsRepeat } from "react-icons/bs";
 import { BsRepeat1 } from "react-icons/bs";
-import AudioVisualizer from "../audioComponents/AudioVisulizer";
 import { usePlayer } from "@/Contexts/playerContext";
 const EndMiddle = (props) => {
 

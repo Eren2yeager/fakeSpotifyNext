@@ -5,6 +5,7 @@ import { connectDB } from "@/lib/mongoose";
 import User from "@/models/User";
 
 export const authOptions = {
+  trustHost: true,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -17,6 +18,8 @@ export const authOptions = {
   ],
   callbacks: {
     async signIn({ user }) {
+      console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
+
       await connectDB();
       const existingUser = await User.findOne({ email: user.email });
 
@@ -67,7 +70,7 @@ export const authOptions = {
       if(dbUser.image){
         session.user.image = dbUser.image;
       }
-
+      console.log("session:" ,session)
       return session;
     },
   },

@@ -10,7 +10,12 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import { Card, StatsCards, Button, Badge } from "@/Components/ArtistdashboardComponents/artistDashboardHelpers";
+import {
+  Card,
+  StatsCards,
+  Button,
+  Badge,
+} from "@/Components/ArtistdashboardComponents/artistDashboardHelpers";
 import ArtistSongRow from "@/Components/ArtistdashboardComponents/ArtistSongRow";
 import { useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -19,7 +24,7 @@ import { PiNotePencil } from "react-icons/pi";
 import dateFormatter from "@/functions/dateFormatter";
 import EditArtistDetailsPopup from "@/Components/ArtistdashboardComponents/EditArtistDetailsPoptup";
 const ArtistOverview = () => {
-  const [isUpdated, setIsUpdated] = useState(false)
+  const [isUpdated, setIsUpdated] = useState(false);
 
   const [artist, setArtist] = useState(null);
   const [pending, startTransition] = useTransition();
@@ -35,7 +40,7 @@ const ArtistOverview = () => {
   };
 
   useEffect(() => {
-    setIsUpdated(false)
+    setIsUpdated(false);
     startTransition(async () => {
       await fetchArtist();
     });
@@ -69,7 +74,7 @@ const ArtistOverview = () => {
     },
     {
       title: "Followers",
-      value: (artist?.followers.users.length + artist?.followers.artists.length),
+      value: artist?.followers.users.length + artist?.followers.artists.length,
       change: "+8.2%",
       icon: Users,
       trend: "up",
@@ -124,13 +129,21 @@ const ArtistOverview = () => {
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4" />
                       <span>
-                        {(artist?.followers.users.length + artist?.followers.artists.length).toLocaleString()} followers
+                        {(
+                          artist?.followers.users.length +
+                          artist?.followers.artists.length
+                        ).toLocaleString()}{" "}
+                        followers
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4" />
                       <span>
-                        {(artist?.following.users.length + artist?.following.artists.length).toLocaleString()} following
+                        {(
+                          artist?.following.users.length +
+                          artist?.following.artists.length
+                        ).toLocaleString()}{" "}
+                        following
                       </span>
                     </div>
                   </div>
@@ -194,12 +207,17 @@ const ArtistOverview = () => {
               </div>
             </Card>
             {/* // trailers for edit artist details */}
-            <EditArtistDetailsPopup
-              open={showPopup}
-              onClose={() => setShowPopup(false)}
-              artist={artist}
-              onUpdate={()=>{setIsUpdated(true)}}
-            />
+
+            {showPopup && (
+              <EditArtistDetailsPopup
+                open={showPopup}
+                onClose={() => setShowPopup(false)}
+                artist={artist}
+                onUpdate={() => {
+                  setIsUpdated(true);
+                }}
+              />
+            )}
           </div>
         )
       )}

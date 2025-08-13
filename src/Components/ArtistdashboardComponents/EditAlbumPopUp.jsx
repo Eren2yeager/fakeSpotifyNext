@@ -16,12 +16,42 @@ const EditALbumPopup = ({ album, open, onClose , onUpdate}) => {
   const [image, setImage] = useState(album?.image);
   const [preview, setPreview] = useState(album?.image);
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setImage(file);
-      setPreview(URL.createObjectURL(file));
+    if (!file) return;
+    const maxKB = 5120; // 5 MB
+    if (file.size > maxKB * 1024) {
+      toast({ text: `Image too large. Maximum size is ${maxKB/1024}MB` });
+      e.target.value = "";
+      return;
     }
+    try {
+      const bitmap = await createImageBitmap(file);
+      const { width, height } = bitmap;
+      bitmap.close();
+      if (width !== height) {
+        toast({ text: "Image must be square (e.g., 300x300)" });
+        e.target.value = "";
+        return;
+      }
+      if (width < 300) {
+        toast({ text: "Image too small. Minimum is 300x300" });
+        e.target.value = "";
+        return;
+      }
+      if (width > 1000) {
+        toast({ text: "Image too large. Maximum is 1000x1000" });
+        e.target.value = "";
+        return;
+      }
+    } catch (err) {
+      toast({ text: "Unable to read image. Choose a valid image file" });
+      e.target.value = "";
+      return;
+    }
+
+    setImage(file);
+    setPreview(URL.createObjectURL(file));
   };
   const handleSubmit = (e) => {
     e.preventDefault();

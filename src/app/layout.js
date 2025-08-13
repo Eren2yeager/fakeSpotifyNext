@@ -14,6 +14,7 @@ import { memo, useEffect } from "react";
     <html lang="en">
       <head>
       <script src="https://cdn.lordicon.com/lordicon.js"></script>
+      <link rel="icon" type="image/x-icon" href="/favicon.ico" />
       </head>
       <body className="relative m-0 p-0 w-[100vw] h-[100vh] bg-black  overflow-clip">
         <SessionProvider>

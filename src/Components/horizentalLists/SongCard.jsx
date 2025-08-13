@@ -43,8 +43,19 @@ const SongCard = (props) => {
   return (
     <div
       className="p-2 rounded-[5px] group hover:bg-white/8 cursor-pointer transition-all duration-300 relative active:bg-white/15"
-      onClick={() => {
-        updateRecentSearchesIfSearchRoute();
+      onClick={(e) => {
+        if (window.innerWidth < 640) {
+          e.stopPropagation();
+          updateRecentSearchesIfSearchRoute();
+          handlePlayFromType(props.item);
+        }
+      }}
+      onDoubleClick={(e) => {
+        if (window.innerWidth >= 640) {
+          e.stopPropagation();
+          updateRecentSearchesIfSearchRoute();
+          handlePlayFromType(props.item);
+        }
       }}
     >
       <div className=" w-[95px] sm:w-[150px]  overflow-hidden  m-1  ">

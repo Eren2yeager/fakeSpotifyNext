@@ -64,7 +64,7 @@ export const PlayerProvider = ({ children }) => {
   // Enhanced play function with queue management
   const play = useCallback((songList, current, contextInfo) => {
 
-    if (contextInfo.name === "Queue" && contextInfo.type === "Queue") {
+    if ( contextInfo.type === "Queue") {
       if (typeof current === "object" && current._id) {
         // userInsertQueue contains song objects, not just IDs? Let's check type
         setUserInsertQueue(prev => 
@@ -79,7 +79,7 @@ export const PlayerProvider = ({ children }) => {
         );
         setIsUserInsertedQueuePlaying(true);
         setCurrentSong(current);
-        setContext({ type: "Queue", name: "Queue", id: current._id });
+        setContext({ type: "Queue", name: current.name, id: current._id });
         
         setIsPlaying(true);
         return;

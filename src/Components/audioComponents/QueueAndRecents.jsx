@@ -20,7 +20,7 @@ import { useSession } from "next-auth/react";
 import dateFormatter from "@/functions/dateFormatter";
 import { CiCircleChevDown } from "react-icons/ci";
 import { CiCircleChevUp } from "react-icons/ci";
-
+import ThreeDotsLoader from "../Helper/ThreeDotsLoader";
 export default function QueueAndRecentsSide({ open, onClose, className, style }) {
   const {
     currentSong, context, originalQueue, userInsertQueue,
@@ -223,7 +223,7 @@ export default function QueueAndRecentsSide({ open, onClose, className, style })
             ) : (
               <>
                 {isInAutoplay && (
-                  <div className="flex p-3 w-full gap-5 text-sm">
+                  <div className="flex p-3 w-full gap-5 text-sm font-semibold">
                     Playing Recommended Songs
                   </div>
                 )}
@@ -293,7 +293,9 @@ export default function QueueAndRecentsSide({ open, onClose, className, style })
             {!session ? (
               <div className="p-4 text-center text-gray-400">Sign in to see your recently played</div>
             ) : !recents ? (
-              <div className="p-4 text-center text-gray-400">Loading...</div>
+              <div className="flex justify-center items-center w-full h-[300px]">
+                <ThreeDotsLoader />
+              </div>
             ) : recentsList.length > 0 ? (
               <div className="flex flex-col gap-2 mb-2 p-3">
                 {recentsList.map((item, idx) => {

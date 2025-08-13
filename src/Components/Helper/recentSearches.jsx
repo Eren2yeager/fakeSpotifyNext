@@ -28,7 +28,7 @@ export const RecentSearchItemCard = ({ item, handleDelete }) => {
   const handlePlayPause = (e) => {
     e.stopPropagation();
     // For non-song, non-profile, play first song in collection
-    if (item.type !== "Song" && item.type !== "Profile" && item.songs && item.songs.length > 0) {
+    if (item.type == "Song" ||  (item.type !== "Profile" && item.songs && item.songs.length > 0)) {
       handlePlayFromType(item);
     } 
   };
@@ -36,7 +36,7 @@ export const RecentSearchItemCard = ({ item, handleDelete }) => {
   // For Song: show artist name, for others: show type or other info
   const subtitle =
     item.type === "Song"
-      ? item.artist?.name || "artist-Name"
+      ? `${item?.type} • ${item.artist?.name}` || "artist-Name"
 
       : item.type;
 
@@ -55,7 +55,7 @@ export const RecentSearchItemCard = ({ item, handleDelete }) => {
             onClick={handlePlayPause}
             className="absolute top-1/4 right-1/4 invisible group-hover:visible"
           >
-            {conditionCheck == true && isPlaying ? (
+            {conditionCheck  && isPlaying ? (
               <IoIosPause className="text-2xl cursor-pointer" />
             ) : (
               <IoIosPlay className="text-2xl cursor-pointer" />

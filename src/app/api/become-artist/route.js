@@ -33,7 +33,6 @@ export async function POST(req) {
 
   if (image && typeof image === "object") {
     const buffer = Buffer.from(await image.arrayBuffer());
-
     const secure_url = await uploadToCloudinary(buffer, "spotify/artists", "image")
 
     // // Create artist

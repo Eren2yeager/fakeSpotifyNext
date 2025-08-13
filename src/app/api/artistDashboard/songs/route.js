@@ -1,4 +1,4 @@
-import { getArtistFromSession } from "@/app/(protected)/actions/artistActions";
+"use server"
 import { connectDB } from "@/lib/mongoose";
 import Song from "@/models/Song";
 import Artist from "@/models/Artist";

@@ -10,9 +10,8 @@
   },
   "dependencies": {
     "cloudinary": "^2.7.0",
-
-
     "framer-motion": "^12.23.6",
+    "fs": "^0.0.1-security",
     "lucide-react": "^0.526.0",
     "mongoose": "^8.16.4",
     "music-metadata": "^11.7.3",
@@ -21,7 +20,6 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0"
-
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

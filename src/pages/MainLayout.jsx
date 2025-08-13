@@ -97,7 +97,7 @@ function MainLayout({ children }) {
           {!ContextFullScreen.toggleFullScreen && (
             <>
               <div className="sm:flex  hidden sm:block transition-all duration-300 justify-self-start ">
-                {ContextShowPlaylists.showPlaylists ? (
+                {ContextShowPlaylists?.showPlaylists ? (
                   <div className="" style={{ width: `${leftWidth}px` }}>
                     <BigLeft
                       leftWidth={leftWidth}

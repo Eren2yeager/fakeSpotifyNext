@@ -15,7 +15,7 @@ import dateFormatter from "@/functions/dateFormatter";
 import NotFound from "@/Components/Helper/not-found";
 import ArtistSongThreeDots from "@/Components/ArtistdashboardComponents/artistSongThreeDots";
 
-const page = () => {
+const Page = () => {
   const [isUpdated, setIsUpdated] = useState(false);
 
   const [pending, startTransition] = useTransition();
@@ -119,4 +119,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

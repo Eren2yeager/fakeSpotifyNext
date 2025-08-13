@@ -4,18 +4,12 @@ import { useTransition } from "react";
 import ThreeDotsLoader from "@/Components/Helper/ThreeDotsLoader";
 import {
   Plus,
-  Play,
-  MoreHorizontal,
-  Music,
-  Disc,
-  Users,
-  TrendingUp,
+
 } from "lucide-react";
 import {
   Card,
-  StatsCards,
   Button,
-  Badge,
+
 } from "@/Components/ArtistdashboardComponents/artistDashboardHelpers";
 import AddAlbumPopup from "@/Components/ArtistdashboardComponents/AddAlbumPopup";
 import dateFormatter from "@/functions/dateFormatter";
@@ -24,7 +18,7 @@ import NotFound from "@/Components/Helper/not-found";
 import ArtistAlbumThreeDots from "@/Components/ArtistdashboardComponents/artistAlbumThreeDots";
 
 import { useRouter } from "next/navigation";
-const page = () => {
+const Page = () => {
   const [albums, setAlbums] = useState(null);
   const [pending, startTransition] = useTransition();
   const [isUpdated, setIsUpdated] = useState(false)
@@ -141,4 +135,4 @@ const page = () => {
   );
 }
 
-export default page;
+export default Page;

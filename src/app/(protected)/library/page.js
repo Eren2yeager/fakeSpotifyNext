@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import BigLeft from "@/Components/left/bigLeft";
-const page = () => {
+export default function Page () {
   const [activeitemForleft, setActiveitemForleft] = useState(0);
 
   return (
@@ -12,4 +12,3 @@ const page = () => {
   );
 };
 
-export default React.memo(page);

@@ -3,7 +3,7 @@ import { SessionProvider } from "next-auth/react";
 import "@/styles/index.css";
 import "@/styles/scrollbar.css";
 import { memo, useEffect } from "react";
-
+import Script from 'next/script';
  function RootLayout({ children }) {
   useEffect(() => {
     document.title = "Fake Spotify";
@@ -13,7 +13,7 @@ import { memo, useEffect } from "react";
   return (
     <html lang="en">
       <head>
-      <script src="https://cdn.lordicon.com/lordicon.js"></script>
+      <Script src="https://cdn.lordicon.com/lordicon.js" strategy="beforeInteractive" /> 
       <link rel="icon" type="image/x-icon" href="/favicon.ico" />
       </head>
       <body className="relative m-0 p-0 w-[100vw] h-[100vh] bg-black  overflow-clip">

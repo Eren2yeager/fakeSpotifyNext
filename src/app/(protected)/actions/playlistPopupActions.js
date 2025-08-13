@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { connectDB } from "@/lib/mongoose";
 import User from "@/models/User";
-import mongoose from "mongoose";
 
 import Playlist from "@/models/Playlist";
 

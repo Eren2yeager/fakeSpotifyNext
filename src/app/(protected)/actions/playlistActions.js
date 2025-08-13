@@ -52,60 +52,6 @@ export async function createPlaylistForUser() {
 
 
 
-export async function editPlaylist(playlistId, formData) {
-  const session = await getServerSession(authOptions);
-  if (!session) return null;
-
-  await connectDB();
-
-  // Find the playlist by its ID
-  const playlist = await Playlist.findById(playlistId);
-  if (!playlist) return null;
-
-  // Only allow editing if the user is the creator
-  if (
-    playlist.createdBy?.toString() !== session.user.id &&
-    playlist.createdBy?.toString() !== session.user._id
-  ) {
-    return null;
-  }
-
-  const name = formData.get("name");
-  const description = formData.get("description");
-  const image = formData.get("image");
-
-  // Handle new image upload if it's a File
-  if (image && typeof image === "object") {
-    const buffer = Buffer.from(await image.arrayBuffer());
-    const cloudinary = (await import("@/lib/cloudinary")).default;
-    const uploaded = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          {
-            folder: "spotify/playlists",
-            resource_type: "image",
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        )
-        .end(buffer);
-    });
-
-    playlist.image = uploaded.secure_url;
-  }
-
-  if (name) playlist.name = name;
-  if (description) playlist.description = description;
-
-  playlist.updatedAt = new Date();
-
-  await playlist.save();
-
-  return true;
-}
-
 // Delete a playlist according to the new playlist and userModel
 
 export async function deletePlaylist(playlistId) {

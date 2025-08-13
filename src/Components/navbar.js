@@ -13,7 +13,7 @@ import { useSession } from "next-auth/react";
 import { useUser } from "@/Contexts/userContex";
 import { useRouter } from "next/navigation";
 import ProfileCircle from "./Helper/profileCircle";
-const Navbar = memo(() => {
+const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const ContextFullScreen = useContext(ToggleFullScreenContext);
@@ -126,6 +126,6 @@ const Navbar = memo(() => {
       </div>
     </header>
   );
-});
+};
 
 export default Navbar;

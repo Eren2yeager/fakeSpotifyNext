@@ -1,6 +1,17 @@
 "use client";
 import { useState, useContext, useRef, useEffect, memo } from "react";
-import ImagePreviewer from "@/Components/Helper/ImagePreviewer.jsx";
+import dynamic from "next/dynamic";
+
+// Dynamically import components that use browser-only APIs or may break on prerender
+const ImagePreviewer = dynamic(() => import("@/Components/Helper/ImagePreviewer.jsx"), { ssr: false });
+const Navbar = dynamic(() => import("@/Components/navbar"), { ssr: false });
+const Right = dynamic(() => import("@/Components/right"), { ssr: false });
+const BigLeft = dynamic(() => import("@/Components/left/bigLeft"), { ssr: false });
+const SmallLeft = dynamic(() => import("@/Components/left/smallLeft"), { ssr: false });
+const BigEndbar = dynamic(() => import("@/Components/endbars/bigEndbar"), { ssr: false });
+const SmallEndbar = dynamic(() => import("@/Components/endbars/smallEndbar"), { ssr: false });
+const AudioComponent = dynamic(() => import("@/Components/audioComponents/AudioComponent"), { ssr: false });
+
 import { useWidthObserver } from "@/Components/Helper/WidthObserver";
 
 import {
@@ -10,46 +21,39 @@ import {
   middleWidthContext,
 } from "@/Contexts/contexts.js";
 
-import Navbar from "@/Components/navbar";
-import Right from "@/Components/right";
-import BigLeft from "@/Components/left/bigLeft";
-import SmallLeft from "@/Components/left/smallLeft";
-import BigEndbar from "@/Components/endbars/bigEndbar";
-import SmallEndbar from "@/Components/endbars/smallEndbar";
-import AudioComponent from "@/Components/audioComponents/AudioComponent";
-
 function MainLayout({ children }) {
   const renderCount = useRef(0);
 
   useEffect(() => {
     renderCount.current++;
-  });
+  }, []);
 
   const ContextShowRight = useContext(showRightContext);
   const ContextShowPlaylists = useContext(showPlaylistsContext);
   const ContextFullScreen = useContext(ToggleFullScreenContext);
   const Context_middle_width = useContext(middleWidthContext);
 
-  const ref = useWidthObserver(Context_middle_width?.setMiddleWidth); // giving your own state setter
+  const ref = useWidthObserver(Context_middle_width?.setMiddleWidth);
 
   // for resizing
-  const [rightWidth, setRightWidth] = useState(300); // Initial px width
-  const [leftWidth, setLeftWidth] = useState(300); // Initial px width
+  const [rightWidth, setRightWidth] = useState(300);
+  const [leftWidth, setLeftWidth] = useState(300);
   const resizerRef = useRef(null);
 
   const startResizing = (e) => {
-    const target = e.target.getAttribute("data-resizer-name");
+    if (typeof window === "undefined") return; // Prevent running on server
 
+    const target = e.target.getAttribute("data-resizer-name");
     const startX = e.clientX;
 
     let subject = null;
     let setSubject = null;
-    if (target == "right") {
+    if (target === "right") {
       subject = rightWidth;
       setSubject = (value) => {
         setRightWidth(value);
       };
-    } else if (target == "left") {
+    } else if (target === "left") {
       subject = leftWidth;
       setSubject = (value) => {
         setLeftWidth(value);
@@ -58,19 +62,19 @@ function MainLayout({ children }) {
     let startWidth = subject;
 
     const onMouseMove = (e) => {
-      // to control auto close and open on width
-
       let newWidth;
-      if (target == "right") {
+      if (target === "right") {
         newWidth = startWidth + (startX - e.clientX);
-        setSubject(Math.min(400, Math.max(240, newWidth))); // minimum 300px and max-400px
+        setSubject(Math.min(400, Math.max(240, newWidth)));
       } else {
         newWidth = startWidth + (e.clientX - startX);
-        setSubject(Math.min(350, Math.max(240, newWidth))); // minimum 300px and max-400px
+        setSubject(Math.min(350, Math.max(240, newWidth)));
 
-        leftWidth <= 240
-          ? ContextShowPlaylists?.setShowPlaylists(false)
-          : ContextShowPlaylists?.setShowPlaylists(true);
+        if (leftWidth <= 240) {
+          ContextShowPlaylists?.setShowPlaylists(false);
+        } else {
+          ContextShowPlaylists?.setShowPlaylists(true);
+        }
       }
     };
 
@@ -84,11 +88,12 @@ function MainLayout({ children }) {
   };
 
   const [activeitemForleft, setActiveitemForleft] = useState(0);
+
   return (
     <>
       <section className="select-none w-[100%] h-[100%] flex flex-col items-center justify-between relative font-sans bg-black overflow-hidden">
         <div className="w-[100%] hidden sm:block">
-          <Navbar></Navbar>
+          <Navbar />
         </div>
 
         <main className="w-[100%] h-[100%]  flex  text-white   gap-0.5 p-1.5  relative overflow-hidden transition-all duration-500 ">
@@ -139,7 +144,7 @@ function MainLayout({ children }) {
             >
               {/* outlet */}
               {children}
-              {console.log(Context_middle_width?.middleWidth)}
+              {/* Remove console.log to avoid issues in build */}
             </div>
           </div>
 
@@ -161,7 +166,7 @@ function MainLayout({ children }) {
               } sm:block  `}
               style={{ minWidth: `${rightWidth}px` }}
             >
-              <Right></Right>
+              <Right />
             </div>
           )}
         </main>

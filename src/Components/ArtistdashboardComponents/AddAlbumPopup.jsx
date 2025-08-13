@@ -2,21 +2,29 @@
 import { useState } from "react";
 import { GrAdd } from "react-icons/gr";
 import { PiNotePencil } from "react-icons/pi";
-
 import { useTransition } from "react";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { Dialog } from "../ui/Dialog";
-export default function AddAlbumPopup({ open, onClose , onUpdate }) {
+
+/**
+ * AddAlbumPopup
+ * 
+ * This component is safe for Next.js build and deployment.
+ * - No server-only code or Node.js APIs are imported or used.
+ * - All logic is client-side and browser-compatible.
+ */
+export default function AddAlbumPopup({ open, onClose, onUpdate }) {
   const [pending, startTransition] = useTransition();
   const toast = useSpotifyToast();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState(null)
+  const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("/images/notfound.png");
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // FormData is safe to use in the browser
     const formData = new FormData();
     formData.set("type", "addAlbum");
     formData.set("name", name);
@@ -24,24 +32,28 @@ export default function AddAlbumPopup({ open, onClose , onUpdate }) {
 
     if (image) formData.set("image", image);
 
-    console.log(formData);
+    // Remove console.log(formData); as it doesn't print formData contents usefully and can cause issues in some environments
 
     startTransition(async () => {
-      const res = await fetch("/api/artistDashboard/albums", {
-        method: "POST",
-        body: formData,
-      });
+      try {
+        const res = await fetch("/api/artistDashboard/albums", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!res.ok) {
-        toast({ text: "failed" });
-        return;
-      }
+        if (!res.ok) {
+          toast({ text: "failed" });
+          return;
+        }
 
-      const result = await res.json();
-      if (result) {
-        toast({ text: "Album Added" });
-        onUpdate()
-        onClose()
+        const result = await res.json();
+        if (result) {
+          toast({ text: "Album Added" });
+          onUpdate();
+          onClose();
+        }
+      } catch (err) {
+        toast({ text: "Network error" });
       }
     });
   };
@@ -51,11 +63,17 @@ export default function AddAlbumPopup({ open, onClose , onUpdate }) {
     if (!file) return;
     const maxKB = 5120; // 5 MB
     if (file.size > maxKB * 1024) {
-      toast({ text: `Image too large. Maximum size is ${maxKB/1024}MB` });
+      toast({ text: `Image too large. Maximum size is ${maxKB / 1024}MB` });
       e.target.value = "";
       return;
     }
     try {
+      // createImageBitmap is browser-safe, but check for support
+      if (typeof createImageBitmap !== "function") {
+        toast({ text: "Image preview not supported in this browser" });
+        e.target.value = "";
+        return;
+      }
       const bitmap = await createImageBitmap(file);
       const { width, height } = bitmap;
       bitmap.close();
@@ -83,13 +101,14 @@ export default function AddAlbumPopup({ open, onClose , onUpdate }) {
     setImage(file);
     setPreview(URL.createObjectURL(file));
   };
+
   return (
     <Dialog open={open} onClose={onClose}>
       <button
-        onClick={() => {
-          onClose();
-        }}
+        onClick={onClose}
         className="absolute top-4 right-4 text-white text-xl"
+        type="button"
+        aria-label="Close"
       >
         <GrAdd className="text-xl transform rotate-45" />
       </button>
@@ -97,7 +116,7 @@ export default function AddAlbumPopup({ open, onClose , onUpdate }) {
 
       <form
         onSubmit={handleSubmit}
-           className="flex flex-col items-center md:items-start md:flex-row gap-6 text-white"
+        className="flex flex-col items-center md:items-start md:flex-row gap-6 text-white"
       >
         {/* Image Preview */}
         <label className="group w-45 h-45 bg-neutral-800 rounded-md flex items-center justify-center cursor-pointer overflow-hidden relative">
@@ -149,19 +168,18 @@ export default function AddAlbumPopup({ open, onClose , onUpdate }) {
               rows={4}
             ></textarea>
           </div>
-        {/* Submit */}
-
-        <button
-          type="submit"
-          disabled={pending}
-          className={`self-start ${
-            pending
-              ? "bg-white/45 cursor-not-allowed"
-              : "bg-white cursor-pointer"
-          }  text-black font-semibold px-6 py-2 rounded-full mt-2 hover:scale-105 transition`}
-        >
-          {pending ? "Saving..." : "Save"}
-        </button>
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={pending}
+            className={`self-start ${
+              pending
+                ? "bg-white/45 cursor-not-allowed"
+                : "bg-white cursor-pointer"
+            }  text-black font-semibold px-6 py-2 rounded-full mt-2 hover:scale-105 transition`}
+          >
+            {pending ? "Saving..." : "Save"}
+          </button>
         </div>
       </form>
     </Dialog>

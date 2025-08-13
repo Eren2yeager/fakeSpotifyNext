@@ -1,14 +1,23 @@
 "use client";
-import { GrAdd } from "react-icons/gr";
-
-import { useState } from "react";
+import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import { useTransition } from "react";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { useUser } from "@/Contexts/userContex";
 import { Dialog } from "../ui/Dialog";
-import { PiNotePencil } from "react-icons/pi";
 import { useRouter } from "next/navigation";
-const EditArtistDetailsPopup = ({ artist, open, onClose , onUpdate}) => {
+
+// Dynamically import icons to avoid Next.js build issues
+const GrAdd = dynamic(() =>
+  import("react-icons/gr").then((mod) => mod.GrAdd),
+  { ssr: false }
+);
+const PiNotePencil = dynamic(() =>
+  import("react-icons/pi").then((mod) => mod.PiNotePencil),
+  { ssr: false }
+);
+
+const EditArtistDetailsPopup = ({ artist, open, onClose, onUpdate }) => {
   const [pending, startTransition] = useTransition();
   const toast = useSpotifyToast();
   const [name, setName] = useState(artist?.name);
@@ -21,7 +30,7 @@ const EditArtistDetailsPopup = ({ artist, open, onClose , onUpdate}) => {
     if (!file) return;
     const maxKB = 5120; // 5 MB
     if (file.size > maxKB * 1024) {
-      toast({ text: `Image too large. Maximum size is ${maxKB/1024}MB` });
+      toast({ text: `Image too large. Maximum size is ${maxKB / 1024}MB` });
       e.target.value = "";
       return;
     }
@@ -53,6 +62,7 @@ const EditArtistDetailsPopup = ({ artist, open, onClose , onUpdate}) => {
     setImage(file);
     setPreview(URL.createObjectURL(file));
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -78,7 +88,7 @@ const EditArtistDetailsPopup = ({ artist, open, onClose , onUpdate}) => {
       const result = await res.json();
       if (result) {
         toast({ text: "Changes saved" });
-        onUpdate()
+        onUpdate();
         onClose();
       }
     });
@@ -86,7 +96,6 @@ const EditArtistDetailsPopup = ({ artist, open, onClose , onUpdate}) => {
 
   return (
     <Dialog open={open} onClose={onClose}>
-        
       <button
         onClick={() => {
           onClose();

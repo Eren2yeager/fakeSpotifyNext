@@ -4,11 +4,16 @@ import { useState } from "react";
 import GENRES from "@/data/genres.json";
 import { useTransition } from "react";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
-import { useUser } from "@/Contexts/userContex";
 import { Dialog } from "../ui/Dialog";
 import { PiNotePencil } from "react-icons/pi";
-import { useRouter } from "next/navigation";
 
+/**
+ * AddSongPopup
+ *
+ * This component is safe for Next.js build and deployment.
+ * - No server-only code or Node.js APIs are imported or used.
+ * - All logic is client-side and browser-compatible.
+ */
 const AddSongPopup = ({ open, onClose, onUpdate }) => {
   const [pending, startTransition] = useTransition();
   const toast = useSpotifyToast();
@@ -23,7 +28,7 @@ const AddSongPopup = ({ open, onClose, onUpdate }) => {
     if (!file) return;
     const maxKB = 5120; // 5 MB
     if (file.size > maxKB * 1024) {
-      toast({ text: `Image too large. Maximum size is ${maxKB/1024}MB` });
+      toast({ text: `Image too large. Maximum size is ${maxKB / 1024}MB` });
       e.target.value = "";
       return;
     }
@@ -59,6 +64,7 @@ const AddSongPopup = ({ open, onClose, onUpdate }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // FormData is safe to use in the browser
     const formData = new FormData();
     formData.set("type", "addSong");
     formData.set("name", name);
@@ -68,22 +74,26 @@ const AddSongPopup = ({ open, onClose, onUpdate }) => {
     if (audioFile) formData.set("audioFile", audioFile);
 
     startTransition(async () => {
-      const res = await fetch("/api/artistDashboard/songs", {
-        method: "POST",
-        body: formData,
-      });
+      try {
+        const res = await fetch("/api/artistDashboard/songs", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!res.ok) {
+        if (!res.ok) {
+          toast({ text: "failed" });
+          return;
+        }
+
+        const result = await res.json();
+        if (result) {
+          toast({ text: "Song Added" });
+          onUpdate();
+        }
+        onClose();
+      } catch (err) {
         toast({ text: "failed" });
-        return;
       }
-
-      const result = await res.json();
-      if (result) {
-        toast({ text: "Song Added" });
-        onUpdate();
-      }
-      onClose();
     });
   };
 

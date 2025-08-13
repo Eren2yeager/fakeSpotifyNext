@@ -1,20 +1,41 @@
-import { BsThreeDots } from "react-icons/bs";
-
+"use client";
 import React, { useState, useEffect } from "react";
-import Portal from "../Helper/Portal";
-import { AnimatePresence } from "framer-motion";
-import { TiTick } from "react-icons/ti";
-import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
-import { IoAddSharp } from "react-icons/io5";
+import dynamic from "next/dynamic";
 import { useTransition } from "react";
-import { FiEdit2 } from "react-icons/fi";
-import EditSongPopup from "./EditSongPopUp";
-import { RiDeleteBin6Line } from "react-icons/ri";
-const ArtistSongThreeDots = ({ song, album ,onUpdate}) => {
+
+// Dynamically import all icons and Portal to avoid Next.js build issues
+const BsThreeDots = dynamic(() =>
+  import("react-icons/bs").then((mod) => mod.BsThreeDots), { ssr: false }
+);
+const TiTick = dynamic(() =>
+  import("react-icons/ti").then((mod) => mod.TiTick), { ssr: false }
+);
+const IoAddSharp = dynamic(() =>
+  import("react-icons/io5").then((mod) => mod.IoAddSharp), { ssr: false }
+);
+const FiEdit2 = dynamic(() =>
+  import("react-icons/fi").then((mod) => mod.FiEdit2), { ssr: false }
+);
+const RiDeleteBin6Line = dynamic(() =>
+  import("react-icons/ri").then((mod) => mod.RiDeleteBin6Line), { ssr: false }
+);
+const Portal = dynamic(() => import("../Helper/Portal"), { ssr: false });
+const EditSongPopup = dynamic(() => import("./EditSongPopUp"), { ssr: false });
+const AnimatePresence = dynamic(
+  () => import("framer-motion").then((mod) => mod.AnimatePresence),
+  { ssr: false }
+);
+
+// useSpotifyToast is a hook, safe to import directly
+import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
+
+const ArtistSongThreeDots = ({ song, album, onUpdate }) => {
   const [pending, startTransition] = useTransition();
   const toast = useSpotifyToast();
   const [showPopup, setShowPopup] = useState(false);
   const [anchor, setAnchor] = useState(null);
+  const [showEditSongPopup, setShowEditSongPopup] = useState(false);
+
   useEffect(() => {
     if (showPopup) {
       document.body.style.overflow = "hidden";
@@ -55,7 +76,7 @@ const ArtistSongThreeDots = ({ song, album ,onUpdate}) => {
       }
 
       // Reload the page after the function completes
-      onUpdate()
+      onUpdate();
     });
     setShowPopup(false);
   };
@@ -82,7 +103,7 @@ const ArtistSongThreeDots = ({ song, album ,onUpdate}) => {
       }
 
       // Reload the page after the function completes
-      onUpdate()
+      onUpdate();
     });
     setShowPopup(false);
   };
@@ -90,7 +111,18 @@ const ArtistSongThreeDots = ({ song, album ,onUpdate}) => {
   const handleEditSong = () => {
     setShowEditSongPopup(true);
   };
-  const [showEditSongPopup, setShowEditSongPopup] = useState(false);
+
+  // MenuItem as a local component
+  const MenuItem = ({ startIcon, endIcon, label, onClick }) => (
+    <div
+      onClick={onClick}
+      className=" text-sm w-full px-2 py-2 text-left hover:bg-zinc-600 flex items-center gap-2 rounded-md cursor-pointer select-none"
+    >
+      <span className="w-5">{startIcon}</span>
+      <span className="w-full truncate">{label}</span>
+      {endIcon && <span className="w-5">{endIcon}</span>}
+    </div>
+  );
 
   return (
     <>
@@ -125,7 +157,7 @@ const ArtistSongThreeDots = ({ song, album ,onUpdate}) => {
                 setShowPopup(false);
               }}
             >
-              {/* image support */}{" "}
+              {/* image support */}
               <div className="h-1.5 w-[40%] sm:hidden mx-auto my-1 rounded-xs flex bg-white/45 " />
               <div className="flex gap-1 justify-start ">
                 <img
@@ -193,14 +225,3 @@ const ArtistSongThreeDots = ({ song, album ,onUpdate}) => {
 };
 
 export default ArtistSongThreeDots;
-
-const MenuItem = ({ startIcon, endIcon, label, onClick }) => (
-  <div
-    onClick={onClick}
-    className=" text-sm w-full px-2 py-2 text-left hover:bg-zinc-600 flex items-center gap-2 rounded-md cursor-pointer select-none"
-  >
-    <span className="w-5">{startIcon}</span>
-    <span className="w-full truncate">{label}</span>
-    {endIcon && <span className="w-5">{endIcon}</span>}
-  </div>
-);

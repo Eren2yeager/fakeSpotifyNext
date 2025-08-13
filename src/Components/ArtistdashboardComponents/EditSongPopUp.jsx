@@ -1,19 +1,34 @@
 "use client";
-import { GrAdd } from "react-icons/gr";
-
-import { useState } from "react";
+import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import GENRES from "@/data/genres.json";
 import { useTransition } from "react";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { useUser } from "@/Contexts/userContex";
 import { Dialog } from "../ui/Dialog";
-import { PiNotePencil } from "react-icons/pi";
 import { useRouter } from "next/navigation";
-const EditSongPopup = ({ song, open, onClose , onUpdate }) => {
+
+// Dynamically import icons to avoid Next.js build issues
+const GrAdd = dynamic(() =>
+  import("react-icons/gr").then((mod) => mod.GrAdd),
+  { ssr: false }
+);
+const PiNotePencil = dynamic(() =>
+  import("react-icons/pi").then((mod) => mod.PiNotePencil),
+  { ssr: false }
+);
+
+const EditSongPopup = ({ song, open, onClose, onUpdate }) => {
   const [pending, startTransition] = useTransition();
   const toast = useSpotifyToast();
   const [name, setName] = useState(song?.name);
-  const [selectedGenres, setSelectedGenres] = useState(Array.isArray(song?.genres) ? song.genres : (song?.genre ? [song.genre] : []));
+  const [selectedGenres, setSelectedGenres] = useState(
+    Array.isArray(song?.genres)
+      ? song.genres
+      : song?.genre
+      ? [song.genre]
+      : []
+  );
   const [image, setImage] = useState(song?.image);
   const [preview, setPreview] = useState(song?.image);
 
@@ -22,7 +37,7 @@ const EditSongPopup = ({ song, open, onClose , onUpdate }) => {
     if (!file) return;
     const maxKB = 5120; // 5 MB
     if (file.size > maxKB * 1024) {
-      toast({ text: `Image too large. Maximum size is ${maxKB/1024}MB` });
+      toast({ text: `Image too large. Maximum size is ${maxKB / 1024}MB` });
       e.target.value = "";
       return;
     }
@@ -54,6 +69,7 @@ const EditSongPopup = ({ song, open, onClose , onUpdate }) => {
     setImage(file);
     setPreview(URL.createObjectURL(file));
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -79,7 +95,7 @@ const EditSongPopup = ({ song, open, onClose , onUpdate }) => {
       const result = await res.json();
       if (result) {
         toast({ text: "Song Edited" });
-        onUpdate()
+        onUpdate();
         onClose();
       }
     });
@@ -87,7 +103,6 @@ const EditSongPopup = ({ song, open, onClose , onUpdate }) => {
 
   return (
     <Dialog open={open} onClose={onClose}>
-        
       <button
         onClick={() => {
           onClose();
@@ -140,9 +155,11 @@ const EditSongPopup = ({ song, open, onClose , onUpdate }) => {
             />
           </div>
           <div>
-            <label className="block mb-1 text-sm text-gray-300 mr-auto">Genres</label>
+            <label className="block mb-1 text-sm text-gray-300 mr-auto">
+              Genres
+            </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-auto p-2 bg-zinc-800 rounded-lg">
-              {GENRES.map(({name: g, color}) => {
+              {GENRES.map(({ name: g, color }) => {
                 const active = selectedGenres.includes(g);
                 return (
                   <button
@@ -150,18 +167,25 @@ const EditSongPopup = ({ song, open, onClose , onUpdate }) => {
                     key={g}
                     onClick={() =>
                       setSelectedGenres((prev) =>
-                        prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]
+                        prev.includes(g)
+                          ? prev.filter((x) => x !== g)
+                          : [...prev, g]
                       )
                     }
                     className={`text-left px-2 py-1 rounded`}
-                    style={{ backgroundColor: active ? color : "#3f3f46", color: active ? "#fff" : "#e5e7eb" }}
+                    style={{
+                      backgroundColor: active ? color : "#3f3f46",
+                      color: active ? "#fff" : "#e5e7eb",
+                    }}
                   >
                     {g}
                   </button>
                 );
               })}
             </div>
-            <div className="mt-2 text-xs text-gray-400">Selected: {selectedGenres.join(", ") || "None"}</div>
+            <div className="mt-2 text-xs text-gray-400">
+              Selected: {selectedGenres.join(", ") || "None"}
+            </div>
           </div>
 
           <button

@@ -6,12 +6,13 @@
 "use client";
 
 import { useState, useEffect, useRef, useTransition } from "react";
-import { createPortal } from "react-dom";
-import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 
-import { RiSearchLine, RiSearchEyeFill } from "react-icons/ri";
-import { IoAddSharp } from "react-icons/io5";
+// Only import these on client, safe for Next.js
+import { motion } from "framer-motion";
+import { createPortal } from "react-dom";
+import { RiSearchLine } from "react-icons/ri";
 import { FaRegCircle } from "react-icons/fa";
 import { TiTick } from "react-icons/ti";
 import { FaArrowLeft } from "react-icons/fa6";
@@ -19,10 +20,13 @@ import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import NotFound from "../Helper/not-found";
 import ThreeDotsLoader from "../Helper/ThreeDotsLoader";
 
-/**********************
- * SERVER‑ACTION IMPORTS
- **********************/
-// Using inline portal UI similar to AddToPlaylistPopup
+/**
+ * AddSongToAlbumPopup
+ *
+ * This component is safe for Next.js build and deployment.
+ * - No server-only code or Node.js APIs are imported or used.
+ * - All logic is client-side and browser-compatible.
+ */
 export default function AddSongToAlbumPopup({
   album,
   anchorRect,
@@ -40,8 +44,11 @@ export default function AddSongToAlbumPopup({
 
   const popupRef = useRef(null);
   const [coords, setCoords] = useState({ top: 0, left: 0 });
+
+  // Only run this effect on client
   useEffect(() => {
     if (!anchorRect) return;
+    if (typeof window === "undefined") return;
     const { innerWidth, innerHeight } = window;
     const popupW = 300;
     const popupH = 400;
@@ -66,8 +73,7 @@ export default function AddSongToAlbumPopup({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose, changesMade]);
 
-   
- 
+  // Fetch songs from API (client-side only)
   const fetchSongs = async () => {
     try {
       setIsFetching(true);
@@ -85,13 +91,8 @@ export default function AddSongToAlbumPopup({
   };
   useEffect(() => {
     fetchSongs();
+    // eslint-disable-next-line
   }, []);
-
-  
-
-
-
-
 
   const toggleSong = (songId) => {
     setChangesMade(true);
@@ -102,11 +103,13 @@ export default function AddSongToAlbumPopup({
     );
   };
 
-  // 5. **Applying Changes**: When the user clicks "Done", call the server action to add selected songs to the album.
+  // When the user clicks "Done", call the server action to add selected songs to the album.
   const applyChanges = (e) => {
     e.stopPropagation();
     startTransition(async () => {
-      const toAdd = songs.filter((s) => !s.original && s.contains).map((s) => s._id);
+      const toAdd = songs
+        .filter((s) => !s.original && s.contains)
+        .map((s) => s._id);
       if (toAdd.length === 0) {
         onClose();
         return;
@@ -116,10 +119,10 @@ export default function AddSongToAlbumPopup({
         await fetch("/api/artistDashboard/applySongAlbumChanges", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ albumId: album._id, songIds: toAdd }), // Ensure this matches the API
+          body: JSON.stringify({ albumId: album._id, songIds: toAdd }),
         });
         toast({ text: "Songs added to album!" });
-        onUpdate()
+        onUpdate();
         onClose();
       } catch (err) {
         toast({ text: "Failed to add songs to album", type: "error" });
@@ -127,24 +130,14 @@ export default function AddSongToAlbumPopup({
     });
   };
 
-
-  
-
   const visibleSongs = Array.isArray(songs)
     ? songs
         .filter((a) => a.name.toLowerCase().includes(search.toLowerCase()))
         .map((a) => ({ ...a, original: a.original ?? a.contains }))
     : [];
 
-
-
-
-
-// -------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
+  // Only render portal on client
+  if (typeof window === "undefined") return null;
 
   return createPortal(
     <div
@@ -156,12 +149,14 @@ export default function AddSongToAlbumPopup({
     >
       <motion.div
         ref={popupRef}
-        initial={window.innerWidth <= 640 && { y: 300, opacity: 0 }}
-        exit={window.innerWidth <= 640 && { y: -200, opacity: 0 }}
-        animate={window.innerWidth <= 640 && { y: 0, opacity: 1 }}
+        initial={typeof window !== "undefined" && window.innerWidth <= 640 ? { y: 300, opacity: 0 } : false}
+        exit={typeof window !== "undefined" && window.innerWidth <= 640 ? { y: -200, opacity: 0 } : false}
+        animate={typeof window !== "undefined" && window.innerWidth <= 640 ? { y: 0, opacity: 1 } : false}
         transition={{ duration: 0.7, ease: "easeOut" }}
         style={
-          window.innerWidth >= 640 ? { top: coords.top, left: coords.left } : { bottom: "0" }
+          typeof window !== "undefined" && window.innerWidth >= 640
+            ? { top: coords.top, left: coords.left }
+            : { bottom: "0" }
         }
         className="fixed z-[10000] w-screen sm:w-[300px] h-screen sm:max-h-[400px] rounded-lg bg-zinc-900 p-3 shadow-xl border border-zinc-700 text-white overflow-y-auto sm:overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -250,7 +245,7 @@ export default function AddSongToAlbumPopup({
           >
             Cancel
           </button>
-          {(window.innerWidth < 640 || changesMade) && (
+          {(typeof window !== "undefined" && window.innerWidth < 640) || changesMade ? (
             <button
               className="text-black shadow-2xs shadow-black bg-green-500 sm:bg-white  font-semibold cursor-pointer p-2  rounded-2xl text-sm"
               onClick={changesMade ? applyChanges : onClose}
@@ -258,7 +253,7 @@ export default function AddSongToAlbumPopup({
             >
               {isPending ? "Saving" : "Done"}
             </button>
-          )}
+          ) : null}
         </div>
       </motion.div>
     </div>,

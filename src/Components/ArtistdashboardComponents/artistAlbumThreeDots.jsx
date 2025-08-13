@@ -1,17 +1,19 @@
+"use client";
 import { BsThreeDots } from "react-icons/bs";
-
-import React, { useState, useEffect, useRef } from "react";
-import Portal from "../Helper/Portal";
+import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { AnimatePresence } from "framer-motion";
-import { TiTick } from "react-icons/ti";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { IoAddSharp } from "react-icons/io5";
 import { useTransition } from "react";
 import { FiEdit2 } from "react-icons/fi";
-// import EditSongPopup from "./EditSongPopUp";
-import AddSongToAlbumPopup from "./addSongToAlbum";
-import EditALbumPopup from "./EditAlbumPopUp";
 import { usePathname, useRouter } from "next/navigation";
+
+// Dynamically import Portal and EditAlbumPopup to avoid Next.js build issues
+const Portal = dynamic(() => import("../Helper/Portal"), { ssr: false });
+const EditALbumPopup = dynamic(() => import("./EditAlbumPopUp"), { ssr: false });
+// If you want to use AddSongToAlbumPopup, also import it dynamically as below:
+// const AddSongToAlbumPopup = dynamic(() => import("./addSongToAlbum"), { ssr: false });
 
 const ArtistAlbumThreeDots = ({ album, onUpdate }) => {
   const [pending, startTransition] = useTransition();
@@ -20,7 +22,7 @@ const ArtistAlbumThreeDots = ({ album, onUpdate }) => {
   const toast = useSpotifyToast();
   const [showPopup, setShowPopup] = useState(false);
   const [anchor, setAnchor] = useState(null);
-  const [childRef, setChildRef] = useState(null); // <-- track nested popup DOM
+  const [childRef, setChildRef] = useState(null);
 
   useEffect(() => {
     if (showPopup) {
@@ -29,8 +31,6 @@ const ArtistAlbumThreeDots = ({ album, onUpdate }) => {
       document.body.style.overflow = "";
     }
   }, [showPopup]);
-
-  //   options ---------------------------------------------------
 
   const handleRemoveAlbum = (e) => {
     e.stopPropagation();
@@ -63,13 +63,13 @@ const ArtistAlbumThreeDots = ({ album, onUpdate }) => {
         setShowPopup(false);
       }
 
-      // Reload the page after the function completes
       if (pathname === `/artistDashboard/albums/${album._id}`) {
         router.back();
       }
 
       onUpdate();
-      onClose();
+      // onClose is not defined, so just close the popup
+      setShowPopup(false);
     });
   };
 
@@ -77,11 +77,11 @@ const ArtistAlbumThreeDots = ({ album, onUpdate }) => {
     setShowEditaAlbumPopup(true);
   };
 
-  const handleAddSongs = () => {
-    setShowAddSongsPopup(true);
-  };
+  // const handleAddSongs = () => {
+  //   setShowAddSongsPopup(true);
+  // };
   const [showEditAlbumPopup, setShowEditaAlbumPopup] = useState(false);
-  const [showAddSongsPopup, setShowAddSongsPopup] = useState(false);
+  // const [showAddSongsPopup, setShowAddSongsPopup] = useState(false);
 
   return (
     <>
@@ -117,7 +117,8 @@ const ArtistAlbumThreeDots = ({ album, onUpdate }) => {
                 onUpdate={onUpdate}
                 setOuterRef={setChildRef}
               />
-              {/* {showAddSongsPopup && (
+              {/* If you want to enable AddSongToAlbumPopup, use dynamic import and uncomment below:
+              {showAddSongsPopup && (
                 <AddSongToAlbumPopup
                   album={album}
                   anchorRect={anchor}
@@ -125,10 +126,8 @@ const ArtistAlbumThreeDots = ({ album, onUpdate }) => {
                   onClose={() => {
                     setShowAddSongsPopup(false);
                   }}
-     
                 />
               )} */}
-              {/* image support */}{" "}
               <div className="h-1.5 w-[40%] sm:hidden mx-auto my-1 rounded-xs flex bg-white/45 " />
               <div className="flex gap-1 justify-start ">
                 <img
@@ -150,17 +149,6 @@ const ArtistAlbumThreeDots = ({ album, onUpdate }) => {
                   </div>
                 </div>
               </div>
-              {/* items support */}
-              {/* <MenuItem
-                startIcon={
-                  <FiEdit2
-                    className="text-white text-2xl cursor-pointer"
-                    size={20}
-                  />
-                }
-                label="Add Songs"
-                onClick={handleAddSongs}
-              /> */}
               <MenuItem
                 startIcon={
                   <FiEdit2

@@ -1,14 +1,23 @@
 "use client";
-import { GrAdd } from "react-icons/gr";
-
-import { useState } from "react";
+import React, { useState } from "react";
+import dynamic from "next/dynamic";
 import { useTransition } from "react";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { useUser } from "@/Contexts/userContex";
 import { Dialog } from "../ui/Dialog";
-import { PiNotePencil } from "react-icons/pi";
 import { useRouter } from "next/navigation";
-const EditALbumPopup = ({ album, open, onClose , onUpdate}) => {
+
+// Dynamically import icons to avoid Next.js build issues
+const GrAdd = dynamic(() =>
+  import("react-icons/gr").then((mod) => mod.GrAdd),
+  { ssr: false }
+);
+const PiNotePencil = dynamic(() =>
+  import("react-icons/pi").then((mod) => mod.PiNotePencil),
+  { ssr: false }
+);
+
+const EditALbumPopup = ({ album, open, onClose, onUpdate }) => {
   const [pending, startTransition] = useTransition();
   const toast = useSpotifyToast();
   const [name, setName] = useState(album?.name);
@@ -21,7 +30,7 @@ const EditALbumPopup = ({ album, open, onClose , onUpdate}) => {
     if (!file) return;
     const maxKB = 5120; // 5 MB
     if (file.size > maxKB * 1024) {
-      toast({ text: `Image too large. Maximum size is ${maxKB/1024}MB` });
+      toast({ text: `Image too large. Maximum size is ${maxKB / 1024}MB` });
       e.target.value = "";
       return;
     }
@@ -53,6 +62,7 @@ const EditALbumPopup = ({ album, open, onClose , onUpdate}) => {
     setImage(file);
     setPreview(URL.createObjectURL(file));
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -86,7 +96,6 @@ const EditALbumPopup = ({ album, open, onClose , onUpdate}) => {
 
   return (
     <Dialog open={open} onClose={onClose}>
-        
       <button
         onClick={() => {
           onClose();
@@ -139,7 +148,7 @@ const EditALbumPopup = ({ album, open, onClose , onUpdate}) => {
             />
           </div>
           <div>
-          <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm font-medium mb-1">
               Description
             </label>
             <textarea

@@ -1,30 +1,35 @@
-import { BsThreeDots } from "react-icons/bs";
+import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 
-import React, { useState, useEffect, useRef } from "react";
-import Portal from "../Helper/Portal";
-import { AnimatePresence } from "framer-motion";
-import { TiTick } from "react-icons/ti";
-import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
-import { IoAddSharp } from "react-icons/io5";
+// Dynamically import all icons and popups to avoid Next.js build issues
+const Portal = dynamic(() => import("../Helper/Portal"), { ssr: false });
+const AnimatePresence = dynamic(
+  () => import("framer-motion").then((mod) => ({ default: mod.AnimatePresence })),
+  { ssr: false }
+);
+const FiMusic = dynamic(
+  () => import("react-icons/fi").then((mod) => mod.FiMusic),
+  { ssr: false }
+);
+const BiAlbum = dynamic(
+  () => import("react-icons/bi").then((mod) => mod.BiAlbum),
+  { ssr: false }
+);
+const AddSongPopup = dynamic(() => import("./AddSongPopUp"), { ssr: false });
+const AddAlbumPopup = dynamic(() => import("./AddAlbumPopup"), { ssr: false });
+
 import { useTransition } from "react";
-import { FiEdit2 } from "react-icons/fi";
-import { BiAlbum } from "react-icons/bi";
-import { FiMusic } from "react-icons/fi";
-// import EditSongPopup from "./EditSongPopUp";
-import AddSongToAlbumPopup from "./addSongToAlbum";
-import EditALbumPopup from "./EditAlbumPopUp";
 import { usePathname, useRouter } from "next/navigation";
-import AddSongPopup from "./AddSongPopUp";
-import AddAlbumPopup from "./AddAlbumPopup";
+import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 
-const CreateNewPopup = ({ open, onClose, anchorRect , onUpdate}) => {
+const CreateNewPopup = ({ open, onClose, anchorRect, onUpdate }) => {
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   const pathname = usePathname();
   const toast = useSpotifyToast();
-  const [showPopup, setShowPopup] = useState(false);
 
-  const [childRef, setChildRef] = useState(null); // <-- track nested popup DOM
+  const [showCreateAlbumPopup, setShowCreateAlbumPopup] = useState(false);
+  const [showUploadSongPopup, setShowUploadSongPopup] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -34,8 +39,6 @@ const CreateNewPopup = ({ open, onClose, anchorRect , onUpdate}) => {
     }
   }, [open]);
 
-  //   options ---------------------------------------------------
-
   const handleShowCreateAlbumPopup = () => {
     setShowCreateAlbumPopup(true);
   };
@@ -43,8 +46,6 @@ const CreateNewPopup = ({ open, onClose, anchorRect , onUpdate}) => {
   const handleShowUploadSongPopup = () => {
     setShowUploadSongPopup(true);
   };
-  const [showCreateAlbumPopup, setShowCreateAlbumPopup] = useState(false);
-  const [showUploadSongPopup, setShowUploadSongPopup] = useState(false);
 
   return (
     <>
@@ -70,7 +71,6 @@ const CreateNewPopup = ({ open, onClose, anchorRect , onUpdate}) => {
                   onUpdate={onUpdate}
                 />
               )}
-              {/* image support */}{" "}
               <div className="h-1.5 w-[40%] sm:hidden mx-auto my-1 rounded-xs flex bg-white/45 " />
               <MenuItem
                 startIcon={
@@ -80,7 +80,6 @@ const CreateNewPopup = ({ open, onClose, anchorRect , onUpdate}) => {
                   />
                 }
                 label="Add Song"
-
                 onClick={handleShowUploadSongPopup}
               />
               <MenuItem

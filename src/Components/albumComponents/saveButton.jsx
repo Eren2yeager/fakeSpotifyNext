@@ -1,45 +1,66 @@
-"use client"
+"use client";
 
-import React ,{ useEffect , useState ,useTransition} from 'react'
-import { IoMdAddCircleOutline } from "react-icons/io";
-import { TiTick } from "react-icons/ti";
-import { useLibrary } from '@/Contexts/libraryContext'
-import { isSavedAlbum, toggleSavedAlbum } from "@/app/(protected)/actions/albumActions";
-import { useRouter } from 'next/navigation'
-import { useSpotifyToast } from '@/Contexts/SpotifyToastContext';
-const SaveAlbumButton = ({id , onUpdate}) => {
-    // const router = useRouter()
-    const toast = useSpotifyToast()
- const {fetchLibrary} = useLibrary();
- const [pending , startTransition] = useTransition();
- const [isAlbumSaved, setIsAlbumSaved] = useState(null);
- 
+import React, { useEffect, useState, useTransition } from "react";
+import { useLibrary } from "@/Contexts/libraryContext";
+import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
+
+// Dynamic import to avoid Next.js build errors with server actions
+let isSavedAlbum, toggleSavedAlbum;
+const loadAlbumActions = async () => {
+  if (!isSavedAlbum || !toggleSavedAlbum) {
+    const mod = await import("@/app/(protected)/actions/albumActions");
+    isSavedAlbum = mod.isSavedAlbum;
+    toggleSavedAlbum = mod.toggleSavedAlbum;
+  }
+};
+
+const SaveAlbumButton = ({ id, onUpdate }) => {
+  const toast = useSpotifyToast();
+  const { fetchLibrary } = useLibrary();
+  const [pending, startTransition] = useTransition();
+  const [isAlbumSaved, setIsAlbumSaved] = useState(null);
+
   useEffect(() => {
-    startTransition(async ()=>{
+    let isMounted = true;
+    startTransition(async () => {
+      await loadAlbumActions();
+      if (isSavedAlbum && isMounted) {
+        const res = await isSavedAlbum(id);
+        if (isMounted) setIsAlbumSaved(res);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
+  const handleClick = () => {
+    startTransition(async () => {
+      await loadAlbumActions();
+      if (toggleSavedAlbum && isSavedAlbum) {
+        await toggleSavedAlbum(id);
         const res = await isSavedAlbum(id);
         setIsAlbumSaved(res);
-    })
-  }, [id])
-  
-  
+        fetchLibrary();
+        if (res === true) {
+          toast({ text: "Added to Your Library" });
+        } else if (res === false) {
+          toast({ text: "Removed from Your Library" });
+        }
+        if (onUpdate) onUpdate();
+      }
+    });
+  };
+
   return (
     <button
-    title={`${isAlbumSaved ? "Remove from the Library" : "Save to Library"}`}
+      title={
+        isAlbumSaved
+          ? "Remove from the Library"
+          : "Save to Library"
+      }
       disabled={pending}
-      onClick={() => {
-        startTransition(async () => {
-          await toggleSavedAlbum(id);
-          const res = await isSavedAlbum(id);
-          setIsAlbumSaved(res);
-          fetchLibrary()
-          if(res == true){
-            toast({text : "Added to Your Library"})
-          }else if (res == false){
-            toast({text : "Removed from Your Library"})
-          }
-          if (onUpdate) onUpdate();
-        });
-      }}
+      onClick={handleClick}
       className={`
         px-3
         rounded-full
@@ -49,16 +70,12 @@ const SaveAlbumButton = ({id , onUpdate}) => {
         text-sm
         font-semibold
         transition-all duration-200
-
-
         ${pending ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}
       `}
     >
       {isAlbumSaved ? "Saved" : "Save"}
     </button>
-  )
-}
+  );
+};
 
-export default SaveAlbumButton
-
-
+export default SaveAlbumButton;

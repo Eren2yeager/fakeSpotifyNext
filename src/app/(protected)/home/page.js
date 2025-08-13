@@ -1,18 +1,18 @@
-"use client"
-import React,{ useState, useContext ,useEffect ,useRef} from "react";
+"use client";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import ThreeDotsLoader from "@/Components/Helper/ThreeDotsLoader.jsx";
 import FailedToFetch from "@/Components/Helper/failedToFetch.jsx";
 import ListRender from "@/Components/Helper/listRender.jsx";
 import HorizentalItemsList from "@/Components/horizentalLists/horizentalItemsList.jsx";
 import GridCellContainer from "@/Components/Helper/gridCellContainer.jsx";
 import { CurrentUserProfileCircle } from "@/Components/Helper/profileCircle";
-function Home() {
-  const [Loading, setLoading] = useState(false)
-  const [isError, setIsError] = useState(false)
-  const [homeJson, setHomeJson] = useState(null)
 
-  const [activeItem, setActiveItem] = useState(0)
-  const listItems=["All", "Music", "Playlists"]
+function Home() {
+  const [Loading, setLoading] = useState(true); // Start with loading true
+  const [isError, setIsError] = useState(false);
+  const [homeJson, setHomeJson] = useState(null);
+  const [activeItem, setActiveItem] = useState(0);
+  const listItems = ["All", "Music", "Playlists"];
 
   useEffect(() => {
     let ignore = false;
@@ -22,17 +22,26 @@ function Home() {
         const res = await fetch("/api/home?limit=24");
         if (!res.ok) throw new Error("Failed to fetch home");
         const data = await res.json();
-        if (!ignore) setHomeJson(data);
+        if (!ignore) {
+          setHomeJson(data);
+          setLoading(false);
+        }
       } catch (err) {
         console.error("❌ Error fetching home:", err);
-        if (!ignore) setIsError(true);
-      } finally {
-        if (!ignore) setLoading(false);
+        if (!ignore) {
+          setIsError(true);
+          setLoading(false);
+        }
       }
     };
-    load();
-    return () => { ignore = true; }
-  }, [activeItem])
+    
+    // Small delay to ensure session is ready
+    const timer = setTimeout(load, 100);
+    return () => { 
+      ignore = true; 
+      clearTimeout(timer);
+    };
+  }, []);
     
   const middleNavRef = useRef(null);
 

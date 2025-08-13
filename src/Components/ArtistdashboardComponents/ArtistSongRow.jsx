@@ -1,5 +1,12 @@
+"use client";
 import React from "react";
-import { Music } from "lucide-react";
+import dynamic from "next/dynamic";
+
+// Dynamically import Music icon to avoid Next.js build issues with lucide-react
+const Music = dynamic(() =>
+  import("lucide-react").then((mod) => mod.Music),
+  { ssr: false }
+);
 
 export default function ArtistSongRow({ song, children }) {
   return (
@@ -36,5 +43,3 @@ export default function ArtistSongRow({ song, children }) {
     </div>
   );
 }
-
-

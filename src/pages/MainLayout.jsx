@@ -31,7 +31,7 @@ function MainLayout({ children }) {
   const ContextFullScreen = useContext(ToggleFullScreenContext);
   const Context_middle_width = useContext(middleWidthContext);
 
-  const ref = useWidthObserver(Context_middle_width.setMiddleWidth); // giving your own state setter
+  const ref = useWidthObserver(Context_middle_width?.setMiddleWidth); // giving your own state setter
 
   // for resizing
   const [rightWidth, setRightWidth] = useState(300); // Initial px width

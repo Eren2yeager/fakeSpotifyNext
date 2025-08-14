@@ -9,6 +9,25 @@ const nextConfig = {
   // Force dynamic rendering for protected routes
   async generateStaticParams() {
     return [];
+  },
+
+  // Add security headers for OAuth
+  async headers() {
+    return [
+      {
+        source: '/api/auth/:path*',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          }
+        ]
+      }
+    ];
   }
 };
 

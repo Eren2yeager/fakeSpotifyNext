@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useRef, useTransition } from "react";
 import { createPortal } from "react-dom";
-import { motion } from "framer-motion";
+import { motion, useDragControls } from "framer-motion";
 
 
 import { IoAddSharp } from "react-icons/io5";
@@ -60,6 +60,11 @@ export default function ProfileThreeDotsPopUp({ currentUser, anchorRect, onClose
 
   /* click‑outside */
   const selfRef = useRef(null);
+  const dragControls = useDragControls();
+  const startDrag = (event) => {
+    if (window.innerWidth > 640) return;
+    dragControls.start(event);
+  };
   useEffect(() => {
     const handle = (e) => {
       const insideSelf = selfRef.current && selfRef.current.contains(e.target);
@@ -108,13 +113,11 @@ export default function ProfileThreeDotsPopUp({ currentUser, anchorRect, onClose
         transition={{ type: "spring", stiffness: 400, damping: 30 }}
         className={`fixed z-[9999] bg-zinc-800 p-1 text-white rounded-md shadow-lg sm:w-[260px]    w-full transition-transform duration-1000    `}
         drag={window.innerWidth <= 640 ? "y" : false}
+        dragControls={dragControls}
+        dragListener={false}
         dragConstraints={{ top: 0, bottom: 0 }}
         onDragEnd={(event, info) => {
-          if (window.innerWidth <= 640 && info.offset.y > 100) {
-            setTimeout(() => {
-              onClose(); // ✅ call when dragged down enough
-            }, 1000);
-          }
+          if (window.innerWidth <= 640 && (info.offset.y > 180 || info.velocity.y > 1200)) onClose();
         }}
         style={
           window.innerWidth >= 640
@@ -129,7 +132,7 @@ export default function ProfileThreeDotsPopUp({ currentUser, anchorRect, onClose
         }}
       >
         {" "}
-        <div className="h-1.5 w-[40%] sm:hidden mx-auto my-1 rounded-xs flex bg-white/45 " />
+        <div className="h-1.5 w-[40%] sm:hidden mx-auto my-2 rounded-xs flex bg-white/45" onPointerDown={startDrag} />
         {/* // for add to playlist */}
         {/* nested Add‑to‑playlist popup */}
         {showEditProfilePopup && (

@@ -23,43 +23,38 @@ import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import ProfileThreeDots from "@/Components/Helper/profileThreeDots";
 import { useParams } from "next/navigation";
 import Followbutton from "@/Components/artistsComponents/followbutton";
+
 const Profile = () => {
   const router = useRouter();
 
   const Context_middle_width = useContext(middleWidthContext);
-  const { middleWidth } = Context_middle_width;
+  const { middleWidth } = Context_middle_width || {};
   const [bgColor, setBgColor] = useState(null);
-  const { library } = useLibrary();
-  // const [isFetching, setisFetching] = useState(false);
-  const [isPending , startTransition] = useTransition();
-  const { userProfile, fetchCurrentUserProfile, fetchUserData } = useUser();
+  const { library } = useLibrary() || {};
+  const [isPending, startTransition] = useTransition();
+  const { userProfile, fetchCurrentUserProfile, fetchUserData } = useUser() || {};
   const [profile, setProfile] = useState(null);
   const [isUpdated, setIsUpdated] = useState(null);
-  const { data: session, status } = useSession();
-  const params = useParams();
-  const slug = params.id;
-  // why not getting bg
+  const { data: session, status } = useSession() || {};
+  const params = useParams() || {};
+  const slug = params?.id;
+
   useEffect(() => {
-    // If userProfile is not loaded, fetch it first
-    startTransition( async ()=>{
-
-
-
-
-    setIsUpdated(false);
-    if (slug == session.user._id) {
-      // if (!userProfile) {
+    if (!session || !session.user || !slug) return;
+    startTransition(async () => {
+      setIsUpdated(false);
+      if (slug === session.user._id) {
         fetchCurrentUserProfile()
           .then((data) => {
             setProfile(data);
-            // After fetching, set the background color based on the image
             const img =
-              data?.image || session?.user?.image || "/images/user.jpg";
+              (data && data.image) ||
+              (session.user && session.user.image) ||
+              "/images/user.jpg";
             if (img) {
               SuggestBgColor(img)
                 .then((color) => {
                   setBgColor(color);
-        
                 })
                 .catch((err) => {
                   console.error("Error getting average color:", err);
@@ -67,34 +62,32 @@ const Profile = () => {
             }
           })
           .catch((err) => {
+            setProfile(null);
             console.error("❌ failed to fetch currentuserdata", err);
           });
+      } else {
+        fetchUserData(slug)
+          .then((data) => {
+            setProfile(data);
+            const setBG = async () => {
+              if (!data || !data.image) return;
+              try {
+                const color = await SuggestBgColor(data.image);
+                setBgColor(color);
+              } catch (err) {
+                console.error("Error getting average color:", err);
+              }
+            };
+            setBG();
+          })
+          .catch((err) => {
+            setProfile(null);
+            console.error("❌ Error fetching user:", err);
+          });
+      }
+    });
+  }, [library, session, isUpdated, slug, fetchCurrentUserProfile, fetchUserData]);
 
-    } else {
-      fetchUserData(slug)
-        .then((data) => {
-          setProfile(data);
-          const setBG = async () => {
-            if (!data?.image) return;
-
-            try {
-              const color = await SuggestBgColor(data.image);
-              setBgColor(color); // or color.rgb
-        
-            } catch (err) {
-              console.error("Error getting average color:", err);
-            }
-          };
-
-          setBG();
-        })
-        .catch((err) => {
-
-          console.error("❌ Error fetching user:", err);
-        });
-    }
-  })
-  }, [ library, session, isUpdated]);
   // for header bg on scroll
   const [scrolled, setScrolled] = useState(false);
   const handleScroll = (e) => {
@@ -102,10 +95,36 @@ const Profile = () => {
   };
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Defensive: handle undefined session, user, library, profile
   const publicPlaylists =
-    slug == session.user._id
-      ? library?.playlists?.filter((pl) => pl.isPublic)
-      : profile?.publicPlaylists
+    session && session.user && slug === session.user._id
+      ? (library?.playlists || []).filter((pl) => pl?.isPublic)
+      : profile?.publicPlaylists || [];
+
+  // Defensive: followers/following fallback to empty arrays
+  const followersUsers = profile?.followers?.users || [];
+  const followersArtists = profile?.followers?.artists || [];
+  const followingUsers = profile?.following?.users || [];
+  const followingArtists = profile?.following?.artists || [];
+
+  // Defensive: session.user fallback
+  const userId = session?.user?._id || "";
+  const userType = session?.user?.type || "";
+
+  // Defensive: profile name fallback
+  const profileName = profile?.name || userId || "";
+
+  // Defensive: profile type fallback
+  const profileType = profile?.type || "";
+
+  // Defensive: profile image fallback
+  const profileImage = profile?.image || "/images/user.jpg";
+
+  // Defensive: check if loading or not found
+  if (!isPending && profile === null && slug) {
+    // If profile is null after fetch, show NotFound
+    return <NotFound />;
+  }
 
   return (
     <>
@@ -118,7 +137,7 @@ const Profile = () => {
           className={`scroll-container  relative w-[100%] h-[100%] rounded-xl  overflow-y-auto text-white bg-zinc-900`}
           onScroll={handleScroll}
         >
-          {slug == session.user._id && (
+          {session && session.user && slug === session.user._id && (
             <EditProfileModal
               open={isModalOpen}
               currentUser={profile}
@@ -137,7 +156,6 @@ const Profile = () => {
               }    p-5 gap-3 overflow-hidden shadow-lg shadow-black/35 `}
               style={{ background: `${bgColor || "transparent"}` }}
             >
-              {" "}
               <div
                 className="mr-auto sm:hidden"
                 onClick={() => {
@@ -155,19 +173,19 @@ const Profile = () => {
                     ? "min-w-[170px] max-w-[170px] h-[170px]  self-end"
                     : middleWidth > 1024 &&
                       "min-w-[200px] h-[200px] max-w-[200px]   self-end"
-                } relative group overflow-hidden  shadow-lg shadow-black rounded-full `} // className={`${middleWidth <= 640 ? "w-[150px] h-[150px]" :  " min-w-[170px] h-[170px]"} xl:min-w-[200px] min-h-[200px]  relative group`}
+                } relative group overflow-hidden  shadow-lg shadow-black rounded-full `}
                 onClick={() => {
-                  if (slug == session.user._id) {
+                  if (session && session.user && slug === session.user._id) {
                     setIsModalOpen(true);
                   }
                 }}
               >
                 <img
-                  src={profile?.image || "/images/user.jpg"}
+                  src={profileImage}
                   alt="user-img"
                   className={`max-w-full max-h-full min-w-full min-h-full  object-cover  rounded-full  cursor-pointer `}
                 />
-                {slug == session.user._id && (
+                {session && session.user && slug === session.user._id && (
                   <div className="min-w-[100%] min-h-[100%] hover:flex  absolute top-0 right-0 hidden group-hover:block rounded-xl  hover:bg-black/45 cursor-pointer">
                     <PiNotePencil
                       className="mx-auto my-auto brightness-150 text-white"
@@ -189,7 +207,7 @@ const Profile = () => {
                     middleWidth > 640 ? "block" : "hidden"
                   }`}
                 >
-                  {profile?.type}
+                  {profileType}
                 </p>
                 <p
                   className={`${
@@ -205,54 +223,36 @@ const Profile = () => {
                     WebkitLineClamp: 2,
                   }}
                 >
-                  {profile?.name || ""}
+                  {profileName}
                 </p>
 
                 <div className="font-sans flex flex-wrap  gap-1  max-w-full truncate">
-                <span
+                  <span
                     className={`font-sans transition-all duration-300  ${
                       middleWidth > 640 ? "hidden" : ""
                     }`}
                   >
-                    {profile?.type !== undefined ? `${profile?.type} •` : ""}
+                    {profileType ? `${profileType} •` : ""}
                   </span>
                   <span className="">
-                    {publicPlaylists?.length
-                      ? publicPlaylists?.length == 1
-                        ? `${publicPlaylists?.length} Public Playlist`
-                        : `${publicPlaylists?.length} Public Playlists`
+                    {publicPlaylists.length
+                      ? publicPlaylists.length === 1
+                        ? `${publicPlaylists.length} Public Playlist`
+                        : `${publicPlaylists.length} Public Playlists`
                       : ""}
                   </span>
                   <span className="text-white">
-                    {profile?.followers.users.length +
-                    profile?.followers.artists.length
-                      ? profile?.followers.users.length +
-                          profile?.followers.artists.length ==
-                        1
-                        ? ` • ${
-                            profile?.followers.users.length +
-                            profile?.followers.artists.length
-                          } Follower`
-                        : ` • ${
-                            profile?.followers.users.length +
-                            profile?.followers.artists.length
-                          } Followers`
+                    {followersUsers.length + followersArtists.length
+                      ? followersUsers.length + followersArtists.length === 1
+                        ? ` • ${followersUsers.length + followersArtists.length} Follower`
+                        : ` • ${followersUsers.length + followersArtists.length} Followers`
                       : ""}
                   </span>
                   <span className="text-white">
-                    {profile?.following.users.length +
-                    profile?.following.artists.length
-                      ? profile?.following.users.length +
-                          profile?.following.artists.length ==
-                        1
-                        ? ` • ${
-                            profile?.following.users.length +
-                            profile?.following.artists.length
-                          } Following`
-                        : ` • ${
-                            profile?.following.users.length +
-                            profile?.following.artists.length
-                          } Following`
+                    {followingUsers.length + followingArtists.length
+                      ? followingUsers.length + followingArtists.length === 1
+                        ? ` • ${followingUsers.length + followingArtists.length} Following`
+                        : ` • ${followingUsers.length + followingArtists.length} Following`
                       : ""}
                   </span>
                 </div>
@@ -262,7 +262,7 @@ const Profile = () => {
             <div
               className={` text-white bg-gradient-to-b   to-zinc-900 h-screen `}
               style={{
-                background: `linear-gradient(0deg,#19191b 80%, ${bgColor}80 )`,
+                background: `linear-gradient(0deg,#19191b 80%, ${bgColor || "#19191b"}80 )`,
               }}
             >
               <>
@@ -275,13 +275,12 @@ const Profile = () => {
                   }}
                 >
                   {/* playlist play button */}
-
                   {scrolled && (
                     <p className="font-bold font-sans text-xl px-3 mr-auto">
-                      {profile?.name || user._id}
+                      {profileName}
                     </p>
                   )}
-                  {slug !== session.user._id && (
+                  {session && session.user && slug !== session.user._id && (
                     <p
                       className={`font-bold font-sans text-xl px-3 mr-auto max-w-full truncate ${
                         scrolled ? "hidden" : ""
@@ -289,10 +288,10 @@ const Profile = () => {
                     >
                       <Followbutton
                         followObject={{
-                          followerId: session.user._id,
-                          followerType: session.user.type,
-                          targetId: profile?._id,
-                          targetType: profile?.type,
+                          followerId: userId,
+                          followerType: userType,
+                          targetId: profile?._id || "",
+                          targetType: profileType,
                         }}
                         onUpdate={() => {
                           setIsUpdated(true);
@@ -301,35 +300,31 @@ const Profile = () => {
                     </p>
                   )}
 
-                  {slug === session.user._id &&
-                  
-                  <ProfileThreeDots currentUser={profile} />
-                  }
+                  {session && session.user && slug === session.user._id && (
+                    <ProfileThreeDots currentUser={profile} />
+                  )}
                 </div>
-                {publicPlaylists?.length > 0 && (
+                {publicPlaylists.length > 0 && (
                   <HorizentalItemsList
                     heading={"Public Playlists"}
                     listItems={publicPlaylists}
                   />
                 )}
-                {profile?.followers.users.length +
-                  profile?.followers.artists.length >
-                  0 && (
+                {(followersUsers.length > 0 || followersArtists.length > 0) && (
                   <HorizentalItemsList
                     heading={"Followers"}
                     listItems={[
-                      ...profile?.followers.artists,
-                      ...profile?.followers.users,
+                      ...followersArtists,
+                      ...followersUsers,
                     ]}
                   />
                 )}
-                {profile?.following.users.length +
-                  profile?.following.artists.length && (
+                {(followingUsers.length > 0 || followingArtists.length > 0) && (
                   <HorizentalItemsList
                     heading={"Following"}
                     listItems={[
-                      ...profile?.following.artists,
-                      ...profile?.following.users,
+                      ...followingArtists,
+                      ...followingUsers,
                     ]}
                   />
                 )}

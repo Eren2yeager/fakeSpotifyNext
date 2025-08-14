@@ -58,7 +58,7 @@ const AlbumCard = (props) => {
         </div>
         <div className="flex flex-col mt-2 h-[30%] w-[100%] justify-start text-xs sm:text-[1em] ">
           <div
-            className="song-name text-wrap   overflow-hidden text-ellipsis break-words "
+            className=" text-wrap   overflow-hidden text-ellipsis break-words "
             style={{
               display: "-webkit-box",
               WebkitBoxOrient: "vertical",
@@ -67,7 +67,7 @@ const AlbumCard = (props) => {
           >
             {props.item?.name}
           </div>
-          <div className="song-artist  lg:text-wrap max-w-[95%]  lg:max-h-[3em] overflow-hidden truncate opacity-70 text-[0.7em]">
+          <div className=" lg:text-wrap max-w-[95%]  lg:max-h-[3em] overflow-hidden truncate opacity-70 text-[0.7em]">
             {props.item?.type}
           </div>
         </div>

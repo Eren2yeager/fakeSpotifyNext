@@ -28,7 +28,6 @@ const RecentPlayCard = (props) => {
 
   return (
     <div className="group/PlaylistCard relative flex items-center bg-white/5 backdrop-blur-md hover:bg-white/8 rounded-md  transition group cursor-pointer z-10 truncate w-full">
-      <Link href={`/${props.item.type.toLowerCase()}s/${props.item._id}`}>
         <div
           className="flex gap-3 items-center overflow-clip"
           onClick={() => {
@@ -56,7 +55,7 @@ const RecentPlayCard = (props) => {
             {props.item?.name}
           </p>
         </div>
-      </Link>
+
       {((props.item.type !== "Song"  && props.item.songs?.length > 0)  || props.item.type == "Song") && (
         <div
           className={`absolute right-2  p-2 bg-green-500 rounded-full ${

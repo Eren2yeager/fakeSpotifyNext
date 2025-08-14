@@ -4,6 +4,7 @@ import Song from "@/models/Song";
 import Artist from "@/models/Artist";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import formatTime from "@/functions/formatTime";
+import { getArtistFromSession } from "@/app/(protected)/actions/artistActions";
 export async function GET() {
   const artist = await getArtistFromSession();
   if (!artist) return Response.json({ error: "Unauthorized" }, { status: 401 });

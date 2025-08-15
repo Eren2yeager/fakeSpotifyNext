@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import dynamic from "next/dynamic";
 
 // Dynamically import icons to avoid Next.js build issues with react-icons
 const FaMusic = dynamic(() =>

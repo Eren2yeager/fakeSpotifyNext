@@ -6,7 +6,6 @@
 "use client";
 
 import { useState, useEffect, useRef, useTransition } from "react";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 
 // Only import these on client, safe for Next.js

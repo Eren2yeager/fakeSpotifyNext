@@ -15,8 +15,8 @@ const BiAlbum = dynamic(
   () => import("react-icons/bi").then((mod) => mod.BiAlbum),
   { ssr: false }
 );
-const AddSongPopup = dynamic(() => import("./AddSongPopUp"), { ssr: false });
-const AddAlbumPopup = dynamic(() => import("./AddAlbumPopup"), { ssr: false });
+import AddSongPopup from "./AddSongPopUp";
+import AddAlbumPopup from "./AddAlbumPopup";
 
 import { useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";

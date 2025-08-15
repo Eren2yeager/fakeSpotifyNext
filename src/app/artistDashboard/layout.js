@@ -6,7 +6,7 @@ import { memo, useEffect } from "react";
 import ThreeDotsLoader from "@/Components/Helper/ThreeDotsLoader";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import ArtistDashboardLayout from "@/pages/artistDashboardLayout";
+import ArtistDashboardLayout from "@/layouts/artistDashboardLayout";
 import { SpotifyToastProvider } from "@/Contexts/SpotifyToastContext";
 function RootLayout({ children }) {
   useEffect(() => {

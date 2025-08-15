@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useTransition } from "react";
 import ThreeDotsLoader from "@/Components/Helper/ThreeDotsLoader";
-import { Plus, Music } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import {
   Card,

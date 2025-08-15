@@ -3,15 +3,9 @@
 import { useState, useEffect } from "react";
 import { useTransition } from "react";
 import {
-  Edit,
-  Trash2,
-  MoreHorizontal,
-  Clock,
-  Upload,
-  Settings,
-  Plus,
-  Eye,
-  BarChart3,
+
+  Plus
+
 } from "lucide-react";
 import { Badge, Card, Button } from "@/Components/ArtistdashboardComponents/artistDashboardHelpers";
 import ArtistSongRow from "@/Components/ArtistdashboardComponents/ArtistSongRow";

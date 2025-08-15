@@ -3,14 +3,14 @@ import React, { useContext,  useEffect , memo} from "react";
 import { useOtherContexts } from "@/Contexts/otherContexts";
 import { usePlayer } from "@/Contexts/playerContext";
 import { useSession } from "next-auth/react";
-
+import MediaSession from "./mediaSession";
 const AudioComponent = () => {
 
 
   const  {toggleFullScreen ,setToggleFullScreen , showRight, setShowRight , showPlaylists, setShowPlaylists} = useOtherContexts()
 
 
-  const { currentSong, isPlaying , setIsPlaying , durationRef , currentTimeRef , audioRef, nextTrack, context} = usePlayer();
+  const { currentSong, isPlaying , setIsPlaying , durationRef , currentTimeRef , audioRef, nextTrack, context ,  prevTrack} = usePlayer();
   const { data: session } = useSession();
   
 
@@ -130,20 +130,19 @@ const AudioComponent = () => {
     audioRef.current.load();  // ✅ triggers onLoadedMetadata
   }, [currentSong?._id , context?._id]);
 
-  // // Prevent audio reloading when switching browser tabs
+  // // Effect: keep isPlaying in sync with audioRef's paused state
   // useEffect(() => {
-  //   const handleVisibilityChange = () => {
-  //     if (document.hidden && audioRef.current && isPlaying) {
-  //       // Don't pause, just prevent reloading
-  //       audioRef.current.currentTime = audioRef.current.currentTime;
-  //     }
-  //   };
+  //   const audio = audioRef.current;
+  //   if (!audio) return;
 
-  //   document.addEventListener('visibilitychange', handleVisibilityChange);
-  //   return () => {
-  //     document.removeEventListener('visibilitychange', handleVisibilityChange);
-  //   };
-  // }, [isPlaying]);
+  //   setTimeout(() => {
+  //   setIsPlaying(!audio.paused);
+    
+  // }, 2000);
+
+  // }, [audioRef, currentSong?._id ]);
+
+  
   
 
   return (
@@ -156,6 +155,16 @@ const AudioComponent = () => {
         ref={audioRef}
         src={currentSong?.fileUrl || null}
       ></audio>
+       
+
+       <MediaSession
+        song={currentSong}
+        onPlay={handlePlayPause}
+        onPause={handlePlayPause}
+        onNext={nextTrack}
+        onPrevious={prevTrack}
+      />
+
     </div>
   );
 };

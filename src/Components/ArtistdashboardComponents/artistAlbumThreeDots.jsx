@@ -1,7 +1,6 @@
 "use client";
 import { BsThreeDots } from "react-icons/bs";
 import React, { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import { AnimatePresence } from "framer-motion";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { IoAddSharp } from "react-icons/io5";
@@ -10,9 +9,8 @@ import { FiEdit2 } from "react-icons/fi";
 import { usePathname, useRouter } from "next/navigation";
 
 // Dynamically import Portal and EditAlbumPopup to avoid Next.js build issues
-const Portal = dynamic(() => import("../Helper/Portal"), { ssr: false });
-const EditALbumPopup = dynamic(() => import("./EditAlbumPopUp"), { ssr: false });
-// If you want to use AddSongToAlbumPopup, also import it dynamically as below:
+import EditALbumPopup from "./EditAlbumPopUp";
+import Portal from "../Helper/Portal";
 // const AddSongToAlbumPopup = dynamic(() => import("./addSongToAlbum"), { ssr: false });
 
 const ArtistAlbumThreeDots = ({ album, onUpdate }) => {

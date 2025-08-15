@@ -1,28 +1,68 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from "react";
 
-const ThreeDotsLoader = () => {
-  const [activeDot, setActiveDot] = useState(0);
+// Spotify green
+const SPOTIFY_GREEN = "#1DB954";
+
+const CircularGreenLoader = () => {
+  const spinnerRef = useRef(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveDot(prev => (prev + 1) % 3);
-    }, 200); // Change every 300ms
-
-    return () => clearInterval(interval);
+    // Optional: for accessibility, you could announce loading here
+    return () => {};
   }, []);
 
   return (
-    <div className="flex items-center justify-center space-x-2">
-      {[0, 1, 2].map(i => (
-        <div
-          key={i}
-          className={`w-3 h-3 rounded-full bg-gray-400 transition-transform duration-300 ${
-            activeDot === i ? 'scale-150 opacity-100' : 'scale-100 opacity-60'
-          }`}
+    <div
+      className="flex items-center justify-center"
+      style={{
+        minWidth: 40,
+        minHeight: 40,
+        background: "transparent",
+      }}
+      aria-label="Loading"
+      role="status"
+    >
+      <svg
+        ref={spinnerRef}
+        width={44}
+        height={44}
+        viewBox="0 0 44 44"
+        fill="none"
+        style={{
+          display: "block",
+        }}
+      >
+        <circle
+          cx="22"
+          cy="22"
+          r="18"
+          stroke="#222"
+          strokeWidth="4"
+          opacity="0.18"
         />
-      ))}
+        <circle
+          cx="22"
+          cy="22"
+          r="18"
+          stroke={SPOTIFY_GREEN}
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeDasharray="90 60"
+          strokeDashoffset="0"
+          style={{
+            transformOrigin: "center",
+            animation: "spotify-spin 1s linear infinite",
+   
+          }}
+        />
+        <style>{`
+          @keyframes spotify-spin {
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </svg>
     </div>
   );
 };
 
-export default React.memo(ThreeDotsLoader);
+export default React.memo(CircularGreenLoader);

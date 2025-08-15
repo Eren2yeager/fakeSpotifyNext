@@ -1,32 +1,16 @@
 "use client";
 import { useState, useContext, useRef, useEffect, memo } from "react";
-import dynamic from "next/dynamic";
 
 // Only use dynamic imports for components that actually need client-side only rendering
-const ImagePreviewer = dynamic(
-  () => import("@/Components/Helper/ImagePreviewer.jsx"),
-  { ssr: false }
-);
-const AudioComponent = dynamic(
-  () => import("@/Components/audioComponents/AudioComponent"),
-  { ssr: false }
-);
-
+import AudioComponent from "@/Components/audioComponents/AudioComponent";
+import ImagePreviewer from "@/Components/Helper/ImagePreviewer";
 // Import these components dynamically since they use session/context hooks
-const Navbar = dynamic(() => import("@/Components/navbar"), { ssr: false });
-const Right = dynamic(() => import("@/Components/right"), { ssr: false });
-const BigLeft = dynamic(() => import("@/Components/left/bigLeft"), {
-  ssr: false,
-});
-const SmallLeft = dynamic(() => import("@/Components/left/smallLeft"), {
-  ssr: false,
-});
-const BigEndbar = dynamic(() => import("@/Components/endbars/bigEndbar"), {
-  ssr: false,
-});
-const SmallEndbar = dynamic(() => import("@/Components/endbars/smallEndbar"), {
-  ssr: false,
-});
+import Navbar from "@/Components/navbar";
+import Right from "@/Components/right";
+import BigLeft from "@/Components/left/bigLeft";
+import SmallLeft from "@/Components/left/smallLeft";
+import BigEndbar from "@/Components/endbars/bigEndbar";
+import SmallEndbar from "@/Components/endbars/smallEndbar";
 
 import { useWidthObserver } from "@/Components/Helper/WidthObserver";
 import { useOtherContexts } from "@/Contexts/otherContexts";
@@ -155,7 +139,7 @@ function MainLayout({ children }) {
             } `}
           >
             <div
-              className={`wrapper middle  w-[100%]  h-[100%] rounded-xl  bg-zinc-900  relative transition-all duration-500 `}
+              className={`wrapper middle  w-[100%]  h-[100%] rounded-lg  bg-zinc-900  relative transition-all duration-500 `}
               ref={ref}
             >
               {/* outlet */}

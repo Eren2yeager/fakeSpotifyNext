@@ -4,9 +4,7 @@ import dynamic from "next/dynamic";
 import GENRES from "@/data/genres.json";
 import { useTransition } from "react";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
-import { useUser } from "@/Contexts/userContex";
 import { Dialog } from "../ui/Dialog";
-import { useRouter } from "next/navigation";
 
 // Dynamically import icons to avoid Next.js build issues
 const GrAdd = dynamic(() =>

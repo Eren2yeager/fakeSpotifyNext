@@ -10,7 +10,7 @@ export async function getArtistFromSession() {
   if (!session) return null;
 
   await connectDB();
-  const user = await User.findOne({ email: session.user.email });
+  const user = await User.findOne({ email: session?.user.email });
   if (!user) return null;
 
   const artist = await Artist.findOne({ user: user._id });

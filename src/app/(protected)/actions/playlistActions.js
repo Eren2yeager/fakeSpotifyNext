@@ -13,7 +13,7 @@ export async function createPlaylistForUser() {
 
   await connectDB();
 
-  const user = await User.findOne({ email: session.user.email });
+  const user = await User.findOne({ email: session?.user.email });
   if (!user) return null;
 
   // Count user's library playlists for naming
@@ -69,7 +69,7 @@ export async function deletePlaylist(playlistId) {
   }
 
   // Only allow deletion if the user is the creator
-  const userId = session.user._id || session.user.id;
+  const userId = session?.user._id || session?.user.id;
   if (playlist.createdBy?.toString() !== userId?.toString()) {
     // Remove the playlist from the user's library.playlists array (new userModel)
 
@@ -106,7 +106,7 @@ export async function togglePlaylistPublic(playlistId) {
   }
 
   // Only allow toggling if the user is the creator
-  const userId = session.user._id || session.user.id;
+  const userId = session?.user._id || session?.user.id;
   if (playlist.createdBy?.toString() !== userId?.toString()) {
     throw new Error("Forbidden: Only the creator can toggle public status");
   }
@@ -138,7 +138,7 @@ export async function toggleSavePublicPlaylist(playlistId) {
     throw new Error("Cannot save a private playlist");
   }
 
-  const userId = session.user._id || session.user.id;
+  const userId = session?.user._id || session?.user.id;
 
   // Find the user
   const user = await User.findOne({ _id: userId });

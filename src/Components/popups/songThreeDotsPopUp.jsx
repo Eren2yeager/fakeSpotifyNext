@@ -243,7 +243,7 @@ export default function ThreeDotsPopUp({
             setOuterRef={setChildRef} /* pass ref up */
           />
         )}
-        {playlistId && playlistCreaterId == session.user._id && (
+        {playlistId && playlistCreaterId == session?.user._id && (
           <MenuItem
             startIcon={
               <RiDeleteBin7Line className="cursor-pointer" size={20} />

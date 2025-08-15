@@ -6,6 +6,7 @@ import ListRender from "@/Components/Helper/listRender.jsx";
 import HorizentalItemsList from "@/Components/horizentalLists/horizentalItemsList.jsx";
 import GridCellContainer from "@/Components/Helper/gridCellContainer.jsx";
 import { CurrentUserProfileCircle } from "@/Components/Helper/profileCircle";
+import { PageTitle } from "@/Components/Helper/PageTitle";
 
 function Home() {
   const [Loading, setLoading] = useState(true); // Start with loading true
@@ -64,13 +65,11 @@ function Home() {
     }
   };
 
-
-
-
-
-
   return (
     <>
+      {/* Set page title - will be overridden by song title if music is playing */}
+      <PageTitle title="Home - Fake Spotify" />
+      
       {Loading ? 
       <div className="w-[100%] h-[100%] flex items-center justify-center">
 

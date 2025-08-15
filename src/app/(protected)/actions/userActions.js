@@ -24,7 +24,7 @@ import Artist from "@/models/Artist";
 // Yes, this will work as parameters.
 // The function expects an object with keys: followerId, followerType, targetId, targetType.
 // Example usage:
-// isFollowing({followerId: session.user._id, followerType: session.user.type, targetId: artist._id, targetType: artist.type})
+// isFollowing({followerId: session?.user._id, followerType: session?.user.type, targetId: artist._id, targetType: artist.type})
 export async function isFollowing({ followerId, followerType, targetId, targetType }) {
   try {
     await connectDB();

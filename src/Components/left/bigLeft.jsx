@@ -161,9 +161,9 @@ const PlayCard = (props) => {
       {/* 
         The logic here is confusing and likely incorrect. Let's break it down:
 
-        {(!props.item.specialtype  && props.item.createdBy ? props.item.createdBy._id == session.user._id  : true) && ( ... )}
+        {(!props.item.specialtype  && props.item.createdBy ? props.item.createdBy._id == session?.user._id  : true) && ( ... )}
 
-        - If props.item.specialtype is falsy and props.item.createdBy is truthy, then check if createdBy._id == session.user._id.
+        - If props.item.specialtype is falsy and props.item.createdBy is truthy, then check if createdBy._id == session?.user._id.
         - If not, just return true (so always show for specialtype truthy or createdBy falsy).
 
         This means:
@@ -177,7 +177,7 @@ const PlayCard = (props) => {
 
         So:
         */}
-      {(!props.item.specialtype && props.item.createdBy && props.item.createdBy._id == session.user._id) && (
+      {(!props.item.specialtype && props.item.createdBy && props.item.createdBy._id == session?.user._id) && (
         <div>
           <PlaylistContextMenu
             playlist={props.item}

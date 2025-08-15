@@ -38,7 +38,7 @@ export const UserProvider = ({ children }) => {
     try {
       const formData = new FormData();
       formData.set("type", "getUser");
-      formData.set("userId", session.user._id);
+      formData.set("userId", session?.user._id);
 
       const res = await fetch("/api/profile", {
         method: "POST",

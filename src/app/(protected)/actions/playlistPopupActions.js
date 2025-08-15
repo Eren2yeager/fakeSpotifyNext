@@ -14,7 +14,7 @@ export async function getPlaylistsWithSong(songId) {
 
   // Get user's playlist ids from new user model
   const user = await User.findOne(
-    { email: session.user.email },
+    { email: session?.user.email },
     { "library.playlists.playlist": 1 }
   ).lean();
 
@@ -50,7 +50,7 @@ export async function applySongPlaylistChanges(songId, updates) {
 
   // Get user's playlist ids from new user model
   const user = await User.findOne(
-    { email: session.user.email },
+    { email: session?.user.email },
     { "library.playlists.playlist": 1 }
   ).lean();
 
@@ -92,13 +92,13 @@ export async function createPlaylistShell(song) {
     image: song.image,
     type: "Playlist",
     songs: [{ song: song._id, added: new Date() }],
-    createdBy: session.user.id || session.user._id,
+    createdBy: session?.user.id || session?.user._id,
     createdAt: new Date(),
   });
 
   // Add the playlist to user's library.playlists
   await User.updateOne(
-    { email: session.user.email },
+    { email: session?.user.email },
     {
       $push: {
         "library.playlists": {

@@ -41,16 +41,16 @@ const Profile = () => {
   const slug = params?.id;
 
   useEffect(() => {
-    if (!session || !session.user || !slug) return;
+    if (!session || !session?.user || !slug) return;
     startTransition(async () => {
       setIsUpdated(false);
-      if (slug === session.user._id) {
+      if (slug === session?.user._id) {
         fetchCurrentUserProfile()
           .then((data) => {
             setProfile(data);
             const img =
               (data && data.image) ||
-              (session.user && session.user.image) ||
+              (session?.user && session?.user.image) ||
               "/images/user.jpg";
             if (img) {
               SuggestBgColor(img)
@@ -98,7 +98,7 @@ const Profile = () => {
 
   // Defensive: handle undefined session, user, library, profile
   const publicPlaylists =
-    session && session.user && slug === session.user._id
+    session && session?.user && slug === session?.user._id
       ? (library?.playlists || []).filter((pl) => pl?.isPublic)
       : profile?.publicPlaylists || [];
 
@@ -108,7 +108,7 @@ const Profile = () => {
   const followingUsers = profile?.following?.users || [];
   const followingArtists = profile?.following?.artists || [];
 
-  // Defensive: session.user fallback
+  // Defensive: session?.user fallback
   const userId = session?.user?._id || "";
   const userType = session?.user?.type || "";
 
@@ -138,7 +138,7 @@ const Profile = () => {
           className={`scroll-container  relative w-[100%] h-[100%] rounded-xl  overflow-y-auto text-white bg-zinc-900`}
           onScroll={handleScroll}
         >
-          {session && session.user && slug === session.user._id && (
+          {session && session?.user && slug === session?.user._id && (
             <EditProfileModal
               open={isModalOpen}
               currentUser={profile}
@@ -176,7 +176,7 @@ const Profile = () => {
                       "min-w-[200px] h-[200px] max-w-[200px]   self-end"
                 } relative group overflow-hidden  shadow-lg shadow-black rounded-full `}
                 onClick={() => {
-                  if (session && session.user && slug === session.user._id) {
+                  if (session && session?.user && slug === session?.user._id) {
                     setIsModalOpen(true);
                   }else {
                   
@@ -190,7 +190,7 @@ const Profile = () => {
                   alt="user-img"
                   className={`max-w-full max-h-full min-w-full min-h-full  object-cover  rounded-full  cursor-pointer `}
                 />
-                {session && session.user && slug === session.user._id && (
+                {session && session?.user && slug === session?.user._id && (
                   <div className="min-w-[100%] min-h-[100%] hover:flex  absolute top-0 right-0 hidden group-hover:block rounded-xl  hover:bg-black/45 cursor-pointer">
                     <PiNotePencil
                       className="mx-auto my-auto brightness-150 text-white"
@@ -285,7 +285,7 @@ const Profile = () => {
                       {profileName}
                     </p>
                   )}
-                  {session && session.user && slug !== session.user._id && (
+                  {session && session?.user && slug !== session?.user._id && (
                     <p
                       className={`font-bold font-sans text-xl px-3 mr-auto max-w-full truncate ${
                         scrolled ? "hidden" : ""
@@ -305,7 +305,7 @@ const Profile = () => {
                     </p>
                   )}
 
-                  {session && session.user && slug === session.user._id && (
+                  {session && session?.user && slug === session?.user._id && (
                     <ProfileThreeDots currentUser={profile} />
                   )}
                 </div>

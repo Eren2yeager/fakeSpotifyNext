@@ -9,7 +9,7 @@ import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function POST(req) {
   const session = await getServerSession(authOptions);
-  if (!session?.user)
+  if (!session.user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const formData = await req.formData();

@@ -21,7 +21,7 @@ export async function isSongInAnyPlaylist(songId) {
 
   // Find the user and get their playlist IDs from the new userModel
   const user = await User.findOne(
-    { email: session.user.email },
+    { email: session?.user.email },
     { "library.playlists.playlist": 1 }
   );
 
@@ -62,7 +62,7 @@ export async function isSongInSpecificPlaylist(songId, playlistId) {
 
   // Find the user and ensure the playlist is in their library
   const user = await User.findOne(
-    { email: session.user.email },
+    { email: session?.user.email },
     { "library.playlists.playlist": 1 }
   );
 

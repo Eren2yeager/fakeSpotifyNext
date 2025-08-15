@@ -301,7 +301,7 @@ const MiddlePlaylistView = () => {
                   }`}
                 >
                   <Followbutton
-                    followObject ={{followerId :session.user._id, followerType : session.user.type, targetId : artist._id, targetType : artist.type}}
+                    followObject ={{followerId :session?.user._id, followerType : session?.user.type, targetId : artist._id, targetType : artist.type}}
                     onUpdate={() => {
                       setIsUpdated(true);
                     }}

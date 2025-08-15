@@ -15,7 +15,7 @@ export async function GET(req) {
 
   let followingUserIds = [];
   let followingArtistIds = [];
-  if (session?.user?.email) {
+  if (session.user?.email) {
     const me = await User.findOne({ email: session.user.email })
       .select("following")
       .lean();

@@ -40,7 +40,7 @@ export async function toggleLikeSong(songId) {
 
   // Find the user and their "Liked Songs" playlist in their library
   const user = await User.findOne(
-    { email: session.user.email },
+    { email: session?.user.email },
     { "library.playlists.playlist": 1 }
   ).lean();
 
@@ -92,7 +92,7 @@ export async function addSongToPlaylist(songId, playlistId) {
 
   // Check that the playlist is in the user's library
   const user = await User.findOne(
-    { email: session.user.email },
+    { email: session?.user.email },
     { "library.playlists.playlist": 1 }
   ).lean();
 
@@ -133,7 +133,7 @@ export async function removeSongFromPlaylist(songId, playlistId) {
 
   // Check that the playlist is in the user's library
   const user = await User.findOne(
-    { email: session.user.email },
+    { email: session?.user.email },
     { "library.playlists.playlist": 1 }
   ).lean();
 

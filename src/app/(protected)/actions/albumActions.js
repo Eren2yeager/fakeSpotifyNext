@@ -13,7 +13,7 @@ export async function isSavedAlbum(albumId) {
 
     await connectDB();
 
-    const user = await User.findOne({ email: session.user.email });
+    const user = await User.findOne({ email: session?.user.email });
     if (!user) return false;
 
     // user.library.albums is assumed to be an array of objects: { album: ObjectId, added: Date }
@@ -36,7 +36,7 @@ export async function toggleSavedAlbum(albumId) {
 
     await connectDB();
 
-    const user = await User.findOne({ email: session.user.email });
+    const user = await User.findOne({ email: session?.user.email });
     if (!user) throw new Error("User not found");
 
     const album = await Album.findById(albumId);

@@ -67,7 +67,6 @@ export default function PlaylistContextMenu({
 
   return (
     <Portal open={open} onClose={onClose} anchorRect={anchorRect}>
-      <div className="h-1.5 w-[40%] sm:hidden mx-auto my-1 rounded-xs flex bg-white/45 " />{" "}
       <div className="flex gap-1 justify-start items-center">
         <img
           src={`${playlist?.image}`}

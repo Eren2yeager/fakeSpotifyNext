@@ -13,14 +13,15 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/Components/ArtistdashboardComponents/artistDashboardHelpers";
 import CreateNewPopup from "@/Components/ArtistdashboardComponents/CreateNewPopup";
-
+import ProfileCircle from "@/Components/Helper/profileCircle";
+import { useSession } from "next-auth/react";
 const ArtistDashboardLayout = ({ children }) => {
   const [isUpdated, setIsUpdated] = useState(false);
-
+  const { data: session } = useSession();
+  const router = useRouter();
   // Remove unused state to avoid build warnings
   // const [activeTab, setActiveTab] = useState("overview");
   const usepathname = usePathname();
-  const router = useRouter();
 
   const [showCreateNewPopup, setShowCreateNewPopup] = useState(false);
   const [anchor, setAnchor] = useState(null);
@@ -67,15 +68,23 @@ const ArtistDashboardLayout = ({ children }) => {
               Artist <span className="text-green-500">&lt;/Studio&gt;</span>
             </h1>
           </div>
-          <div
-            className=""
-            ref={buttonRef}
-            onClick={handleCreateNewClick}
-          >
-            <Button className="gap-2 bg-white/8 p-2 cursor-pointer rounded-full  ">
+          <div className="flex items-center gap-3">
+            <Button
+              className="gap-2 bg-white/8 p-1.5 cursor-pointer rounded-full  "
+              ref={buttonRef}
+              onClick={handleCreateNewClick}
+            >
               <Plus className="h-4 w-4 " />
               <span className="hidden sm:block">Create New</span>
             </Button>
+            <ProfileCircle
+              onClick={() => {
+                if (session) {
+                  router.push(`/profiles/${session?.user?._id}`);
+                }
+              }}
+              image={session?.user?.image || "/images/user.jpg"}
+            />
           </div>
         </div>
       </header>

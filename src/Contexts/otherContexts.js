@@ -25,7 +25,7 @@ export function OtherContextsProvider({ children }) {
   const [showLibrary, setShowLibrary] = useState(false);
   const [imagefullViewSrc, setImagefullViewSrc] = useState(null);
   const [middleWidth, setMiddleWidth] = useState(0);
-  const [searchedText, setSearchedText] = useState(null);
+  const [searchedText, setSearchedText] = useState("");
 
   // toggleFullScreen state is synced with the "toggleFullScreen" query param in the URL
   const [toggleFullScreen, setToggleFullScreenState] = useState(false);

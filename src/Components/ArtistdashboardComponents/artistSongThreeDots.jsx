@@ -158,7 +158,6 @@ const ArtistSongThreeDots = ({ song, album, onUpdate }) => {
               }}
             >
               {/* image support */}
-              <div className="h-1.5 w-[40%] sm:hidden mx-auto my-1 rounded-xs flex bg-white/45 " />
               <div className="flex gap-1 justify-start ">
                 <img
                   src={`${song?.image}`}

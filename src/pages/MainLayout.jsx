@@ -3,20 +3,33 @@ import { useState, useContext, useRef, useEffect, memo } from "react";
 import dynamic from "next/dynamic";
 
 // Only use dynamic imports for components that actually need client-side only rendering
-const ImagePreviewer = dynamic(() => import("@/Components/Helper/ImagePreviewer.jsx"), { ssr: false });
-const AudioComponent = dynamic(() => import("@/Components/audioComponents/AudioComponent"), { ssr: false });
+const ImagePreviewer = dynamic(
+  () => import("@/Components/Helper/ImagePreviewer.jsx"),
+  { ssr: false }
+);
+const AudioComponent = dynamic(
+  () => import("@/Components/audioComponents/AudioComponent"),
+  { ssr: false }
+);
 
 // Import these components dynamically since they use session/context hooks
 const Navbar = dynamic(() => import("@/Components/navbar"), { ssr: false });
 const Right = dynamic(() => import("@/Components/right"), { ssr: false });
-const BigLeft = dynamic(() => import("@/Components/left/bigLeft"), { ssr: false });
-const SmallLeft = dynamic(() => import("@/Components/left/smallLeft"), { ssr: false });
-const BigEndbar = dynamic(() => import("@/Components/endbars/bigEndbar"), { ssr: false });
-const SmallEndbar = dynamic(() => import("@/Components/endbars/smallEndbar"), { ssr: false });
+const BigLeft = dynamic(() => import("@/Components/left/bigLeft"), {
+  ssr: false,
+});
+const SmallLeft = dynamic(() => import("@/Components/left/smallLeft"), {
+  ssr: false,
+});
+const BigEndbar = dynamic(() => import("@/Components/endbars/bigEndbar"), {
+  ssr: false,
+});
+const SmallEndbar = dynamic(() => import("@/Components/endbars/smallEndbar"), {
+  ssr: false,
+});
 
 import { useWidthObserver } from "@/Components/Helper/WidthObserver";
 import { useOtherContexts } from "@/Contexts/otherContexts";
-
 
 function MainLayout({ children }) {
   const renderCount = useRef(0);
@@ -35,7 +48,7 @@ function MainLayout({ children }) {
     showLibrary = false,
     setShowLibrary = () => {},
     middleWidth = 0,
-    setMiddleWidth = () => {}
+    setMiddleWidth = () => {},
   } = contextValue || {};
 
   const ref = useWidthObserver(setMiddleWidth);
@@ -105,8 +118,7 @@ function MainLayout({ children }) {
           {!toggleFullScreen && (
             <>
               <div className="sm:flex  hidden sm:block transition-all duration-300 justify-self-start ">
-                {
-showLibrary ? (
+                {showLibrary ? (
                   <div className="" style={{ width: `${leftWidth}px` }}>
                     <BigLeft
                       leftWidth={leftWidth}
@@ -139,9 +151,7 @@ showLibrary ? (
 
           <div
             className={`w-[100%] overflow-hidden ${
-              toggleFullScreen
-                ? `hidden transition-all duration -1`
-                : ``
+              toggleFullScreen ? `hidden transition-all duration -1` : ``
             } `}
           >
             <div
@@ -150,25 +160,22 @@ showLibrary ? (
             >
               {/* outlet */}
               {children}
-              {/* Remove console.log to avoid issues in build */}
+      
             </div>
           </div>
 
-          {!toggleFullScreen &&
-            showRight && (
-              <div
-                data-resizer-name="right"
-                ref={resizerRef}
-                onMouseDown={startResizing}
-                className="hidden sm:block  right-0 top-0 w-1 cursor-col-resize active:cursor-grab my-2  hover:bg-white"
-              ></div>
-            )}
+          {!toggleFullScreen && showRight && (
+            <div
+              data-resizer-name="right"
+              ref={resizerRef}
+              onMouseDown={startResizing}
+              className="hidden sm:block  right-0 top-0 w-1 cursor-col-resize active:cursor-grab my-2  hover:bg-white"
+            ></div>
+          )}
           {showRight && (
             <div
               className={`${
-                toggleFullScreen
-                  ? "w-[100%] block"
-                  : "w-[300px] hidden"
+                toggleFullScreen ? "w-[100%] block" : "w-[300px] hidden"
               } sm:block  `}
               style={{ minWidth: `${rightWidth}px` }}
             >

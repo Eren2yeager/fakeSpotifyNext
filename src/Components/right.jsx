@@ -5,7 +5,6 @@ import MarqueeDiv from "./Helper/marquee";
 import SuggestBgColor from "../functions/bgSuggester";
 import { motion } from "framer-motion";
 
-
 import { GoScreenFull } from "react-icons/go";
 import { GoScreenNormal } from "react-icons/go";
 import ShowMoreShowLess from "./Helper/showMoreShowLess";
@@ -23,11 +22,9 @@ import Followbutton from "./artistsComponents/followbutton";
 import { useSession } from "next-auth/react";
 import QueueSongCard from "./playlistCards/queueSongCard";
 
-
-
 const Right = () => {
-
-  const  {toggleFullScreen ,setToggleFullScreen , showRight, setShowRight} = useOtherContexts()
+  const { toggleFullScreen, setToggleFullScreen, showRight, setShowRight } =
+    useOtherContexts();
 
   const rightNavRef = React.useRef(null);
   const SongImageRef = useRef(null);
@@ -35,19 +32,20 @@ const Right = () => {
   const containerRef = useRef(null);
   const popupRef = useRef(null);
 
-
-
- 
-
-
-
-
-
-  
-
   const [selectedSong, setSelectedSong] = useState(null);
   const [bgColor, setBgColor] = useState(null);
-  const { currentSong, context, openQueue , setOpenQueue , originalQueue, userInsertQueue, playOrder, currentPlayOrderIndex, isShuffling, originalQueueRelatedContext } = usePlayer();
+  const {
+    currentSong,
+    context,
+    openQueue,
+    setOpenQueue,
+    originalQueue,
+    userInsertQueue,
+    playOrder,
+    currentPlayOrderIndex,
+    isShuffling,
+    originalQueueRelatedContext,
+  } = usePlayer();
   const router = useRouter();
   const { data: session } = useSession();
   const [isUpdated, setIsUpdated] = useState(false);
@@ -140,7 +138,8 @@ const Right = () => {
   const remainingSongs = useMemo(() => {
     if (!originalQueue || originalQueue.length === 0) return [];
     if (!Array.isArray(playOrder) || playOrder.length === 0) return [];
-    const start = typeof currentPlayOrderIndex === "number" ? currentPlayOrderIndex + 1 : 0;
+    const start =
+      typeof currentPlayOrderIndex === "number" ? currentPlayOrderIndex + 1 : 0;
     if (start >= playOrder.length) return [];
     const indices = playOrder.slice(start);
     return indices.map((idx) => originalQueue[idx]).filter(Boolean);
@@ -171,24 +170,24 @@ const Right = () => {
           typeof window !== "undefined" &&
           window.innerWidth <= 640 && { duration: 0.7, ease: "easeOut" }
         }
-        drag={
-          typeof window !== "undefined" && window.innerWidth <= 640
-            ? "y"
-            : false
-        }
-        dragConstraints={{ top: 0, bottom: 300 }}
-        onDragEnd={(event, info) => {
-          if (
-            typeof window !== "undefined" &&
-            window.innerWidth <= 640 &&
-            info.offset.y > 100
-          ) {
-            setTimeout(() => {
-              setToggleFullScreen(false);
-              setShowRight(false);
-            }, 1000);
-          }
-        }}
+        // drag={
+        //   typeof window !== "undefined" && window.innerWidth <= 640
+        //     ? "y"
+        //     : false
+        // }
+        // dragConstraints={{ top: 0, bottom: 300 }}
+        // onDragEnd={(event, info) => {
+        //   if (
+        //     typeof window !== "undefined" &&
+        //     window.innerWidth <= 640 &&
+        //     info.offset.y > 100
+        //   ) {
+        //     setTimeout(() => {
+        //       setToggleFullScreen(false);
+        //       setShowRight(false);
+        //     }, 1000);
+        //   }
+        // }}
         onClick={(e) => {
           e.stopPropagation();
         }}
@@ -295,9 +294,7 @@ const Right = () => {
                 <span
                   className="max-h-[100%] transition-all duration-300 hover:backdrop-blur-lg hidden sm:group-hover/right:block hover:bg-white/8  rounded-full "
                   onClick={() => {
-                    setToggleFullScreen(
-                      !toggleFullScreen
-                    );
+                    setToggleFullScreen(!toggleFullScreen);
                   }}
                 >
                   {toggleFullScreen ? (
@@ -312,6 +309,7 @@ const Right = () => {
             <div
               className="  sm:overflow-y-auto w-[100%]   flex flex-col items-center justify-between  px-3 transition-all duration-500 pb-40 sm:pb-0"
               ref={containerRef}
+              
             >
               <div
                 className={`song-image flex flex-col justify-around  w-[100%] max-w-[400px] min-h-[85vh] ${
@@ -329,8 +327,7 @@ const Right = () => {
                 <div className="w-[100%] max-w-[400px]">
                   <div
                     className={`song-info max-w-[100%] flex items-center overflow-clip py-4 ${
-                      toggleFullScreen &&
-                      window.innerWidth >= 640
+                      toggleFullScreen && window.innerWidth >= 640
                         ? `hidden`
                         : ``
                     }`}
@@ -421,9 +418,8 @@ const Right = () => {
                           }}
                         />
                       )}
-
                     </div>
-         
+
                     {selectedSong?.artist?.bio && (
                       <article className="p-3 text-sm   max-h-[calc(16*5)] transition-all duration-300">
                         <ShowMoreShowLess
@@ -443,9 +439,16 @@ const Right = () => {
                     </div>
                     <div className="mt-2 px-2 pb-2 flex flex-col gap-1">
                       {(() => {
-                        const combined = [...userInsertQueue, ...remainingSongs];
+                        const combined = [
+                          ...userInsertQueue,
+                          ...remainingSongs,
+                        ];
                         if (combined.length === 0) {
-                          return <div className="text-white/60 text-sm px-2 py-3 text-center border-2 border-white rounded-full font-extrabold">No upcoming songs</div>;
+                          return (
+                            <div className="text-white/60 text-sm px-2 py-3 text-center border-2 border-white rounded-full font-extrabold">
+                              No upcoming songs
+                            </div>
+                          );
                         }
                         const song = combined[0];
                         const isFromUserInsert = userInsertQueue.length > 0;
@@ -454,8 +457,16 @@ const Right = () => {
                             key={(song?._id || 0) + "-next-one"}
                             index={0}
                             item={song}
-                            context={isFromUserInsert ? { type: "Queue", id: song._id, name: "Queue" } : originalQueueRelatedContext}
-                            allSongs={isFromUserInsert ? userInsertQueue : remainingSongs}
+                            context={
+                              isFromUserInsert
+                                ? { type: "Queue", id: song._id, name: "Queue" }
+                                : originalQueueRelatedContext
+                            }
+                            allSongs={
+                              isFromUserInsert
+                                ? userInsertQueue
+                                : remainingSongs
+                            }
                           />
                         );
                       })()}

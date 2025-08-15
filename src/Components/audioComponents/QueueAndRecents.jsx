@@ -188,11 +188,11 @@ export default function QueueAndRecentsSide({ open, onClose, className, style })
       exit={{ y: -200, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.7, ease: "easeOut" }}
-      drag={window.innerWidth <= 640 ? "y" : false}
-      dragConstraints={{ top: 0, bottom: 300 }}
-      onDragEnd={(e, info) => {
-        if (window.innerWidth <= 640 && info.offset.y > 100) setTimeout(onClose, 1000);
-      }}
+      // drag={window.innerWidth <= 640 ? "y" : false}
+      // dragConstraints={{ top: 0, bottom: 300 }}
+      // onDragEnd={(e, info) => {
+      //   if (window.innerWidth <= 640 && info.offset.y > 100) setTimeout(onClose, 1000);
+      // }}
       className={className}
       style={style}
       onClick={e => e.stopPropagation()}

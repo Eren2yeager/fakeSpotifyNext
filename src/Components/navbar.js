@@ -12,14 +12,12 @@ import { useSession } from "next-auth/react";
 import { useUser } from "@/Contexts/userContex";
 import { useRouter } from "next/navigation";
 import ProfileCircle from "./Helper/profileCircle";
+
 const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Add safety check for context to prevent SSR errors
-  const contextValue = useOtherContexts();
-  const { searchedText = "", setSearchedText = () => {} } = contextValue || {};
-  
+  const { searchedText, setSearchedText } = useOtherContexts()
   const inputRef = useRef(null);
   const { data: session, status } = useSession();
 
@@ -27,6 +25,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   const { fetchCurrentUserProfile, userProfile } = useUser();
+  
   useEffect(() => {
     if (!userProfile) {
       fetchCurrentUserProfile();
@@ -41,9 +40,7 @@ const Navbar = () => {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-
+  }, [userProfile, fetchCurrentUserProfile]);
 
   const [openMessages, setOpenMessages] = useState(false);
 

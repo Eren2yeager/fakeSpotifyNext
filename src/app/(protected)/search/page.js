@@ -11,6 +11,7 @@ import { useSearchParams } from "next/navigation";
 import { useOtherContexts } from "@/Contexts/otherContexts";
 import { CurrentUserProfileCircle } from "@/Components/Helper/profileCircle";
 import ListRender from "@/Components/Helper/listRender";
+
 const Search = () => {
   const inputRef = useRef(null);
   
@@ -38,7 +39,7 @@ const Search = () => {
         <CurrentUserProfileCircle text={"Search"} />
       </div>
 
-      {window.innerWidth <= 640 && (
+      {typeof window !== "undefined" && window.innerWidth <= 640 && (
         <div className=" z-1 max-w-[100%] flex justify-center items-center mb-3 bg-white sm:bg-zinc-800   rounded-lg sm:rounded-2xl h-10 border-3 border-transparent focus-within:border-gray-400 transition-all duration-300">
           <div className="w-full flex items-center gap-2 " ref={containerRef}>
             <SearchBar

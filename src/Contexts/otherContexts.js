@@ -1,3 +1,4 @@
+"use client";
 import {
   createContext,
   useContext,
@@ -8,6 +9,7 @@ import {
 } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+
 const otherContexts = createContext();
 
 export const useOtherContexts = () => useContext(otherContexts);
@@ -16,14 +18,14 @@ export const useOtherContexts = () => useContext(otherContexts);
   Provider Component
 ------------------------------ */
 export function OtherContextsProvider({ children }) {
-  const searchParams = useSearchParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [showRight, setShowRight] = useState(true);
   const [showLibrary, setShowLibrary] = useState(false);
   const [imagefullViewSrc, setImagefullViewSrc] = useState(null);
   const [middleWidth, setMiddleWidth] = useState(0);
-  const [searchedText, setSearchedText] = useState("");
+  const [searchedText, setSearchedText] = useState(null);
 
   // toggleFullScreen state is synced with the "toggleFullScreen" query param in the URL
   const [toggleFullScreen, setToggleFullScreenState] = useState(false);
@@ -38,7 +40,7 @@ export function OtherContextsProvider({ children }) {
 
   // When you want to update toggleFullScreen, update the URL (which will update state via useEffect)
   const setToggleFullScreen = (value) => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && router) {
       const params = new URLSearchParams(window.location.search);
       params.set("toggleFullScreen", value ? "true" : "false");
       const newUrl =

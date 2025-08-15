@@ -6,11 +6,11 @@ import dynamic from "next/dynamic";
 const ImagePreviewer = dynamic(() => import("@/Components/Helper/ImagePreviewer.jsx"), { ssr: false });
 const AudioComponent = dynamic(() => import("@/Components/audioComponents/AudioComponent"), { ssr: false });
 
-// Import these components normally since they don't need client-side only rendering
-import Navbar from "@/Components/navbar";
-import Right from "@/Components/right";
-import BigLeft from "@/Components/left/bigLeft";
-import SmallLeft from "@/Components/left/smallLeft";
+// Import these components dynamically since they use session/context hooks
+const Navbar = dynamic(() => import("@/Components/navbar"), { ssr: false });
+const Right = dynamic(() => import("@/Components/right"), { ssr: false });
+const BigLeft = dynamic(() => import("@/Components/left/bigLeft"), { ssr: false });
+const SmallLeft = dynamic(() => import("@/Components/left/smallLeft"), { ssr: false });
 const BigEndbar = dynamic(() => import("@/Components/endbars/bigEndbar"), { ssr: false });
 const SmallEndbar = dynamic(() => import("@/Components/endbars/smallEndbar"), { ssr: false });
 

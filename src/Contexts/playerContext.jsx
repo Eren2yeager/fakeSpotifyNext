@@ -1,9 +1,10 @@
+"use client";
 // context/PlayerContext.js
 import { createContext, useContext, useState, useRef, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useSpotifyToast } from "./SpotifyToastContext";
-import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
 const PlayerContext = createContext();
 
 export const usePlayer = () => useContext(PlayerContext);
@@ -13,11 +14,12 @@ export const PlayerProvider = ({ children }) => {
   const toast = useSpotifyToast()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { data: session } = useSession();
 
   // ===================================================
   const [currentSong, setCurrentSong] = useState(null);
   // Removed deprecated duplicate queue; rely on originalQueue everywhere
-  const [context, setContext] = useState(null); // e.g. { type: 'playlist', id: '...' ,name:'... }
+  const [context, setContext] = useState(null); // e.g. { type: 'playlist', id: '...' ,name:'...' }
 
   // NEW: Enhanced queue state for Spotify-like behavior
   const [originalQueue, setOriginalQueue] = useState([]);
@@ -34,7 +36,6 @@ export const PlayerProvider = ({ children }) => {
   const durationRef =useRef("");
   const currentTimeRef =useRef("");
   const audioRef = useRef()
-  const { data: session } = useSession();
   // openQueue state is synced with the "openQueue" query param in the URL
   const [openQueue, updateOpenQueue] = useState(false);
 

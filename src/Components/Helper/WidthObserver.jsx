@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useRef } from "react";
 
 /**
@@ -8,7 +9,7 @@ export function useWidthObserver(onWidthChange) {
   const ref = useRef(null);
 
   useEffect(() => {
-    if (!ref.current) return;
+    if (!ref.current || typeof window === "undefined") return;
 
     const resizeObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {

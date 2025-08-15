@@ -12,13 +12,7 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/Components/ArtistdashboardComponents/artistDashboardHelpers";
-import dynamic from "next/dynamic";
-
-// Dynamically import CreateNewPopup to avoid SSR issues
-const CreateNewPopup = dynamic(
-  () => import("@/Components/ArtistdashboardComponents/CreateNewPopup"),
-  { ssr: false }
-);
+import CreateNewPopup from "@/Components/ArtistdashboardComponents/CreateNewPopup";
 
 const ArtistDashboardLayout = ({ children }) => {
   const [isUpdated, setIsUpdated] = useState(false);

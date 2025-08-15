@@ -3,7 +3,7 @@ import React, { useEffect, useState, useContext, useRef } from "react";
 import { IoIosPlay, IoIosPause } from "react-icons/io";
 import { FaRegClock } from "react-icons/fa";
 import { useParams } from "next/navigation";
-import { middleWidthContext } from "@/Contexts/contexts";
+import { useOtherContexts } from "@/Contexts/otherContexts";
 import { usePlayer } from "@/Contexts/playerContext";
 import MiddlePlaylistSongCard from "@/Components/playlistCards/middlePlaylistSongCard";
 import NotFound from "@/Components/Helper/not-found";
@@ -12,7 +12,7 @@ import ThreeDotsLoader from "@/Components/Helper/ThreeDotsLoader";
 export default function GenrePage() {
   const params = useParams();
   const genreName = decodeURIComponent(params.name);
-  const { middleWidth } = useContext(middleWidthContext);
+  const { middleWidth } = useOtherContexts();
   const { handlePlayFromType, conditionCheckForSong, isPlaying } = usePlayer();
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -6,7 +6,8 @@ import React, {
   useEffect,
   useTransition,
 } from "react";
-import { imagePreviewContext, middleWidthContext } from "@/Contexts/contexts";
+import { useOtherContexts } from "@/Contexts/otherContexts";
+
 import { FaArrowLeft } from "react-icons/fa6";
 import SuggestBgColor from "@/functions/bgSuggester";
 import { useRouter } from "next/navigation";
@@ -27,8 +28,8 @@ import Followbutton from "@/Components/artistsComponents/followbutton";
 const Profile = () => {
   const router = useRouter();
 
-  const Context_middle_width = useContext(middleWidthContext);
-  const { middleWidth } = Context_middle_width || {};
+
+  const { middleWidth , setImagefullViewSrc } = useOtherContexts();
   const [bgColor, setBgColor] = useState(null);
   const { library } = useLibrary() || {};
   const [isPending, startTransition] = useTransition();
@@ -177,6 +178,10 @@ const Profile = () => {
                 onClick={() => {
                   if (session && session.user && slug === session.user._id) {
                     setIsModalOpen(true);
+                  }else {
+                  
+                      setImagefullViewSrc(profileImage || null);
+                   
                   }
                 }}
               >

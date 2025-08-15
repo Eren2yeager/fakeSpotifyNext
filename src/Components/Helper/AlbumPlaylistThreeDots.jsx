@@ -5,7 +5,7 @@ import { IoMdList } from "react-icons/io";
 import Portal from "./Portal";
 import { usePlayer } from "@/Contexts/playerContext";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
-import { middleWidthContext } from "@/Contexts/contexts";
+import { useOtherContexts } from "@/Contexts/otherContexts";
 const MenuItem = ({ startIcon, endIcon, label, onClick }) => (
   <div
     onClick={onClick}
@@ -25,8 +25,9 @@ const AlbumPlaylistThreeDots = ({ item, type }) => {
    
 
   
-  const Context_middle_width = useContext(middleWidthContext);
-  const { middleWidth } = Context_middle_width;
+
+  const { middleWidth } = useOtherContexts();
+
 
 
   useEffect(() => {

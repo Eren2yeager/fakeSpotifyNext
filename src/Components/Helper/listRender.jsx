@@ -82,7 +82,7 @@ const ListRender = ({ activeItem, setActiveItem, listItems, className }) => {
         {navItems.map((item, index) => (
           <li
             key={index}
-            className={`px-4 py-1 text-xs sm:text-sm cursor-pointer font-medium   transition-all duration-300 rounded-full 
+            className={`px-4 py-1 text-sm cursor-pointer font-medium   transition-all duration-300 rounded-full 
              ${
                activeItem === index
                  ? "bg-white text-black"

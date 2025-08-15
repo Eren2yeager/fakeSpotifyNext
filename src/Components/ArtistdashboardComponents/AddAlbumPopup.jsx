@@ -1,105 +1,65 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useTransition } from "react";
 import { GrAdd } from "react-icons/gr";
 import { PiNotePencil } from "react-icons/pi";
-import { useTransition } from "react";
-import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { Dialog } from "../ui/Dialog";
+import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
+import { useImageProcessor } from "../Helper/ImageCropper";
 
-/**
- * AddAlbumPopup
- * 
- * This component is safe for Next.js build and deployment.
- * - No server-only code or Node.js APIs are imported or used.
- * - All logic is client-side and browser-compatible.
- */
 export default function AddAlbumPopup({ open, onClose, onUpdate }) {
   const [pending, startTransition] = useTransition();
-  const toast = useSpotifyToast();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("/images/notfound.png");
+  const toast = useSpotifyToast();
+
+  const handleImageProcessed = (processedFile) => {
+    setImage(processedFile);
+    setPreview(URL.createObjectURL(processedFile));
+    toast({ text: "Image processed successfully! Automatically cropped to square and resized." });
+  };
+
+  const handleImageError = (errorMessage) => {
+    toast({ text: errorMessage });
+  };
+
+  const { handleImageChange } = useImageProcessor(handleImageProcessed, handleImageError);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // FormData is safe to use in the browser
+    if (!name || !image) {
+      toast({ text: "Album name and image are required" });
+      return;
+    }
+
     const formData = new FormData();
-    formData.set("type", "addAlbum");
     formData.set("name", name);
     formData.set("description", description);
-
-    if (image) formData.set("image", image);
-
-    // Remove console.log(formData); as it doesn't print formData contents usefully and can cause issues in some environments
+    formData.set("image", image);
 
     startTransition(async () => {
-      try {
-        const res = await fetch("/api/artistDashboard/albums", {
-          method: "POST",
-          body: formData,
-        });
+      const res = await fetch("/api/artistDashboard/albums", {
+        method: "POST",
+        body: formData,
+      });
 
-        if (!res.ok) {
-          toast({ text: "failed" });
-          return;
-        }
+      if (!res.ok) {
+        toast({ text: "Failed to create album" });
+        return;
+      }
 
-        const result = await res.json();
-        if (result) {
-          toast({ text: "Album Added" });
-          onUpdate();
-          onClose();
-        }
-      } catch (err) {
-        toast({ text: "Network error" });
+      const result = await res.json();
+      if (result.success) {
+        toast({ text: "Album created successfully!" });
+        onUpdate();
+        onClose();
+      } else {
+        toast({ text: "Failed to create album" });
       }
     });
-  };
-
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const maxKB = 5120; // 5 MB
-    if (file.size > maxKB * 1024) {
-      toast({ text: `Image too large. Maximum size is ${maxKB / 1024}MB` });
-      e.target.value = "";
-      return;
-    }
-    try {
-      // createImageBitmap is browser-safe, but check for support
-      if (typeof createImageBitmap !== "function") {
-        toast({ text: "Image preview not supported in this browser" });
-        e.target.value = "";
-        return;
-      }
-      const bitmap = await createImageBitmap(file);
-      const { width, height } = bitmap;
-      bitmap.close();
-      if (width !== height) {
-        toast({ text: "Image must be square (e.g., 300x300)" });
-        e.target.value = "";
-        return;
-      }
-      if (width < 300) {
-        toast({ text: "Image too small. Minimum is 300x300" });
-        e.target.value = "";
-        return;
-      }
-      if (width > 1000) {
-        toast({ text: "Image too large. Maximum is 1000x1000" });
-        e.target.value = "";
-        return;
-      }
-    } catch (err) {
-      toast({ text: "Unable to read image. Choose a valid image file" });
-      e.target.value = "";
-      return;
-    }
-
-    setImage(file);
-    setPreview(URL.createObjectURL(file));
   };
 
   return (
@@ -162,13 +122,13 @@ export default function AddAlbumPopup({ open, onClose, onUpdate }) {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Write about this album..."
+              placeholder="Tell us about your album..."
               disabled={pending}
-              className="w-full p-3 h-15 rounded-lg bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              rows={4}
-            ></textarea>
+              className="w-full p-3 rounded-lg bg-neutral-700 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+              rows={3}
+            />
           </div>
-          {/* Submit */}
+
           <button
             type="submit"
             disabled={pending}
@@ -176,12 +136,16 @@ export default function AddAlbumPopup({ open, onClose, onUpdate }) {
               pending
                 ? "bg-white/45 cursor-not-allowed"
                 : "bg-white cursor-pointer"
-            }  text-black font-semibold px-6 py-2 rounded-full mt-2 hover:scale-105 transition`}
+            } text-black font-semibold px-6 py-2 rounded-full mt-2 hover:scale-105 transition`}
           >
-            {pending ? "Saving..." : "Save"}
+            {pending ? "Creating..." : "Create Album"}
           </button>
         </div>
       </form>
+
+      <p className="text-xs text-gray-400 mt-4">
+        Upload any image and we'll automatically crop it to a perfect square and resize it to 300x300 pixels.
+      </p>
     </Dialog>
   );
 }

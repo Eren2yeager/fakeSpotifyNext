@@ -66,9 +66,9 @@ const RecentPlayCard = (props) => {
           }}
         >
           {conditionCheck == true && isPlaying ? (
-            <IoIosPause className="text-2xl  cursor-pointer" />
+            <IoIosPause className="text-lg  sm:text-2xl  cursor-pointer" />
           ) : (
-            <IoIosPlay className="text-2xl pl-0.5 cursor-pointer" />
+            <IoIosPlay className="text-lg  sm:text-2xl  cursor-pointer" />
           )}
         </div>
       )}

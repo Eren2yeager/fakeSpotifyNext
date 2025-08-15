@@ -1,15 +1,14 @@
 "use client"
 import React, { useContext,  useEffect , memo} from "react";
-import { showRightContext , showPlaylistsContext} from "@/Contexts/contexts";
-
+import { useOtherContexts } from "@/Contexts/otherContexts";
 import { usePlayer } from "@/Contexts/playerContext";
 import { useSession } from "next-auth/react";
 
 const AudioComponent = () => {
 
-  const ContextShowRight= useContext(showRightContext)
-  const ContextShowPlaylists= useContext(showPlaylistsContext)
-  
+
+  const  {toggleFullScreen ,setToggleFullScreen , showRight, setShowRight , showPlaylists, setShowPlaylists} = useOtherContexts()
+
 
   const { currentSong, isPlaying , setIsPlaying , durationRef , currentTimeRef , audioRef, nextTrack, context} = usePlayer();
   const { data: session } = useSession();
@@ -26,9 +25,9 @@ const AudioComponent = () => {
         audioRef.current
           .play()
           .then(() => {
-            ContextShowRight.setShowRight(true);
+            setShowRight(true);
             if(window.innerWidth <= 1280){
-              ContextShowPlaylists.setShowPlaylists(false)
+              setShowPlaylists(false)
             }
             setIsPlaying(true); // ✅ only after successful play
 
@@ -44,6 +43,8 @@ const AudioComponent = () => {
   };
    
 
+
+  
 
 
 

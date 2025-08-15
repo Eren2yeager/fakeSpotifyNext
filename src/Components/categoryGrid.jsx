@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { middleWidthContext } from "@/Contexts/contexts";
+import { useOtherContexts } from "@/Contexts/otherContexts";
 import { useRouter } from "next/navigation";
 import GENRES from "@/data/genres.json";
 
@@ -64,7 +64,7 @@ const getCardSize = (middleWidth) => {
 };
 
 const CategoryGrid = () => {
-  const { middleWidth } = useContext(middleWidthContext);
+  const { middleWidth } = useOtherContexts();
   const router = useRouter();
 
   const columns = getColumns(middleWidth);

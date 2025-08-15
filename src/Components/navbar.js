@@ -2,10 +2,9 @@
 import React, { memo, useState, useRef, useContext, useEffect } from "react";
 import { GoHomeFill, GoHome } from "react-icons/go";
 import { BiSolidArchive, BiArchive } from "react-icons/bi";
-import { ToggleFullScreenContext } from "../Contexts/contexts";
+import { useOtherContexts } from "@/Contexts/otherContexts";
 import SearchBar from "./Helper/SearchBar";
 import RecentSearches from "./Helper/recentSearches";
-import { GLOWAL_SEARCH_TEXT_CONTEXT } from "../Contexts/search.controls";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -16,10 +15,11 @@ import ProfileCircle from "./Helper/profileCircle";
 const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const ContextFullScreen = useContext(ToggleFullScreenContext);
-  const { searchedText, setSearchedText } = useContext(
-    GLOWAL_SEARCH_TEXT_CONTEXT
-  );
+
+  // Add safety check for context to prevent SSR errors
+  const contextValue = useOtherContexts();
+  const { searchedText = "", setSearchedText = () => {} } = contextValue || {};
+  
   const inputRef = useRef(null);
   const { data: session, status } = useSession();
 
@@ -43,9 +43,7 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleExitFullScreen = () => {
-    ContextFullScreen.settoggleFullScreen(false);
-  };
+
 
   const [openMessages, setOpenMessages] = useState(false);
 
@@ -59,7 +57,7 @@ const Navbar = () => {
       />
 
       <div className="w-full sm:w-[500px] flex flex-row justify-center sm:gap-3 my-auto">
-        <Link href="/home" onClick={handleExitFullScreen}>
+        <Link href="/home">
           <span className="home-icon p-2 bg-zinc-800 rounded-full hover:bg-zinc-700 transition duration-300 hidden sm:block">
             {pathname === "/home" ? (
               <GoHomeFill className="text-2xl text-white" />
@@ -89,7 +87,7 @@ const Navbar = () => {
           </div>
 
           <div className="my-3 px-2 border-l-2 border-zinc-500 hidden sm:block">
-            <Link href="/search" onClick={handleExitFullScreen}>
+            <Link href="/search">
               {pathname === "/search" ? (
                 <BiSolidArchive className="text-2xl font-bold text-white" />
               ) : (
@@ -115,11 +113,11 @@ const Navbar = () => {
 
           <ProfileCircle
             image={
-              userProfile?.image || session.user?.image || "/images/user.jpg"
+              userProfile?.image || session?.user?.image || "/images/user.jpg"
             }
             onClick={() => {
-              handleExitFullScreen();
-              router.push(`/profiles/${session.user._id}`);
+        
+              router.push(`/profiles/${session?.user._id}`);
             }}
           />
         </div>

@@ -2,7 +2,8 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
-import { imagePreviewContext, middleWidthContext } from "@/Contexts/contexts";
+import { useOtherContexts } from "@/Contexts/otherContexts";
+
 import { useParams } from "next/navigation";
 import { FaRegClock } from "react-icons/fa";
 import { IoAddOutline } from "react-icons/io5";
@@ -24,8 +25,8 @@ const MiddlePlaylistView = () => {
   const router = useRouter();
   const  {data :session } = useSession()
   const [isUpdated, setIsUpdated] = useState(false);
-  const Context_middle_width = useContext(middleWidthContext);
-  const { middleWidth } = Context_middle_width;
+  const { middleWidth , setImagefullViewSrc } = useOtherContexts();
+
 
   const params = useParams();
   const slug = params.id;
@@ -190,9 +191,9 @@ const MiddlePlaylistView = () => {
                     : middleWidth > 1024 &&
                       "min-w-[200px] h-[200px] max-w-[200px]   self-end"
                 } relative group overflow-hidden rounded-full shadow-lg shadow-black`} // className={`${middleWidth <= 640 ? "w-[150px] h-[150px]" :  " min-w-[170px] h-[170px]"} xl:min-w-[200px] min-h-[200px]  relative group`}
-                // onClick={() => {
-                //   setIsModalOpen(true);
-                // }}
+                onClick={() => {
+                  setImagefullViewSrc(artist?.image || null);
+                }}
               >
                 <img
                   src={artist?.image || `/images/notfound.png`}

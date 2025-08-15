@@ -1,21 +1,17 @@
-import React, { useState, useContext, useRef, useEffect, useMemo } from "react";
-import {
-  ToggleFullScreenContext,
-  showRightContext,
-} from "../Contexts/contexts";
+import React, { useState, useRef, useEffect, useMemo } from "react";
+
+import { useOtherContexts } from "@/Contexts/otherContexts";
 import MarqueeDiv from "./Helper/marquee";
-import { BsThreeDots } from "react-icons/bs";
 import SuggestBgColor from "../functions/bgSuggester";
 import { motion } from "framer-motion";
 
-import { IoIosPlay } from "react-icons/io";
+
 import { GoScreenFull } from "react-icons/go";
 import { GoScreenNormal } from "react-icons/go";
 import ShowMoreShowLess from "./Helper/showMoreShowLess";
 import EndMiddle from "./endbars/endMiddle";
 import { IoIosArrowDown } from "react-icons/io";
 import NotFound from "./Helper/not-found";
-import { TiTick } from "react-icons/ti";
 import { usePlayer } from "../Contexts/playerContext";
 import ThreeDots from "./Helper/ThreeDots";
 import TickOrAdd from "./Helper/TickOrAdd";
@@ -26,56 +22,32 @@ import { HiOutlineQueueList } from "react-icons/hi2";
 import Followbutton from "./artistsComponents/followbutton";
 import { useSession } from "next-auth/react";
 import QueueSongCard from "./playlistCards/queueSongCard";
-const PlayCard = (props) => {
-  return (
-    <div className="playlist-card flex  justify-between items-center  bg-zinc-800 h-[75px] p-2  rounded-xl hover:bg-zinc-700 group/playcard my-2">
-      <div className="flex  justify-start items-center max-w-[90%]">
-        <div className="group max-w-[60px] max-h-[60x] bg-zinc-800 rounded-xl relative">
-          <img
-            src={props.imageUrl || "/images/notfound.png"}
-            className=" w-[100%] h-[100%] object-contain rounded-xl group-hover/playcard:opacity-60"
-            alt=""
-          />
-          <IoIosPlay className="absolute bottom-1/4 left-1/4 text-3xl hidden group-hover/playcard:block active:transform-[scale(0.9)] hover:animate-pulse" />
-        </div>
 
-        <div className="max-w-[100%] flex-col justify-start items-start flex  px-2 truncate">
-          <MarqueeDiv
-            text={props.songName || "prop not provided"}
-            className="font-bold "
-            containerWidth={`max-w-[100%]`}
-          />
-          <MarqueeDiv
-            text={props.artistName || "prop not provided"}
-            className="text-[0.8em] opacity-70 "
-            containerWidth={`max-w-[100%]`}
-          />
-        </div>
-      </div>
 
-      <div className="flex justify-center gap-3 items-center p-2 hover:animate-pulse active:transform-[scale(0.9)] invisible group-hover/playcard:visible">
-        <TiTick
-          className="bg-pink-400 rounded-full invert animate-pulse cursor-pointer"
-          size={20}
-        />
-        <BsThreeDots className="text-xl" />
-      </div>
-    </div>
-  );
-};
 
 const Right = () => {
-  const ContextFullScreen = useContext(ToggleFullScreenContext);
-  const ContextShowRight = useContext(showRightContext);
+
+  const  {toggleFullScreen ,setToggleFullScreen , showRight, setShowRight} = useOtherContexts()
+
   const rightNavRef = React.useRef(null);
   const SongImageRef = useRef(null);
   const ArtistImageRef = useRef(null);
   const containerRef = useRef(null);
   const popupRef = useRef(null);
 
+
+
+ 
+
+
+
+
+
+  
+
   const [selectedSong, setSelectedSong] = useState(null);
   const [bgColor, setBgColor] = useState(null);
-  const { currentSong, context, openQueue, setOpenQueue , originalQueue, userInsertQueue, playOrder, currentPlayOrderIndex, isShuffling, originalQueueRelatedContext } = usePlayer();
+  const { currentSong, context, openQueue , setOpenQueue , originalQueue, userInsertQueue, playOrder, currentPlayOrderIndex, isShuffling, originalQueueRelatedContext } = usePlayer();
   const router = useRouter();
   const { data: session } = useSession();
   const [isUpdated, setIsUpdated] = useState(false);
@@ -106,7 +78,7 @@ const Right = () => {
       rightNavRef.current.classList.add("shadow-xl", "shadow-gray-950");
       rightNavRef.current.classList.remove("bg-transparent");
 
-      if (ContextFullScreen.toggleFullScreen) {
+      if (toggleFullScreen) {
         SongImageRef.current.classList.add("transform", "scale-90", "blur-xs");
         ArtistImageRef.current.classList.add(
           "transform",
@@ -135,11 +107,11 @@ const Right = () => {
     }
   });
   const handleClick = (e) => {
-    if (ContextFullScreen.toggleFullScreen) {
-      ContextFullScreen.settoggleFullScreen(false);
-      // ContextShowRight.setShowRight(false);
+    if (toggleFullScreen) {
+      setToggleFullScreen(false);
+      // setShowRight(false);
     } else {
-      ContextShowRight.setShowRight(!ContextShowRight.showRight);
+      setShowRight(!showRight);
     }
   };
 
@@ -180,7 +152,7 @@ const Right = () => {
     // ... inside your component, before return:
 
     // ... in your return:
-    <div className="relative w-full h-full flex gap-1 transition-all duration-300 ">
+    <div className="relative w-full h-full bg-transparent flex gap-1 transition-all duration-300 ">
       <motion.div
         ref={popupRef}
         initial={
@@ -212,8 +184,8 @@ const Right = () => {
             info.offset.y > 100
           ) {
             setTimeout(() => {
-              ContextFullScreen.settoggleFullScreen(false);
-              ContextShowRight.setShowRight(false);
+              setToggleFullScreen(false);
+              setShowRight(false);
             }, 1000);
           }
         }}
@@ -224,9 +196,9 @@ const Right = () => {
           e.stopPropagation();
         }}
         className={`text-white right group/right flex flex-col  justify-start ${
-          ContextFullScreen.toggleFullScreen ? `w-[100%]` : `w-[100%] `
+          toggleFullScreen ? `w-[100%]` : `w-[100%] `
         }  h-[100%] bg-zinc-900 rounded-sm   relative   overflow-y-auto ${
-          ContextShowRight.showRight ? "block" : "hidden"
+          showRight ? "block" : "hidden"
         } transition-all duration-1000 `}
         style={{
           background: `linear-gradient(0deg,#19191b , ${bgColor} )`,
@@ -276,7 +248,7 @@ const Right = () => {
               position={"center"}
               buttonOnClick={() => {
                 router.push("/search");
-                ContextFullScreen.settoggleFullScreen(false);
+                setToggleFullScreen(false);
               }}
             />
           </>
@@ -323,12 +295,12 @@ const Right = () => {
                 <span
                   className="max-h-[100%] transition-all duration-300 hover:backdrop-blur-lg hidden sm:group-hover/right:block hover:bg-white/8  rounded-full "
                   onClick={() => {
-                    ContextFullScreen.settoggleFullScreen(
-                      !ContextFullScreen.toggleFullScreen
+                    setToggleFullScreen(
+                      !toggleFullScreen
                     );
                   }}
                 >
-                  {ContextFullScreen.toggleFullScreen ? (
+                  {toggleFullScreen ? (
                     <GoScreenNormal className="text-lg" title="FullScreen" />
                   ) : (
                     <GoScreenFull className="text-lg" title="FullScreen" />
@@ -343,7 +315,7 @@ const Right = () => {
             >
               <div
                 className={`song-image flex flex-col justify-around  w-[100%] max-w-[400px] min-h-[85vh] ${
-                  ContextFullScreen.toggleFullScreen
+                  toggleFullScreen
                     ? "sm:min-h-[80vh] sm:justify-center"
                     : "sm:min-h-auto sm:justify-start"
                 }  rounded-xl transition-all duration-500 `}
@@ -357,7 +329,7 @@ const Right = () => {
                 <div className="w-[100%] max-w-[400px]">
                   <div
                     className={`song-info max-w-[100%] flex items-center overflow-clip py-4 ${
-                      ContextFullScreen.toggleFullScreen &&
+                      toggleFullScreen &&
                       window.innerWidth >= 640
                         ? `hidden`
                         : ``
@@ -399,7 +371,7 @@ const Right = () => {
                         title="Queue"
                         onClick={() => {
                           setOpenQueue(true);
-                          ContextShowRight.setShowRight(true);
+                          setShowRight(true);
                         }}
                       />
                     )}
@@ -436,11 +408,11 @@ const Right = () => {
                         {selectedSong?.artist?.name || "UnKnown Artist"}
                       </p>
 
-                      {session.user._id && currentSong?.artist?._id && (
+                      {session?.user._id && currentSong?.artist?._id && (
                         <Followbutton
                           followObject={{
-                            followerId: session.user._id,
-                            followerType: session.user.type,
+                            followerId: session?.user._id,
+                            followerType: session?.user.type,
                             targetId: currentSong?.artist?._id,
                             targetType: currentSong?.artist?.type || "Artist",
                           }}
@@ -450,22 +422,8 @@ const Right = () => {
                         />
                       )}
 
-                      {/* {console.log(currentSong)} */}
                     </div>
-                    {/* <p
-                      className="px-3 pt-2 font-bold max-w-[100%] truncate hover:underline cursor-pointer"
-
-                    > <span>
-
-                      {selectedSong?.artist?.followers.artists.length || ""}
-                    </span>
-                    <Followbutton
-                    followObject ={{followerId :session.user._id, followerType : session.user.type, targetId : selectedSong?.artist?._id, targetType : selectedSong?.artist?.type}}
-                    onUpdate={() => {
-                      setIsUpdated(true);
-                    }}
-                  />
-                    </p> */}
+         
                     {selectedSong?.artist?.bio && (
                       <article className="p-3 text-sm   max-h-[calc(16*5)] transition-all duration-300">
                         <ShowMoreShowLess
@@ -478,7 +436,7 @@ const Right = () => {
                   </div>
                 </div>
 
-                {ContextFullScreen.toggleFullScreen && (
+                {toggleFullScreen && (
                   <div className="hidden sm:block w-full max-w-[400px] h-fit rounded-xl bg-zinc-800 mb-1 transition-all duration-500 shadow-xl shadow-gray-950">
                     <div className="px-3 pt-3">
                       <h2 className="text-xl font-bold">Up Next</h2>
@@ -515,7 +473,7 @@ const Right = () => {
           setOpenQueue(false);
         }}
         style={
-          ContextFullScreen.toggleFullScreen &&
+          toggleFullScreen &&
           typeof window !== "undefined" &&
           window.innerWidth > 640
             ? { width: "400px", position: "relative" }

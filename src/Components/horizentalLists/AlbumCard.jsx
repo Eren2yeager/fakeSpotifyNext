@@ -87,9 +87,9 @@ const AlbumCard = (props) => {
             <span>
               <span>
                 {conditionCheck && isPlaying ? (
-                  <IoIosPause className="text-3xl  text-black cursor-pointer" />
+                  <IoIosPause className="text-lg  sm:text-3xl  text-black cursor-pointer" />
                 ) : (
-                  <IoIosPlay className="text-3xl pl-0.5 text-black cursor-pointer" />
+                  <IoIosPlay className="text-lg  sm:text-3xl  text-black cursor-pointer" />
                 )}
               </span>
             </span>

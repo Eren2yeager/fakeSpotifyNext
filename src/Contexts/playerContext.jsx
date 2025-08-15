@@ -2,6 +2,8 @@
 import { createContext, useContext, useState, useRef, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useSpotifyToast } from "./SpotifyToastContext";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 const PlayerContext = createContext();
 
 export const usePlayer = () => useContext(PlayerContext);
@@ -9,7 +11,8 @@ export const usePlayer = () => useContext(PlayerContext);
 export const PlayerProvider = ({ children }) => {
   // for uses
   const toast = useSpotifyToast()
-
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   // ===================================================
   const [currentSong, setCurrentSong] = useState(null);
@@ -27,12 +30,31 @@ export const PlayerProvider = ({ children }) => {
   // Removed positionSec in favor of currentTimeRef (ref only)
 
   // for opening purposes
-  const [openQueue, setOpenQueue] = useState(false)
   const [isPlaying , setIsPlaying ] = useState(false)
   const durationRef =useRef("");
   const currentTimeRef =useRef("");
   const audioRef = useRef()
   const { data: session } = useSession();
+  // openQueue state is synced with the "openQueue" query param in the URL
+  const [openQueue, updateOpenQueue] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const openQueueQuery = params.get("openQueue");
+      updateOpenQueue(openQueueQuery === "true");
+    }
+  }, [searchParams]); // re-run when router changes (URL changes)
+
+  // When you want to update openQueue, update the URL (which will update state via useEffect)
+  const setOpenQueue = (value) => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      params.set("openQueue", value ? "true" : "false");
+      const newUrl = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
+      router.push(newUrl, { scroll: false });
+    }
+  };
 
   // for checks
   const [isUserInsertedQueuePlaying , setIsUserInsertedQueuePlaying ] = useState(false)

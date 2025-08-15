@@ -26,7 +26,7 @@ function RootLayout({ children }) {
         router.push("/profile");
       }
     }
-  }, [status, session]);
+  }, [status, session, router]);
 
   if (status === "loading")
     return (

@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { GrAdd } from "react-icons/gr";
 
-import { showPlaylistsContext } from "../../Contexts/contexts";
 import { usePathname } from "next/navigation";
-import { showRightContext } from "../../Contexts/contexts";
 
+import { useOtherContexts } from "@/Contexts/otherContexts";
 import { useLibrary } from "@/Contexts/libraryContext";
 import { useRouter } from "next/navigation";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
@@ -56,8 +55,11 @@ const PlayCard = (props) => {
 const SmallLeft = (props) => {
   const [items, setItems] = useState(null);
   const { library, fetchLibrary } = useLibrary();
-  const ContextShowPlaylists = React.useContext(showPlaylistsContext);
-  const ContextShowRight = React.useContext(showRightContext);
+
+  const  {toggleFullScreen ,setToggleFullScreen , showRight, setShowRight , 
+showLibrary, 
+setShowLibrary} = useOtherContexts()
+
   // for scrolling effect
   const toast = useSpotifyToast();
 
@@ -111,9 +113,10 @@ const SmallLeft = (props) => {
             <div
               className="toggle-playlists-button-1 cursor-pointer"
               onClick={() => {
-                ContextShowPlaylists.setShowPlaylists(true);
+                
+setShowLibrary(true);
                 if (window.innerWidth <= 1280) {
-                  ContextShowRight.setShowRight(false);
+                  setShowRight(false);
                 }
               }}
             >

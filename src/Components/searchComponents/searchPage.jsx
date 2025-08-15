@@ -10,7 +10,7 @@ import AlbumCard from "../horizentalLists/AlbumCard";
 import PlayListCard from "../horizentalLists/PlayListCard";
 import ArtistCard from "../horizentalLists/ArtistCard";
 import ProfileCard from "../horizentalLists/ProfileCard";
-import { middleWidthContext } from "@/Contexts/contexts";
+import { useOtherContexts } from "@/Contexts/otherContexts";
 
 const SearchPage = ({ searchQuery, activeItem }) => {
   const [results, setResults] = useState(null);
@@ -19,8 +19,9 @@ const SearchPage = ({ searchQuery, activeItem }) => {
   const [hasFetchedOnce, setHasFetchedOnce] = useState(false);
   const abortControllerRef = useRef(null);
 
-  const Context_middle_width = useContext(middleWidthContext);
-  const { middleWidth } = Context_middle_width;
+
+  const { middleWidth } = useOtherContexts();
+
 
   useEffect(() => {
     if (!searchQuery) {

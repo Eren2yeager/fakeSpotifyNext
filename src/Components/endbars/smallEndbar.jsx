@@ -1,10 +1,7 @@
 "use client";
 import React, {useState, useContext ,useEffect } from "react";
-import {
-  ToggleFullScreenContext,
-  showRightContext,
-} from "@/Contexts/contexts";
 
+import { useOtherContexts } from "@/Contexts/otherContexts";
 import { GoHome, GoHomeFill } from "react-icons/go";
 import { RiSearchEyeFill, RiSearchLine } from "react-icons/ri";
 import { IoLibraryOutline, IoLibrary } from "react-icons/io5";
@@ -21,15 +18,17 @@ const SmallEndbar = (props) => {
   const pathname = usePathname();
   const isActive = (route) => pathname === route;
   
-  const ContextFullScreen = useContext(ToggleFullScreenContext);
-  const ContextShowRight = useContext(showRightContext);
+
+ 
+  
+  const  {toggleFullScreen ,setToggleFullScreen , showRight, setShowRight} = useOtherContexts()
 
   const handleFullScreen = () => {
-    if (ContextShowRight.showRight) {
-      ContextFullScreen.settoggleFullScreen(!ContextFullScreen.toggleFullScreen);
+    if (showRight) {
+      setToggleFullScreen(!toggleFullScreen);
     } else {
-      ContextShowRight.setShowRight(true);
-      ContextFullScreen.settoggleFullScreen(!ContextFullScreen.toggleFullScreen);
+      setShowRight(true);
+      setToggleFullScreen(!toggleFullScreen);
     }
   };
   
@@ -59,7 +58,7 @@ const SmallEndbar = (props) => {
   return (
     <footer
       className={`${
-        ContextFullScreen.toggleFullScreen ? "invisible" : "visible"
+        toggleFullScreen ? "invisible" : "visible"
       } backdrop-blur-xs z-50 rounded-t-3xl text-amber-50 w-full flex flex-col justify-start max-h-[150px] fixed bottom-0 bg-gradient-to-t from-black to-black/50 pb-5 px-2 ${
         props.className
       }`}

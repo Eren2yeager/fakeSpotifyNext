@@ -8,13 +8,16 @@ import SearchPage from "@/Components/searchComponents/searchPage";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
-import { GLOWAL_SEARCH_TEXT_CONTEXT } from "@/Contexts/search.controls";
+import { useOtherContexts } from "@/Contexts/otherContexts";
 import { CurrentUserProfileCircle } from "@/Components/Helper/profileCircle";
 import ListRender from "@/Components/Helper/listRender";
 const Search = () => {
   const inputRef = useRef(null);
-  const Contex_Glowal_search_text = useContext(GLOWAL_SEARCH_TEXT_CONTEXT);
-  const { searchedText, setSearchedText } = Contex_Glowal_search_text;
+  
+  // Add safety check for context to prevent SSR errors
+  const contextValue = useOtherContexts();
+  const { searchedText = "", setSearchedText = () => {} } = contextValue || {};
+  
   // for dropdown
   const [isOpen, setIsOpen] = useState(false);
   const [activeNavItem, setActiveNavItem] = useState(0);

@@ -6,6 +6,7 @@ import { PiNotePencil } from "react-icons/pi";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { useUser } from "@/Contexts/userContex";
 import { Dialog } from "../ui/Dialog";
+import { useImageProcessor } from "../Helper/ImageCropper";
 
 export default function EditProfileModal({ currentUser, onClose ,open , onUpdate}) {
   const [pending, startTransition] = useTransition();
@@ -17,43 +18,18 @@ export default function EditProfileModal({ currentUser, onClose ,open , onUpdate
   const { fetchCurrentUserProfile } = useUser();
   const toast = useSpotifyToast();
 
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const maxKB = 5120; // 5 MB
-    if (file.size > maxKB * 1024) {
-      toast({ text: `Image too large. Maximum size is ${maxKB/1024}MB` });
-      e.target.value = "";
-      return;
-    }
-    try {
-      const bitmap = await createImageBitmap(file);
-      const { width, height } = bitmap;
-      bitmap.close();
-      if (width !== height) {
-        toast({ text: "Image must be square (e.g., 300x300)" });
-        e.target.value = "";
-        return;
-      }
-      if (width < 300) {
-        toast({ text: "Image too small. Minimum is 300x300" });
-        e.target.value = "";
-        return;
-      }
-      if (width > 1000) {
-        toast({ text: "Image too large. Maximum is 1000x1000" });
-        e.target.value = "";
-        return;
-      }
-    } catch (err) {
-      toast({ text: "Unable to read image. Choose a valid image file" });
-      e.target.value = "";
-      return;
-    }
-
-    setImageFile(file);
-    setPreview(URL.createObjectURL(file));
+  const handleImageProcessed = (processedFile) => {
+    setImageFile(processedFile);
+    setPreview(URL.createObjectURL(processedFile));
+    toast({ text: "Image processed successfully! Automatically cropped to square and resized." });
   };
+
+  const handleImageError = (errorMessage) => {
+    toast({ text: errorMessage });
+  };
+
+  const { handleImageChange } = useImageProcessor(handleImageProcessed, handleImageError);
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -82,6 +58,7 @@ export default function EditProfileModal({ currentUser, onClose ,open , onUpdate
       }
     });
   };
+  
   return (
     <Dialog onClose={onClose} open={open}>
 
@@ -141,8 +118,7 @@ export default function EditProfileModal({ currentUser, onClose ,open , onUpdate
         </form>
 
         <p className="text-xs text-gray-400 mt-4">
-          By proceeding, you agree to give Spotify access to the image you
-          choose to upload.
+          Upload any image and we'll automatically crop it to a perfect square and resize it to 300x300 pixels.
         </p>
         {/* {pending && <DisabledThreeeDotsLoader />} */}
       

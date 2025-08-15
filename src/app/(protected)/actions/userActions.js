@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+
 import User from "@/models/User";
 import { connectDB } from "@/lib/mongoose";
 import { getServerSession } from "next-auth";

@@ -1,10 +1,6 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import {
-  ToggleFullScreenContext,
-  showRightContext,
 
-  showPlaylistsContext,
-} from "../../Contexts/contexts";
+import { useOtherContexts } from "@/Contexts/otherContexts";
 import LiveSeekbar from "../audioComponents/LiveSeekbar";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { TiTick } from "react-icons/ti";
@@ -19,9 +15,10 @@ import TickOrAdd from "../Helper/TickOrAdd";
 import { useTransition } from "react";
 import { usePlayer } from "@/Contexts/playerContext";
 const RectangularSongCard = (props) => {
-  const ContextFullScreen = useContext(ToggleFullScreenContext);
-  const ContextShowRight = useContext(showRightContext);
-  const ContextShowPlaylists = useContext(showPlaylistsContext);
+  
+  const  {toggleFullScreen ,setToggleFullScreen , showRight, setShowRight , 
+showLibrary, 
+setShowLibrary} = useOtherContexts()
   const { currentSong,  context, play , isPlaying , setIsPlaying ,audioRef} = usePlayer();
   const handlePlayPause = (e) => {
     e.stopPropagation();
@@ -35,16 +32,18 @@ const RectangularSongCard = (props) => {
   };
 
   const handleClick = () => {
-    if (ContextFullScreen.toggleFullScreen) {
-      ContextFullScreen.settoggleFullScreen(false);
-      ContextShowRight.setShowRight(true);
+    if (toggleFullScreen) {
+      setToggleFullScreen(false);
+      setShowRight(true);
       if (window.innerWidth <= 1280) {
-        ContextShowPlaylists.setShowPlaylists(false);
+        
+setShowLibrary(false);
       }
     } else {
-      ContextShowRight.setShowRight(!ContextShowRight.showRight);
+      setShowRight(!showRight);
       if (window.innerWidth <= 1280) {
-        ContextShowPlaylists.setShowPlaylists(false);
+        
+setShowLibrary(false);
       }
     }
   };
@@ -74,7 +73,7 @@ const RectangularSongCard = (props) => {
               {/* // show right button */}
               {props.showRightButton && (
                 <div className="hidden sm:block invisible group-hover:visible transition-all duration-300 hover:animate-pulse ">
-                  {ContextShowRight.showRight ? (
+                  {showRight ? (
                     <CiCircleChevDown
                       className="absolute bottom-1/3 right-1/4 bg-zinc-700 rounded-full text-3xl cursor-pointer"
                       onClick={handleClick}

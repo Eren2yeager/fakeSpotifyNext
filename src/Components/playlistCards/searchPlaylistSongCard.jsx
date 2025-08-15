@@ -9,9 +9,11 @@ import TickOrAdd from "../Helper/TickOrAdd";
 import { useLibrary } from "@/Contexts/libraryContext";
 import ThreeDots from "../Helper/ThreeDots";
 import { useRouter, usePathname } from "next/navigation";
-
+import { useOtherContexts } from "@/Contexts/otherContexts";
 const SearchPlaylistSongCard = (props) => {
   const [isHovering, setIsHovering] = useState(NaN);
+
+  const { middleWidth } = useOtherContexts();
 
   const {
     currentSong,
@@ -127,7 +129,7 @@ const SearchPlaylistSongCard = (props) => {
           <div
             className={`font-semibold flex items-center ${
               conditionCheck ? "text-green-500" : "text-white"
-            }`}
+            } ${middleWidth >= 640 ? "text-md" : "text-sm"}`}
           >
             {conditionCheck && isPlaying && (
               <div className="mr-2">
@@ -136,7 +138,7 @@ const SearchPlaylistSongCard = (props) => {
             )}
             <span className=" max-w-full truncate">{props.item.name}</span>
           </div>
-          <div className="text-sm  max-w-full truncate">
+          <div className={`text-sm  max-w-full truncate ${middleWidth >= 640 ? "text-sm" : "text-xs"}`}>
             <span
               className="hover:underline"
               onClick={() => {

@@ -102,10 +102,7 @@ export const RecentSearchItemCard = ({ item, handleDelete }) => {
   if (item.type === "Song") {
     return cardContent;
   }
-  // For Profile: no navigation, just render the card
-  if (item.type === "Profile") {
-    return cardContent;
-  }
+
   // For others: use router.push on click, not Link, to avoid full reload
   return (
     <div

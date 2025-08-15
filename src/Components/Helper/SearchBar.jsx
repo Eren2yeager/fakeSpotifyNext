@@ -3,7 +3,6 @@ import React, { memo, useRef, useState, useContext } from "react";
 import { IoAddOutline } from "react-icons/io5";
 import { RiSearchLine, RiSearchEyeFill } from "react-icons/ri";
 import { useRouter } from "next/navigation";
-import { GLOWAL_SEARCH_TEXT_CONTEXT } from "@/Contexts/search.controls";
 
 const SearchBar = (props) => {
 

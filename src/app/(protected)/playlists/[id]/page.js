@@ -2,7 +2,8 @@
 import React, { useState, useRef, useContext, useEffect } from "react";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
-import { imagePreviewContext, middleWidthContext } from "@/Contexts/contexts";
+import { useOtherContexts } from "@/Contexts/otherContexts";
+
 import { useParams } from "next/navigation";
 import { FaRegClock } from "react-icons/fa";
 import { IoAddOutline } from "react-icons/io5";
@@ -30,8 +31,9 @@ const MiddlePlaylistView = () => {
   const { library } = useLibrary();
   const [isUpdated, setIsUpdated] = useState(false);
 
-  const Context_middle_width = useContext(middleWidthContext);
-  const { middleWidth } = Context_middle_width;
+
+  const { middleWidth } = useOtherContexts();
+
   const { fetchCurrentUserProfile, userProfile } = useUser();
 
   const params = useParams();

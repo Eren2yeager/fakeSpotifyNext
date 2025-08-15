@@ -5,10 +5,8 @@ import ListRender from "@/Components/Helper/listRender";
 import { GrAdd } from "react-icons/gr";
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
-import {
-  showPlaylistsContext,
- 
-} from "@/Contexts/contexts";
+
+import { useOtherContexts } from "@/Contexts/otherContexts";
 import { HiVolumeUp } from "react-icons/hi";
 import { FaArrowLeft } from "react-icons/fa6";
 import FailedToFetch from "@/Components/Helper/failedToFetch";
@@ -200,7 +198,9 @@ const BigLeft = (props) => {
   const [isPending, startTransition] = useTransition();
   const [search, setSearch] = useState("");
   const { library, fetchLibrary } = useLibrary();
-  const ContextShowPlaylists = useContext(showPlaylistsContext);
+
+  const  { 
+setShowLibrary} = useOtherContexts()
   const router = useRouter();
 
   // for scrolling effect
@@ -260,7 +260,8 @@ const BigLeft = (props) => {
               <div
                 className="toggle-playlists-button-2 hidden sm:block cursor-pointer transform lg:translate-x-[-30px] lg:group-hover/bigLeft:translate-x-[0px] transition-all duration-100"
                 onClick={() => {
-                  ContextShowPlaylists.setShowPlaylists(false);
+                  
+setShowLibrary(false);
                 }}
               >
                 <svg

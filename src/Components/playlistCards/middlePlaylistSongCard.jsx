@@ -2,7 +2,7 @@ import React, { useState, useRef, useContext, useEffect } from "react";
 
 import { IoIosPlay } from "react-icons/io";
 import { IoIosPause } from "react-icons/io";
-import { middleWidthContext } from "@/Contexts/contexts";
+import { useOtherContexts } from "@/Contexts/otherContexts";
 import dateFormatter from "../../functions/dateFormatter";
 import Pillers from "../Helper/pillers";
 import { usePlayer } from "../../Contexts/playerContext";
@@ -11,8 +11,9 @@ import { useLibrary } from "@/Contexts/libraryContext";
 import { useRouter } from "next/navigation";
 import ThreeDots from "../Helper/ThreeDots";
 const MiddlePlaylistSongCard = (props) => {
-  const Context_middle_width = useContext(middleWidthContext);
-  const { middleWidth } = Context_middle_width;
+
+  const { middleWidth } = useOtherContexts();
+
 
   const [isHovering, setIsHovering] = useState(NaN);
 
@@ -69,7 +70,7 @@ const MiddlePlaylistSongCard = (props) => {
     >
       {/* handle hovering show playbutton */}
       {props.showIndexes == true && (
-        <div className="w-[40px]">
+        <div className="w-[40px] ">
           {/* to match the current song with playlist songs and toggle play pause  */}
           {isHovering === props.index || clickedItem === props.index ? (
             <span
@@ -130,13 +131,13 @@ const MiddlePlaylistSongCard = (props) => {
         </div>
         <div className="truncate">
           <div
-            className={`font-semibold  ${
+            className={`font-semibold   ${
               conditionCheck ? "text-green-500" : "text-white"
-            }  truncate`}
+            }  truncate ${middleWidth >= 640 ? "text-md" : "text-sm"}`}
           >
             {props.item?.name}
           </div>
-          <div className="text-sm text-white/50  max-w-[100%] truncate ">
+          <div className={` text-white/50  max-w-[100%] truncate ${middleWidth >= 640 ? "text-sm" : "text-xs"}`}>
             <span
               className="hover:underline"
               onClick={() => {

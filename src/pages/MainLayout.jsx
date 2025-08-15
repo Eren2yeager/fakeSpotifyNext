@@ -2,24 +2,21 @@
 import { useState, useContext, useRef, useEffect, memo } from "react";
 import dynamic from "next/dynamic";
 
-// Dynamically import components that use browser-only APIs or may break on prerender
+// Only use dynamic imports for components that actually need client-side only rendering
 const ImagePreviewer = dynamic(() => import("@/Components/Helper/ImagePreviewer.jsx"), { ssr: false });
-const Navbar = dynamic(() => import("@/Components/navbar"), { ssr: false });
-const Right = dynamic(() => import("@/Components/right"), { ssr: false });
-const BigLeft = dynamic(() => import("@/Components/left/bigLeft"), { ssr: false });
-const SmallLeft = dynamic(() => import("@/Components/left/smallLeft"), { ssr: false });
-const BigEndbar = dynamic(() => import("@/Components/endbars/bigEndbar"), { ssr: false });
-const SmallEndbar = dynamic(() => import("@/Components/endbars/smallEndbar"), { ssr: false });
 const AudioComponent = dynamic(() => import("@/Components/audioComponents/AudioComponent"), { ssr: false });
 
-import { useWidthObserver } from "@/Components/Helper/WidthObserver";
+// Import these components normally since they don't need client-side only rendering
+import Navbar from "@/Components/navbar";
+import Right from "@/Components/right";
+import BigLeft from "@/Components/left/bigLeft";
+import SmallLeft from "@/Components/left/smallLeft";
+const BigEndbar = dynamic(() => import("@/Components/endbars/bigEndbar"), { ssr: false });
+const SmallEndbar = dynamic(() => import("@/Components/endbars/smallEndbar"), { ssr: false });
 
-import {
-  ToggleFullScreenContext,
-  showRightContext,
-  showPlaylistsContext,
-  middleWidthContext,
-} from "@/Contexts/contexts.js";
+import { useWidthObserver } from "@/Components/Helper/WidthObserver";
+import { useOtherContexts } from "@/Contexts/otherContexts";
+
 
 function MainLayout({ children }) {
   const renderCount = useRef(0);
@@ -28,12 +25,20 @@ function MainLayout({ children }) {
     renderCount.current++;
   }, []);
 
-  const ContextShowRight = useContext(showRightContext);
-  const ContextShowPlaylists = useContext(showPlaylistsContext);
-  const ContextFullScreen = useContext(ToggleFullScreenContext);
-  const Context_middle_width = useContext(middleWidthContext);
+  // Add safety check for context to prevent SSR errors
+  const contextValue = useOtherContexts();
+  const {
+    toggleFullScreen = false,
+    setToggleFullScreen = () => {},
+    showRight = true,
+    setShowRight = () => {},
+    showLibrary = false,
+    setShowLibrary = () => {},
+    middleWidth = 0,
+    setMiddleWidth = () => {}
+  } = contextValue || {};
 
-  const ref = useWidthObserver(Context_middle_width?.setMiddleWidth);
+  const ref = useWidthObserver(setMiddleWidth);
 
   // for resizing
   const [rightWidth, setRightWidth] = useState(300);
@@ -71,9 +76,9 @@ function MainLayout({ children }) {
         setSubject(Math.min(350, Math.max(240, newWidth)));
 
         if (leftWidth <= 240) {
-          ContextShowPlaylists?.setShowPlaylists(false);
+          setShowLibrary(false);
         } else {
-          ContextShowPlaylists?.setShowPlaylists(true);
+          setShowLibrary(true);
         }
       }
     };
@@ -97,10 +102,11 @@ function MainLayout({ children }) {
         </div>
 
         <main className="w-[100%] h-[100%]  flex  text-white   gap-0.5 p-1.5  relative overflow-hidden transition-all duration-500 ">
-          {!ContextFullScreen?.toggleFullScreen && (
+          {!toggleFullScreen && (
             <>
               <div className="sm:flex  hidden sm:block transition-all duration-300 justify-self-start ">
-                {ContextShowPlaylists?.showPlaylists ? (
+                {
+showLibrary ? (
                   <div className="" style={{ width: `${leftWidth}px` }}>
                     <BigLeft
                       leftWidth={leftWidth}
@@ -122,7 +128,7 @@ function MainLayout({ children }) {
             </>
           )}
           {/* resizer left */}
-          {!ContextFullScreen?.toggleFullScreen && (
+          {!toggleFullScreen && (
             <div
               data-resizer-name="left"
               ref={resizerRef}
@@ -133,7 +139,7 @@ function MainLayout({ children }) {
 
           <div
             className={`w-[100%] overflow-hidden ${
-              ContextFullScreen?.toggleFullScreen
+              toggleFullScreen
                 ? `hidden transition-all duration -1`
                 : ``
             } `}
@@ -148,8 +154,8 @@ function MainLayout({ children }) {
             </div>
           </div>
 
-          {!ContextFullScreen?.toggleFullScreen &&
-            ContextShowRight?.showRight && (
+          {!toggleFullScreen &&
+            showRight && (
               <div
                 data-resizer-name="right"
                 ref={resizerRef}
@@ -157,10 +163,10 @@ function MainLayout({ children }) {
                 className="hidden sm:block  right-0 top-0 w-1 cursor-col-resize active:cursor-grab my-2  hover:bg-white"
               ></div>
             )}
-          {ContextShowRight?.showRight && (
+          {showRight && (
             <div
               className={`${
-                ContextFullScreen?.toggleFullScreen
+                toggleFullScreen
                   ? "w-[100%] block"
                   : "w-[300px] hidden"
               } sm:block  `}

@@ -111,7 +111,7 @@ const CategoryGrid = () => {
 
   return (
     <div
-      className="sm:p-6 space-y-8 h-full text-white z-10"
+      className="sm:p-6 space-y-8 h-full text-white z-10 pb-10"
       style={containerStyle}
     >
       <h2 className="text-lg sm:text-2xl font-bold mb-4">Start browsing</h2>

@@ -22,6 +22,8 @@ function MainLayout({ children }) {
     renderCount.current++;
   }, []);
 
+  console.log(renderCount.current)
+
   // Add safety check for context to prevent SSR errors
   const contextValue = useOtherContexts();
   const {
@@ -139,7 +141,7 @@ function MainLayout({ children }) {
             } `}
           >
             <div
-              className={`wrapper middle  w-[100%]  h-[100%] rounded-lg  bg-zinc-900  relative transition-all duration-500 `}
+              className={`wrapper middle  w-[100%]  h-[100%] sm:rounded-lg  bg-zinc-900  relative transition-all duration-500 `}
               ref={ref}
             >
               {/* outlet */}

@@ -37,7 +37,7 @@ const ProfileThreeDots = ({ currentUser }) => {
 
           <ProfileThreeDotsPopUp
           currentUser={currentUser}
-      
+            open={showPopup}
             anchorRect={anchor}
             onClose={() => {
               setShowPopup(false);

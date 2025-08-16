@@ -49,24 +49,31 @@ export default function EditPlaylistModal({ playlist, onClose ,open }) {
         body: formData,
       });
 
+      let errorMsg = "Failed to update playlist";
+      let errorDetail = "";
+      let showErrorToast = false;
+
       if (res.ok) {
         toast({ text: "Playlist updated" });
         fetchLibrary();
         onClose();
       } else {
-        let errorMsg = "Failed to update playlist";
         try {
           const data = await res.json();
           if (data?.error) {
             errorMsg = data.error;
-            errorMsg = errorMsg + data?.message
+            showErrorToast = true;
+          }
+          if (data?.message) {
+            errorDetail = data.message;
+            showErrorToast = true;
           }
         } catch (e) {
           // fallback to default errorMsg
+          showErrorToast = true;
         }
-        toast({ text: errorMsg });
+        toast({ text: errorMsg + (errorDetail ? `: ${errorDetail}` : "") });
       }
-      
     });
   };
 

@@ -44,15 +44,25 @@ export default function EditProfileModal({ currentUser, onClose ,open , onUpdate
         body: formData,
       });
 
+      let result = null;
+      try {
+        result = await res.json();
+      } catch (err) {
+        // fallback if response is not JSON
+      }
+
       if (!res.ok) {
-        toast({ text: "Profile update failed" });
+        if (result && result.error) {
+          toast({ text: result.error });
+        } else {
+          toast({ text: "Profile update failed" });
+        }
         return;
       }
 
-      const result = await res.json();
-      if (result.success) {
+      if (result && result.success) {
         await fetchCurrentUserProfile();
-        onUpdate()
+        onUpdate();
         toast({ text: "Profile updated", image: preview });
         onClose();
       }

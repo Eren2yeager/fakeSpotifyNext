@@ -21,7 +21,7 @@ import { HiOutlineQueueList } from "react-icons/hi2";
 import Followbutton from "./artistsComponents/followbutton";
 import { useSession } from "next-auth/react";
 import QueueSongCard from "./playlistCards/queueSongCard";
-
+import SyncedLyrics from "./audioComponents/syncedLyrics";
 const Right = () => {
   const { toggleFullScreen, setToggleFullScreen, showRight, setShowRight } =
     useOtherContexts();
@@ -45,6 +45,7 @@ const Right = () => {
     currentPlayOrderIndex,
     isShuffling,
     originalQueueRelatedContext,
+    audioRef,
   } = usePlayer();
   const router = useRouter();
   const { data: session } = useSession();
@@ -309,7 +310,6 @@ const Right = () => {
             <div
               className="  sm:overflow-y-auto w-[100%]   flex flex-col items-center justify-between  px-3 transition-all duration-500 pb-40 sm:pb-0"
               ref={containerRef}
-              
             >
               <div
                 className={`song-image flex flex-col justify-around  w-[100%] max-w-[400px] min-h-[85vh] ${
@@ -375,6 +375,25 @@ const Right = () => {
                   </div>
                 </div>
               </div>
+              <div className="w-full h-fit">
+                { (window.innerWidth < 640 && currentSong?.lyrics.length > 0) && (
+                  <SyncedLyrics
+                    lyrics={currentSong.lyrics}
+                    audioRef={audioRef}
+                    options={{
+                      autoScroll: true,
+                      smoothScroll: true,
+                      scrollOffset: 0,
+                    }}
+                    image={currentSong?.image}
+                    className={"w-full h-50 rounded-xl shadow-2xl shadow-black pt-5 overflow-hidden"}
+                    lineClasses={"text-lg"}
+                    previousLineClasses ={"text-white"}
+                    activeLineClasses={"text-white transform  transition-all duration-500"}
+                    nonActiveLineClasses={"text-black/80"}
+                  />
+                )}
+              </div>
 
               <div
                 className="w-[100%] mt-10  rounded-xl mb-2 relative transition-all duration-500 flex justify-center gap-5 "
@@ -386,7 +405,7 @@ const Right = () => {
                   <div className="font-bold w-[100%] p-3  absolute text-shadow-xl text-shadow-gray-900 flex">
                     About the Artist
                   </div>
-                  <div className="song-image w-[100%] transition-all duration-500  max-h-[250px] flex flex-col  bg-zinc-500  rounded-t-xl">
+                  <div className=" w-[100%] transition-all duration-500  max-h-[250px] flex flex-col  bg-zinc-500  rounded-t-xl">
                     <img
                       className="w-[100%] h-[100%] transition-all duration-500 object-cover rounded-t-xl"
                       src={`${
@@ -490,7 +509,7 @@ const Right = () => {
             ? { width: "400px", position: "relative" }
             : { position: "absolute" }
         }
-        className="w-full   h-full top-0 right-0  bottom-0   rounded-md bg-zinc-900  shadow-xl  text-white overflow-y-auto overflow-x-hidden "
+        className="w-full   h-full top-0 right-0  bottom-0 z-1000   rounded-md bg-zinc-900  shadow-xl  text-white overflow-y-auto overflow-x-hidden "
       />
     </div>
   );

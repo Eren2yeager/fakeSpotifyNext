@@ -22,6 +22,13 @@ const songSchema = new mongoose.Schema(
       ref: "Album",
     },
     views: { type: Number, default: 0 }, // Track number of views/plays
+
+    lyrics: [
+      {
+        time: { type: Number, required: true }, // seconds
+        line: { type: String, required: true }
+      }
+    ]
   },
   { timestamps: true }
 );

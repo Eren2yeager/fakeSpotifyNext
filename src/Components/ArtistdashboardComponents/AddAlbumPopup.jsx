@@ -46,18 +46,28 @@ export default function AddAlbumPopup({ open, onClose, onUpdate }) {
         body: formData,
       });
 
+      let result = null;
+      try {
+        result = await res.json();
+      } catch (err) {
+        // fallback if response is not JSON
+      }
+
       if (!res.ok) {
-        toast({ text: "Failed to create album" });
+        if (result && result.error) {
+          toast({ text: result.error });
+        } else {
+          toast({ text: "Failed to create album" });
+        }
         return;
       }
 
-      const result = await res.json();
-      if (result.success) {
+      if (result && result.success) {
         toast({ text: "Album created successfully!" });
         onUpdate();
         onClose();
       } else {
-        toast({ text: "Failed to create album" });
+        toast({ text: (result && result.error) ? result.error : "Failed to create album" });
       }
     });
   };

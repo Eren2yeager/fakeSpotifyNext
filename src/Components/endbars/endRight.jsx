@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
 
-
 import { useOtherContexts } from "@/Contexts/otherContexts";
 import { MdLyrics } from "react-icons/md";
 import { MdOutlineLyrics } from "react-icons/md";
@@ -14,23 +13,36 @@ import { HiQueueList } from "react-icons/hi2";
 import { HiOutlineQueueList } from "react-icons/hi2";
 import { usePlayer } from "@/Contexts/playerContext";
 import CustomInputRange from "../Helper/customInputRange";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 const EndRight = () => {
   const [sliderValue, setsliderValue] = useState(100);
-  const [toggleLyrics, settoggleLyrics] = useState(false);
 
+  const {
+    toggleFullScreen,
+    setToggleFullScreen,
+    showRight,
+    setShowRight,
+    showPlaylists,
+    setShowPlaylists,
+  } = useOtherContexts();
 
-  const  {toggleFullScreen ,setToggleFullScreen , showRight, setShowRight , showPlaylists, setShowPlaylists} = useOtherContexts()
-
-  const {openQueue , setOpenQueue ,audioRef} = usePlayer();
+  const { openQueue, setOpenQueue, audioRef } = usePlayer();
   const [localValue, setLocalValue] = useState(0);
-  
+
   const router = useRouter();
+  const pathname = usePathname();
 
+  const toggleLyricsRoute = () => {
+    // const next = !toggleLyrics;
+    // settoggleLyrics(next);
+    if (pathname !== "/lyrics") {
+      router.push("/lyrics");
+    } else {
+      // Optionally, if router.back() doesn't leave /lyrics, force push to home
+      router.push("/");
+    }
+  };
 
-
-
-  
   const handleVolumeChange = (value) => {
     setsliderValue(value);
     const newVolume = value / 500;
@@ -39,8 +51,6 @@ const EndRight = () => {
     }
   };
 
-
-
   const handleClick = () => {
     setsliderValue(sliderValue > 0 ? 0 : 100);
     const newVolume = parseInt(sliderValue > 0 ? 0 : 100, 10) / 100;
@@ -48,8 +58,6 @@ const EndRight = () => {
       audioRef.current.volume = newVolume;
     }
   };
-
-
 
   const handleFullScreen = () => {
     const newToggleFullScreen = !toggleFullScreen;
@@ -85,27 +93,22 @@ const EndRight = () => {
       }
       setOpenQueue(newOpenQueue);
     }
-
   };
 
   return (
     <div className="max-w-[100%] h-[100%] flex flex-col items-end xl:flex-row  xl:justify-end xl:items-center gap-2 xl:gap-5  p-3">
       <div className="flex w-auto  gap-3">
-        {toggleLyrics ? (
+        {pathname == "/lyrics" ? (
           <MdLyrics
             className="text-xl cursor-pointer"
             title="Lyrics"
-            onClick={() => {
-              settoggleLyrics(!toggleLyrics);
-            }}
+            onClick={toggleLyricsRoute}
           />
         ) : (
           <MdOutlineLyrics
             className="text-xl cursor-pointer"
             title="Lyrics"
-            onClick={() => {
-              settoggleLyrics(!toggleLyrics);
-            }}
+            onClick={toggleLyricsRoute}
           />
         )}
 

@@ -31,10 +31,12 @@ const RecentPlayCard = (props) => {
         <div
           className="flex gap-3 items-center overflow-clip"
           onClick={() => {
-            props.item.type !== "Song" &&
+            props.item.type !== "Song" ? 
               router.push(
                 `/${props.item.type.toLowerCase()}s/${props.item._id}`
-              );
+              ) :  handlePlayFromType(props.item);
+
+            
           }}
         >
           <img
@@ -58,9 +60,7 @@ const RecentPlayCard = (props) => {
 
       {((props.item.type !== "Song"  && props.item.songs?.length > 0)  || props.item.type == "Song") && (
         <div
-          className={`absolute right-2  p-2 bg-green-500 rounded-full ${
-            conditionCheck && isPlaying ? "visible" : "invisible"
-          } group-hover/PlaylistCard:visible text-black`}
+          className={`absolute right-2  p-2 bg-green-500 rounded-full  group-hover/PlaylistCard:visible invisible text-black`}
           onClick={() => {
             handlePlayFromType(props.item);
           }}

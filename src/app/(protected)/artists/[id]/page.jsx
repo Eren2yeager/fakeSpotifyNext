@@ -160,7 +160,7 @@ const MiddlePlaylistView = () => {
         </div>
       ) : (
         <div
-          className={`scroll-container  relative w-[100%] h-[100%] rounded-xl  overflow-y-auto text-white bg-zinc-900  pb-35`}
+          className={`scroll-container  relative w-[100%] h-[100%] rounded-xl  overflow-y-auto text-white bg-zinc-900  pb-50`}
           onScroll={handleScroll}
         >
           <div className=" w-[100%]   rounded-xl flex flex-col">
@@ -433,6 +433,7 @@ const MiddlePlaylistView = () => {
                     albumWidth={albumWidth}
                     dateAddedWidth={dateAddedWidth}
                     artistId={artist._id}
+                    searchText={searchText}
                   />
                 </div>
               ))}

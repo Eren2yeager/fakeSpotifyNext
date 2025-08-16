@@ -103,7 +103,7 @@ function Home() {
        
 
       <div
-        className="middle-scroll-div min-w-[100%] flex flex-col gap-5 h-[95%]  pb-40 sm:pb-5 overflow-y-auto"
+        className="middle-scroll-div min-w-[100%] flex flex-col gap-5 h-[95%]  pb-50 overflow-y-auto"
         onScroll={handleScroll}
         > 
         <GridCellContainer />

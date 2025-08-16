@@ -47,12 +47,13 @@ const CreateNewPopup = ({ open, onClose, anchorRect, onUpdate }) => {
     setShowUploadSongPopup(true);
   };
 
+
   return (
     <>
       <div>
         <AnimatePresence>
           {open && (
-            <Portal open={open} anchorRect={anchorRect} onClose={onClose}>
+            <Portal open={open} anchorRect={anchorRect} onClose={onClose} childOpen={showCreateAlbumPopup || showUploadSongPopup}>
               {showUploadSongPopup && (
                 <AddSongPopup
                   open={showUploadSongPopup}

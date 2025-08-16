@@ -77,7 +77,7 @@ export default function GenrePage() {
 
   return (
     <div
-      className="scroll-container relative w-full h-full overflow-y-auto text-white bg-zinc-900 rounded-md"
+      className="scroll-container relative w-full h-full overflow-y-auto pb-50 text-white bg-zinc-900 rounded-md"
       onScroll={handleScroll}
     >
       {/* Top banner */}

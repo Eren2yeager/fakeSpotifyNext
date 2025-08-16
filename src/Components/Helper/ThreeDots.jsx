@@ -37,7 +37,7 @@ const ThreeDots = ({ song, playlistId , playlistCreaterId }) => {
       {showPopup && (
 
           <ThreeDotsPopUp
-            
+            open ={showPopup}
             song={song}
             playlistId={playlistId}
             playlistCreaterId={playlistCreaterId}

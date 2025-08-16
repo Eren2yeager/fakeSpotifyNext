@@ -10,6 +10,7 @@ import TickOrAdd from "../Helper/TickOrAdd";
 import { useLibrary } from "@/Contexts/libraryContext";
 import { useRouter } from "next/navigation";
 import ThreeDots from "../Helper/ThreeDots";
+import HighlightText from "../Helper/highlitedText";
 const MiddlePlaylistSongCard = (props) => {
 
   const { middleWidth } = useOtherContexts();
@@ -135,7 +136,7 @@ const MiddlePlaylistSongCard = (props) => {
               conditionCheck ? "text-green-500" : "text-white"
             }  truncate ${middleWidth >= 640 ? "text-md" : "text-sm"}`}
           >
-            {props.item?.name}
+                    {HighlightText(   props.item?.name, props.searchText)}
           </div>
           <div className={` text-white/50  max-w-[100%] truncate ${middleWidth >= 640 ? "text-sm" : "text-xs"}`}>
             <span

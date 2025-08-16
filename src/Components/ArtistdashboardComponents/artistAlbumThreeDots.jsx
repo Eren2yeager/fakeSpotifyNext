@@ -35,7 +35,7 @@ const ArtistAlbumThreeDots = ({ album, onUpdate }) => {
 
     if (
       !window.confirm(
-        `Are you sure you want to delete the song "${album?.name}"? This action cannot be undone.`
+        `Are you sure you want to delete the album :"${album?.name}"? This action cannot be undone.`
       )
     ) {
       return;
@@ -49,17 +49,25 @@ const ArtistAlbumThreeDots = ({ album, onUpdate }) => {
         body: formData,
       });
 
+      let result = null;
+      try {
+        result = await res.json();
+      } catch (err) {
+        // fallback if response is not JSON
+      }
+
       if (!res.ok) {
-        toast({ text: "failed" });
+        if (result && result.error) {
+          toast({ text: result.error });
+        } else {
+          toast({ text: "Failed to delete album" });
+        }
         setShowPopup(false);
         return;
       }
 
-      const result = await res.json();
-      if (result) {
-        toast({ text: "Album Deleted" });
-        setShowPopup(false);
-      }
+      toast({ text: "Album Deleted" });
+      setShowPopup(false);
 
       if (pathname === `/artistDashboard/albums/${album._id}`) {
         router.back();
@@ -107,6 +115,7 @@ const ArtistAlbumThreeDots = ({ album, onUpdate }) => {
               onClose={() => {
                 setShowPopup(false);
               }}
+              childOpen={showEditAlbumPopup}
             >
               <EditALbumPopup
                 album={album}

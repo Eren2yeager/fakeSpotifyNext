@@ -48,19 +48,29 @@ export default function BecomeArtistDialog({ open, onClose }) {
         body: formData,
       });
 
+      let result = null;
+      try {
+        result = await res.json();
+      } catch (err) {
+        // fallback if response is not JSON
+      }
+
       if (!res.ok) {
-        toast({ text: "Something went wrong" });
+        if (result && result.error) {
+          toast({ text: result.error });
+        } else {
+          toast({ text: "Something went wrong" });
+        }
         onClose();
         return;
       }
 
-      const result = await res.json();
       if (result && result.success) {
         await fetchCurrentUserProfile();
         toast({ text: "You are now an artist!" });
         onClose();
       } else {
-        toast({ text: "Something went wrong" });
+        toast({ text: (result && result.error) ? result.error : "Something went wrong" });
         onClose();
       }
     });

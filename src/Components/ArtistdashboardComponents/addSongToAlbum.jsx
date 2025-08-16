@@ -18,7 +18,7 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import NotFound from "../Helper/not-found";
 import ThreeDotsLoader from "../Helper/ThreeDotsLoader";
-
+import HighlightText from "../Helper/highlitedText";
 /**
  * AddSongToAlbumPopup
  *
@@ -221,7 +221,7 @@ export default function AddSongToAlbumPopup({
                   />
                   <div className="w-full flex-col justify-center items-between flex  px-2 truncate">
                     <div className="w-full justify-start text-[14px] font-semibold truncate">
-                      {song?.name || "Song"}
+                    {HighlightText(song?.name, search)}
                     </div>
                   </div>
                 </div>

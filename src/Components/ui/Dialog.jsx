@@ -33,7 +33,7 @@ export function Dialog({ open, onClose, children }) {
 
           {/* Dialog content */}
           <motion.div
-            className="fixed top-1/2 left-1/2  w-full max-w-xl -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-neutral-900 p-6 shadow-lg z-10001"
+            className="fixed top-1/2 left-1/2  w-full max-w-xl overflow-auto max-h-screen -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-neutral-900 p-6 shadow-lg z-10001"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}

@@ -5,7 +5,7 @@ import GENRES from "@/data/genres.json";
 import { useTransition } from "react";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { Dialog } from "../ui/Dialog";
-
+import { useImageProcessor } from "../Helper/ImageCropper";
 // Dynamically import icons to avoid Next.js build issues
 const GrAdd = dynamic(() =>
   import("react-icons/gr").then((mod) => mod.GrAdd),
@@ -20,6 +20,8 @@ const EditSongPopup = ({ song, open, onClose, onUpdate }) => {
   const [pending, startTransition] = useTransition();
   const toast = useSpotifyToast();
   const [name, setName] = useState(song?.name);
+  const [lrcFile, setLrcFile] = useState(null);
+
   const [selectedGenres, setSelectedGenres] = useState(
     Array.isArray(song?.genres)
       ? song.genres
@@ -30,43 +32,18 @@ const EditSongPopup = ({ song, open, onClose, onUpdate }) => {
   const [image, setImage] = useState(song?.image);
   const [preview, setPreview] = useState(song?.image);
 
-  const handleImageChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const maxKB = 5120; // 5 MB
-    if (file.size > maxKB * 1024) {
-      toast({ text: `Image too large. Maximum size is ${maxKB / 1024}MB` });
-      e.target.value = "";
-      return;
-    }
-    try {
-      const bitmap = await createImageBitmap(file);
-      const { width, height } = bitmap;
-      bitmap.close();
-      if (width !== height) {
-        toast({ text: "Image must be square (e.g., 300x300)" });
-        e.target.value = "";
-        return;
-      }
-      if (width < 300) {
-        toast({ text: "Image too small. Minimum is 300x300" });
-        e.target.value = "";
-        return;
-      }
-      if (width > 1000) {
-        toast({ text: "Image too large. Maximum is 1000x1000" });
-        e.target.value = "";
-        return;
-      }
-    } catch (err) {
-      toast({ text: "Unable to read image. Choose a valid image file" });
-      e.target.value = "";
-      return;
-    }
 
-    setImage(file);
-    setPreview(URL.createObjectURL(file));
+  const handleImageProcessed = (processedFile) => {
+    setImage(processedFile);
+    setPreview(URL.createObjectURL(processedFile));
+    toast({ text: "Image processed successfully! Automatically cropped to square and resized." });
   };
+
+  const handleImageError = (errorMessage) => {
+    toast({ text: errorMessage });
+  };
+
+  const { handleImageChange } = useImageProcessor(handleImageProcessed, handleImageError);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -78,24 +55,38 @@ const EditSongPopup = ({ song, open, onClose, onUpdate }) => {
     selectedGenres.forEach((g) => formData.append("genres", g));
 
     if (image) formData.set("image", image);
+    if (lrcFile) formData.set("lrcFile", lrcFile);
 
     startTransition(async () => {
-      const res = await fetch("/api/artistDashboard/songs", {
-        method: "PUT",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        toast({ text: "failed" });
+      let result = null;
+      let res;
+      try {
+        res = await fetch("/api/artistDashboard/songs", {
+          method: "PUT",
+          body: formData,
+        });
+        try {
+          result = await res.json();
+        } catch (jsonErr) {
+          // fallback if response is not JSON
+        }
+      } catch (err) {
+        toast({ text: err?.message || "Failed to edit song" });
         return;
       }
 
-      const result = await res.json();
-      if (result) {
-        toast({ text: "Song Edited" });
-        onUpdate();
-        onClose();
+      if (!res.ok) {
+        if (result && result.error) {
+          toast({ text: result.error });
+        } else {
+          toast({ text: "Failed to edit song" });
+        }
+        return;
       }
+
+      toast({ text: "Song Edited" });
+      onUpdate();
+      onClose();
     });
   };
 
@@ -185,6 +176,28 @@ const EditSongPopup = ({ song, open, onClose, onUpdate }) => {
               Selected: {selectedGenres.join(", ") || "None"}
             </div>
           </div>
+          <div>
+  <label className="block mb-1 text-sm text-gray-300">Lyrics File (.lrc) (Optional)</label>
+  <div className="relative">
+    <label className="w-full flex items-center cursor-pointer">
+      <input
+        type="file"
+        accept=".lrc"
+        onChange={(e) => setLrcFile(e.target.files[0])}
+        disabled={pending}
+        className="hidden"
+      />
+      <span
+        className={`w-full p-3 text-center mx-auto font-bold text-black rounded-lg
+          ${pending ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}
+          ${lrcFile ? "bg-white/80" : "bg-green-600"}`
+        }
+      >
+        {lrcFile ? "File Selected" : "Choose .lrc File"}
+      </span>
+    </label>
+  </div>
+</div>
 
           <button
             type="submit"
@@ -199,6 +212,9 @@ const EditSongPopup = ({ song, open, onClose, onUpdate }) => {
           </button>
         </div>
       </form>
+      <p className="text-xs text-gray-400 mt-4">
+        Upload any image and we'll automatically crop it to a perfect square and resize it to 300x300 pixels.
+      </p>
     </Dialog>
   );
 };

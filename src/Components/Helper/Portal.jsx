@@ -14,10 +14,11 @@ export default function Portal({
   open,
   anchorRect,
   onClose,
-  children
+  children,
+  childOpen
 }) {
-  // For nested popups (not used here, but kept for compatibility)
-  const [childRef, setChildRef] = useState(null);
+  // // For nested popups (not used here, but kept for compatibility)
+  // const [childRef, setChildRef] = useState(null);
 
   // Positioning for desktop
   const [coords, setCoords] = useState({ top: 0, left: 0 });
@@ -38,12 +39,12 @@ export default function Portal({
   useEffect(() => {
     const handle = (e) => {
       const insideSelf = selfRef.current && selfRef.current.contains(e.target);
-      const insideChild = childRef && childRef.contains(e.target);
-      if (!insideSelf && !insideChild) onClose();
+
+      if (!insideSelf &&  !childOpen) onClose();
     };
     document.addEventListener("mousedown", handle);
     return () => document.removeEventListener("mousedown", handle);
-  }, [childRef, onClose]);
+  }, [childOpen, onClose]);
 
   // Mobile detection
   const isMobile = typeof window !== "undefined" && window.innerWidth <= 640;
@@ -51,7 +52,7 @@ export default function Portal({
   // Simple drag-to-close for mobile
   // If user drags down more than 100px, close
   function handleDragEnd(e, info) {
-    if (isMobile && info.offset.y > 100) {
+    if (isMobile && !childOpen && info.offset.y > 100) {
       setTimeout(onClose, 100);
     }
   }
@@ -70,8 +71,8 @@ export default function Portal({
         exit={isMobile ? { y: "-100%", opacity: 0 } : false}
         animate={isMobile ? { y: 0, opacity: 1 } : false}
         transition={{ type: "spring", stiffness: 400, damping: 30 }}
-        className={`fixed z-[9999] bg-zinc-800 p-1 text-white rounded-md shadow-lg sm:max-w-60 w-full transition-transform duration-1000`}
-        drag={isMobile ? "y" : false}
+        className={`fixed z-[9999] bg-zinc-800 p-1 text-white rounded-md shadow-lg sm:max-w-65 w-full transition-transform duration-1000`}
+        drag={isMobile && !childOpen ? "y" : false}
         dragConstraints={{ top: 0, bottom: 300 }}
         onDragEnd={handleDragEnd}
         style={

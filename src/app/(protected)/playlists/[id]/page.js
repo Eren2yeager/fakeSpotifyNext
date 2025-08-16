@@ -542,6 +542,7 @@ const MiddlePlaylistView = () => {
                         titleWidth={titleWidth}
                         albumWidth={albumWidth}
                         dateAddedWidth={dateAddedWidth}
+                        searchText={searchText}
                         playlistId={playlist._id}
                         playlistCreaterId={playlist?.createdBy?._id}
                       />

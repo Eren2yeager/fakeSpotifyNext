@@ -17,7 +17,7 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { IoAddSharp } from "react-icons/io5";
 import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import NotFound from "../Helper/not-found";
-
+import HighlightText from "../Helper/highlitedText";
 /**********************
  * SERVER‑ACTION IMPORTS
  **********************/
@@ -211,7 +211,7 @@ export default function AddToPlaylistPopup({
                   />
                   <div className="w-full flex-col justify-center items-between flex px-2 truncate">
                     <div className="w-full justify-start text-[14px] font-semibold truncate">
-                      {pl?.name || "Playlist-Name"}
+                    {HighlightText(pl?.name, search)}
                     </div>
                     <p className="text-xs font-semibold max-w-[100%] truncate justify-start opacity-50">
                       <span>Playlist</span>

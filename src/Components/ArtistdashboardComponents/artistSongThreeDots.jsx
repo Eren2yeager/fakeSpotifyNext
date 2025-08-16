@@ -60,23 +60,29 @@ const ArtistSongThreeDots = ({ song, album, onUpdate }) => {
     const formData = new FormData();
     formData.set("id", song._id);
     startTransition(async () => {
-      const res = await fetch("/api/artistDashboard/songs", {
-        method: "DELETE",
-        body: formData,
-      });
+      try {
+        const res = await fetch("/api/artistDashboard/songs", {
+          method: "DELETE",
+          body: formData,
+        });
 
-      if (!res.ok) {
-        toast({ text: "failed" });
-        return;
-      }
+        let result = null;
+        try {
+          result = await res.json();
+        } catch (err) {
+          // fallback if response is not JSON
+        }
 
-      const result = await res.json();
-      if (result) {
+        if (!res.ok) {
+          toast({ text: result && result.error ? result.error : "Failed to delete song" });
+          return;
+        }
+
         toast({ text: "Song Deleted" });
+        onUpdate();
+      } catch (err) {
+        toast({ text: err?.message || "Failed to delete song" });
       }
-
-      // Reload the page after the function completes
-      onUpdate();
     });
     setShowPopup(false);
   };
@@ -92,12 +98,18 @@ const ArtistSongThreeDots = ({ song, album, onUpdate }) => {
         body: formData,
       });
 
+      let result = null;
+      try {
+        result = await res.json();
+      } catch (err) {
+        // fallback if response is not JSON
+      }
+
       if (!res.ok) {
-        toast({ text: "failed" });
+        toast({ text: result && result.error ? result.error : "failed" });
         return;
       }
 
-      const result = await res.json();
       if (result) {
         toast({ text: `Song removed from ${album.name}` });
       }
@@ -156,6 +168,7 @@ const ArtistSongThreeDots = ({ song, album, onUpdate }) => {
               onClose={() => {
                 setShowPopup(false);
               }}
+              childOpen={showEditSongPopup}
             >
               {/* image support */}
               <div className="flex gap-1 justify-start ">

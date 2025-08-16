@@ -307,7 +307,7 @@ setShowLibrary(false);
           </p>
 
           <div
-            className="playlist-container w-auto h-screen px-3 overflow-y-auto pb-75"
+            className="playlist-container w-auto h-screen px-3 overflow-y-auto pb-100"
             onScroll={handleScroll}
           >
             {visibleItems?.length > 0 ? (

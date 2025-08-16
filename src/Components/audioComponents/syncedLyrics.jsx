@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { SuggestLihtestBgColor } from "@/functions/bgSuggester";
+import { SuggestLightestBgColor } from "@/functions/bgSuggester";
 import { useTransition } from "react";
 // Yes, Maximize2 and Minimize2 are real React components exported from the "lucide-react" icon library.
 // The import statement below imports them as React components:
@@ -17,6 +17,7 @@ import { useOtherContexts } from "@/Contexts/otherContexts";
 import LiveSeekbar from "./LiveSeekbar";
 import { IoIosArrowDown } from "react-icons/io";
 import { usePlayer } from "@/Contexts/playerContext";
+import ThreeDotsLoader from "../Helper/ThreeDotsLoader";
 /** --------------------------- Core Component ---------------------------- */
 function SyncedLyrics({
   lyrics,
@@ -27,7 +28,7 @@ function SyncedLyrics({
   wantHeading,
   activeLineClasses,
   nonActiveLineClasses,
-  previousLineClasses
+  previousLineClasses,
 }) {
   const {
     autoScroll = true,
@@ -61,7 +62,7 @@ function SyncedLyrics({
   useEffect(() => {
     startTransition(async () => {
       if (currentSong?.image) {
-        await SuggestLihtestBgColor(currentSong?.image).then((color) => {
+        await SuggestLightestBgColor(currentSong?.image).then((color) => {
           if (color) {
             setLighestBg(color);
           }
@@ -155,134 +156,146 @@ function SyncedLyrics({
         lyricsFullScreen &&
         "fixed flex flex-col transition-all duration-500 w-full h-full top-0 right-0 left-0 bottom-0 z-100"
       }`}
-      style={{ background: lighestBg }}
+      style={{ background: lighestBg || "#27272a" }}
     >
-      {wantHeading !== false && (
-        <div
-          className="w-full h-12 backdrop-blur-2xl sticky top-0  px-3 py-2 rounded-t-xl text-md font-bold flex justify-between "
-          style={{ background: lighestBg }}
-        >
-          {!lyricsFullScreen && (
-            <>
-              <div>Lyrics</div>
-              <div>
-                {lyricsFullScreen ? (
+      {isPending ? (
+        <div className="w-full  h-full flex justify-center items-center">
+          <ThreeDotsLoader />
+        </div>
+      ) : (
+        <>
+          {wantHeading !== false && (
+            <div
+              className="w-full h-12 backdrop-blur-2xl sticky top-0  px-3 py-2 rounded-t-xl text-md font-bold flex justify-between "
+              style={{ background: lighestBg }}
+            >
+              {!lyricsFullScreen && (
+                <>
+                  <div>Lyrics</div>
+                  <div>
+                    {lyricsFullScreen ? (
+                      <button
+                        className="p-1  bg-black/50 rounded-full transition flex items-center"
+                        title="Minimize2 Lyrics"
+                        onClick={() => setLyricsFullScreen(false)}
+                      >
+                        <Minimize2 size={15} aria-label="Minimize2" />
+                      </button>
+                    ) : (
+                      <button
+                        className="  p-1 bg-black/50 rounded-full transition flex items-center"
+                        title="Maximize2 Lyrics"
+                        onClick={() => setLyricsFullScreen(true)}
+                      >
+                        <Maximize2 size={15} aria-label="Maximize2" />
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+              {lyricsFullScreen && (
+                <>
                   <button
-                    className="p-1  bg-black/50 rounded-full transition flex items-center"
-                    title="Minimize2 Lyrics"
+                    className="absolute left-0 p-1 rounded-full transition flex items-center"
+                    title="Maximize2 Lyrics"
                     onClick={() => setLyricsFullScreen(false)}
                   >
-                    <Minimize2 size={15} aria-label="Minimize2" />
+                    <IoIosArrowDown size={25} className="" />
                   </button>
-                ) : (
-                  <button
-                    className="  p-1 bg-black/50 rounded-full transition flex items-center"
-                    title="Maximize2 Lyrics"
-                    onClick={() => setLyricsFullScreen(true)}
-                  >
-                    <Maximize2 size={15} aria-label="Maximize2" />
-                  </button>
-                )}
-              </div>
-            </>
-          )}
-          {lyricsFullScreen && (
-            <>
-              <button
-                className="absolute left-0 p-1 rounded-full transition flex items-center"
-                title="Maximize2 Lyrics"
-                onClick={() => setLyricsFullScreen(false)}
-              >
-                <IoIosArrowDown size={25} className="" />
-              </button>
-              <div className="text-center w-full h-full mx-5 pb-5">
-                <div className="text-xs text-white w-full truncate">
-                  {currentSong?.name}
-                </div>
-                <div className="text-xs text-white/50 w-full truncate">
-                  {currentSong?.artist?.name}
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      <div
-        ref={containerRef}
-        className=" overflow-y-auto select-none max-h-full w-full rounded-b-xl relative"
-        style={{ background: lighestBg }}
-      >
-        <div
-          className="sticky left-0 top-0 w-full z-0 h-5"
-          style={{
-            background: `linear-gradient(to bottom, ${lighestBg}, transparent 100%)`,
-            zIndex: 10,
-          }}
-        ></div>
-
-        <div className=" px-3 pb-4 space-y-2 overflow-x-hidden">
-          {lyrics.length === 0 && (
-            <p className="text-sm text-white/60 text-center">
-              No lyrics available.
-            </p>
-          )}
-          {lyrics.map((l, i) => (
-            <div
-              key={`${i}-${l.time}`}
-              ref={(el) => (lineRefs.current[i] = el)}
-              className={`transition-all duration-500 leading-relaxed font-extrabold hover:underline cursor-pointer  ${lineClasses} ${
-                i < activeIdx ?  previousLineClasses :
-                i === activeIdx
-                  ? `${activeLineClasses ? activeLineClasses : "text-white"} `
-                  : `${
-                      nonActiveLineClasses ? nonActiveLineClasses : "text-black"
-                    } `
-              }`}
-              onClick={() => handleLineClick(l.time)}
-              tabIndex={0}
-              role="button"
-              aria-label={`Seek to ${l.line}`}
-            >
-              {l.line}
+                  <div className="text-center w-full h-full mx-5 pb-5">
+                    <div className="text-xs text-white w-full truncate">
+                      {currentSong?.name}
+                    </div>
+                    <div className="text-xs text-white/50 w-full truncate">
+                      {currentSong?.artist?.name}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
-          ))}
-        </div>
+          )}
+          <div
+            ref={containerRef}
+            className=" overflow-y-auto select-none h-full w-full rounded-b-xl relative"
+            style={{ background: lighestBg }}
+          >
+            <div
+              className="sticky left-0 top-0 w-full z-0 h-5"
+              style={{
+                background: `linear-gradient(to bottom, ${lighestBg}, transparent 100%)`,
+                zIndex: 10,
+              }}
+            ></div>
 
-        <div
-          className="sticky left-0 bottom-0 w-full -z-1 h-5"
-          style={{
-            background: `linear-gradient(to top, ${lighestBg}, transparent 100%)`,
-            zIndex: 10,
-          }}
-        ></div>
-      </div>
-      {lyricsFullScreen && (
-        <div className="w-[100%] h-fit p-3">
-          <div className="w-full">
-            <LiveSeekbar showTime={true} />
+            <div className=" px-3 pb-4 space-y-2 overflow-x-hidden">
+              {lyrics.length === 0 && (
+                <p className="text-sm text-white/60 text-center">
+                  No lyrics available.
+                </p>
+              )}
+              {lyrics.map((l, i) => (
+                <div
+                  key={`${i}-${l.time}`}
+                  ref={(el) => (lineRefs.current[i] = el)}
+                  className={`transition-all duration-500 leading-relaxed font-extrabold hover:underline cursor-pointer  ${lineClasses} ${
+                    i < activeIdx
+                      ? previousLineClasses
+                      : i === activeIdx
+                      ? `${
+                          activeLineClasses ? activeLineClasses : "text-white"
+                        } `
+                      : `${
+                          nonActiveLineClasses
+                            ? nonActiveLineClasses
+                            : "text-black"
+                        } `
+                  }`}
+                  onClick={() => handleLineClick(l.time)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Seek to ${l.line}`}
+                >
+                  {l.line}
+                </div>
+              ))}
+            </div>
+
+            <div
+              className="sticky left-0 bottom-0 w-full -z-1 h-5"
+              style={{
+                background: `linear-gradient(to top, ${lighestBg}, transparent 100%)`,
+                zIndex: 10,
+              }}
+            ></div>
           </div>
-          <div className="text-2xl font-bold flex items-center justify-center">
-            <span
-              className="bg-white p-1 rounded-full text-center flex justify-center items-center cursor-pointer"
-              onClick={handlePlayPause}
-            >
-              <span>
-                {isPlaying ? (
-                  <IoIosPause
-                    className=" text-black self-center text-5xl sm:text-2xl  "
-                    title="Pause"
-                  />
-                ) : (
-                  <IoIosPlay
-                    className=" text-black self-center text-5xl sm:text-2xl pl-[2px]"
-                    title="Play"
-                  />
-                )}
-              </span>
-            </span>
-          </div>
-        </div>
+          {lyricsFullScreen && (
+            <div className="w-[100%] h-fit p-3">
+              <div className="w-full">
+                <LiveSeekbar showTime={true} />
+              </div>
+              <div className="text-2xl font-bold flex items-center justify-center">
+                <span
+                  className="bg-white p-1 rounded-full text-center flex justify-center items-center cursor-pointer"
+                  onClick={handlePlayPause}
+                >
+                  <span>
+                    {isPlaying ? (
+                      <IoIosPause
+                        className=" text-black self-center text-5xl sm:text-2xl  "
+                        title="Pause"
+                      />
+                    ) : (
+                      <IoIosPlay
+                        className=" text-black self-center text-5xl sm:text-2xl pl-[2px]"
+                        title="Play"
+                      />
+                    )}
+                  </span>
+                </span>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

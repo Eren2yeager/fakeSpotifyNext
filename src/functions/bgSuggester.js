@@ -66,7 +66,7 @@ export default SuggestBgColor;
 
 
 
-const SuggestLihtestBgColor = (imageUrl) => {
+const SuggestLightestBgColor = (imageUrl) => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -85,32 +85,28 @@ const SuggestLihtestBgColor = (imageUrl) => {
 
       // Sample every 10th pixel for performance
       for (let i = 0; i < imageData.length; i += 40) {
-        const red = imageData[i];
-        const green = imageData[i + 1];
-        const blue = imageData[i + 2];
-
-        r += red;
-        g += green;
-        b += blue;
+        r += imageData[i];
+        g += imageData[i + 1];
+        b += imageData[i + 2];
         count++;
       }
 
       if (count === 0) {
-        return resolve("#a5b4fc"); // fallback: mid-light blue (Tailwind indigo-300)
+        return resolve("#a5b4fc"); // fallback
       }
 
       r = Math.floor(r / count);
       g = Math.floor(g / count);
       b = Math.floor(b / count);
 
-      // Convert to HSL to determine dominant hue
+      // Convert RGB to HSL
       function rgbToHsl(r, g, b) {
         r /= 255; g /= 255; b /= 255;
         const max = Math.max(r, g, b), min = Math.min(r, g, b);
         let h, s, l = (max + min) / 2;
 
         if (max === min) {
-          h = s = 0; // achromatic
+          h = s = 0;
         } else {
           const d = max - min;
           s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
@@ -124,30 +120,46 @@ const SuggestLihtestBgColor = (imageUrl) => {
         return [h * 360, s, l];
       }
 
-      const [hue, sat, light] = rgbToHsl(r, g, b);
+      function hslToHex(h, s, l) {
+        l = Math.max(0, Math.min(1, l));
+        s = Math.max(0, Math.min(1, s));
 
-      // Instead of very light colors, use mid-light Tailwind colors that won't blend with white text
-      if (hue >= 180 && hue <= 260) {
-        return resolve("#60a5fa"); // Tailwind sky-400 (mid blue)
+        const c = (1 - Math.abs(2 * l - 1)) * s;
+        const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+        const m = l - c / 2;
+        let r, g, b;
+
+        if (h < 60) [r, g, b] = [c, x, 0];
+        else if (h < 120) [r, g, b] = [x, c, 0];
+        else if (h < 180) [r, g, b] = [0, c, x];
+        else if (h < 240) [r, g, b] = [0, x, c];
+        else if (h < 300) [r, g, b] = [x, 0, c];
+        else [r, g, b] = [c, 0, x];
+
+        r = Math.round((r + m) * 255);
+        g = Math.round((g + m) * 255);
+        b = Math.round((b + m) * 255);
+
+        return `#${((1 << 24) + (r << 16) + (g << 8) + b)
+          .toString(16)
+          .slice(1)}`;
       }
-      if (hue >= 80 && hue < 170) {
-        return resolve("#34d399"); // Tailwind green-400 (mid green)
-      }
-      if ((hue >= 330 && hue <= 360) || (hue >= 0 && hue < 20)) {
-        return resolve("#f87171"); // Tailwind red-400 (mid red/pink)
-      }
-      if (hue >= 20 && hue < 60) {
-        return resolve("#fbbf24"); // Tailwind yellow-400 (mid yellow)
-      }
-      if (hue >= 260 && hue < 320) {
-        return resolve("#a78bfa"); // Tailwind purple-400 (mid purple)
-      }
-      // Otherwise, return a mid-light gray as fallback (not too white)
-      return resolve("#d1d5db"); // Tailwind gray-300
+
+      let [h, s, l] = rgbToHsl(r, g, b);
+
+      // Ensure saturation is at least 40% (avoid grayish colors)
+      if (s < 0.4) s = 0.4;
+
+      // Keep brightness in mid-light range for backgrounds
+      if (l < 0.35) l = 0.45;
+      if (l > 0.75) l = 0.65;
+
+      const finalColor = hslToHex(h, s, l);
+      resolve(finalColor);
     };
 
     img.onerror = (err) => reject(err);
   });
 };
 
-export { SuggestLihtestBgColor };
+export { SuggestLightestBgColor };

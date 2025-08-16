@@ -5,8 +5,8 @@ import MarqueeDiv from "./Helper/marquee";
 import SuggestBgColor from "../functions/bgSuggester";
 import { motion } from "framer-motion";
 
-import { GoScreenFull } from "react-icons/go";
-import { GoScreenNormal } from "react-icons/go";
+
+import { Maximize2, Minimize2 } from "lucide-react";
 import ShowMoreShowLess from "./Helper/showMoreShowLess";
 import EndMiddle from "./endbars/endMiddle";
 import { IoIosArrowDown } from "react-icons/io";
@@ -299,9 +299,9 @@ const Right = () => {
                   }}
                 >
                   {toggleFullScreen ? (
-                    <GoScreenNormal className="text-lg" title="FullScreen" />
+                    <Minimize2 className="cursor-pointer" size={15} title="minimize" />
                   ) : (
-                    <GoScreenFull className="text-lg" title="FullScreen" />
+                    <Maximize2 className="cursor-pointer" size={15} title="maximize" />
                   )}
                 </span>
               </div>
@@ -375,25 +375,24 @@ const Right = () => {
                   </div>
                 </div>
               </div>
-              <div className="w-full h-fit">
                 { (window.innerWidth < 640 && currentSong?.lyrics.length > 0) && (
+              <div className="w-full h-fit py-5 pb-10">
                   <SyncedLyrics
                     lyrics={currentSong.lyrics}
-                    audioRef={audioRef}
+
                     options={{
                       autoScroll: true,
                       smoothScroll: true,
                       scrollOffset: 0,
                     }}
-                    image={currentSong?.image}
-                    className={"w-full h-50 rounded-xl shadow-2xl shadow-black pt-5 overflow-hidden"}
+                    className={"w-full h-50 rounded-xl shadow-2xl shadow-black  "}
                     lineClasses={"text-lg"}
                     previousLineClasses ={"text-white"}
                     activeLineClasses={"text-white transform  transition-all duration-500"}
                     nonActiveLineClasses={"text-black/80"}
                   />
-                )}
               </div>
+                )}
 
               <div
                 className="w-[100%] mt-10  rounded-xl mb-2 relative transition-all duration-500 flex justify-center gap-5 "

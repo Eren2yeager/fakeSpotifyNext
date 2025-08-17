@@ -7,9 +7,12 @@ import { FaGithub, FaGoogle } from "react-icons/fa";
  function LoginPage() {
 
 
-//  no session related saves on login
-  localStorage.setItem("recentSearchesArray", []);
-  localStorage.setItem("spotify.playbackState", null);
+// localStorage is only available in the browser, not during SSR or build.
+// To avoid "localStorage is not defined" errors, check if window is defined.
+if (typeof window !== "undefined") {
+  localStorage.setItem("recentSearchesArray", JSON.stringify([]));
+  localStorage.setItem("spotify.playbackState", JSON.stringify(null));
+}
 
    const handleSignIn = async (provider) => {
     await signIn(provider, { callbackUrl: '/' }); // NextAuth will redirect to home after login

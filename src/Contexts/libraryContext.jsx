@@ -18,7 +18,6 @@ export const LibraryProvider = ({ children }) => {
         return res.json();
       })
       .then((data) => {
-        console.log(data)
         setLibrary(data);
         return data;
       })

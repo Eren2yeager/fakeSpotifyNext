@@ -7,7 +7,7 @@ import { IoAddSharp } from "react-icons/io5";
 import { useTransition } from "react";
 import { FiEdit2 } from "react-icons/fi";
 import { usePathname, useRouter } from "next/navigation";
-
+import { useConfirm } from "@/Contexts/confirmContext";
 // Dynamically import Portal and EditAlbumPopup to avoid Next.js build issues
 import EditALbumPopup from "./EditAlbumPopUp";
 import Portal from "../Helper/Portal";
@@ -21,7 +21,7 @@ const ArtistAlbumThreeDots = ({ album, onUpdate }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [anchor, setAnchor] = useState(null);
   const [childRef, setChildRef] = useState(null);
-
+  const confirm =  useConfirm()
   useEffect(() => {
     if (showPopup) {
       document.body.style.overflow = "hidden";
@@ -30,14 +30,12 @@ const ArtistAlbumThreeDots = ({ album, onUpdate }) => {
     }
   }, [showPopup]);
 
-  const handleRemoveAlbum = (e) => {
+  const handleRemoveAlbum = async (e) => {
     e.stopPropagation();
 
-    if (
-      !window.confirm(
-        `Are you sure you want to delete the album :"${album?.name}"? This action cannot be undone.`
-      )
-    ) {
+    const ok = await confirm({ text: `Are you sure you want to delete the album :"${album?.name}"? This action cannot be undone.` });
+
+    if (!ok) {
       return;
     }
 

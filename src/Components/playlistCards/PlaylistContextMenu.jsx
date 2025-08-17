@@ -11,6 +11,8 @@ import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { useLibrary } from "@/Contexts/libraryContext";
 import { togglePlaylistPublic } from "@/app/(protected)/actions/playlistActions";
+import { useConfirm } from "@/Contexts/confirmContext";
+
 export default function PlaylistContextMenu({
   playlist,
 
@@ -20,6 +22,8 @@ export default function PlaylistContextMenu({
 }) {
   const [isPending, startTransition] = useTransition();
   const toast = useSpotifyToast();
+  const confirm =  useConfirm()
+
   const router = useRouter();
   const pathname = usePathname();
   const { fetchLibrary } = useLibrary();
@@ -102,8 +106,8 @@ export default function PlaylistContextMenu({
         <span>Edit details</span>
       </button>
       <button
-        onClick={() => {
-          if (confirm("Are you sure you want to delete this playlist?")) {
+        onClick={async () => {
+          if (await confirm({text :"Are you sure you want to delete this playlist?"})) {
             handleDelete();
           }
         }}

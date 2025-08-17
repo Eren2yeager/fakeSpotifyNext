@@ -30,7 +30,6 @@ const Page = () => {
     }
     const data = await res.json();
     setAlbums(data);
-    console.log("Fetched albums:");
   };
   useEffect(() => {
     setIsUpdated(false)

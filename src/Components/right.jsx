@@ -63,7 +63,7 @@ const Right = () => {
 
         setBgColor(color); // or color.rgb
       } catch (err) {
-        console.log("Error getting average color:", err);
+        console.error("Error getting average color:", err);
       }
     };
     setBG();

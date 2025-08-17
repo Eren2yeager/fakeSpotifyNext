@@ -176,9 +176,6 @@ export const PlayerProvider = ({ children }) => {
 
   // Next track logic with autoplay and recommendations
   const nextTrack = useCallback(async () => {
-    // console.log( "originl : ",originalQueue)
-    // console.log( "user inserted : ",userInsertQueue)
-
     if (repeatMode === "one") {
       // Restart current track
       if (audioRef.current) {
@@ -208,6 +205,7 @@ export const PlayerProvider = ({ children }) => {
       }
     }
 
+    let recommendController = null;
     // Move to next in play order
     const nextIndex = currentPlayOrderIndex + 1;
     if (nextIndex >= playOrder.length) {
@@ -241,6 +239,11 @@ export const PlayerProvider = ({ children }) => {
             });
             // Add exclude as query param (repeat for each)
             exclude.forEach((id) => params.append("exclude", id));
+
+            // ✅ abort previous request if still running
+            if (recommendController) recommendController.abort();
+            recommendController = new AbortController();
+
             // Call your recommendations route
             const res = await fetch(`/api/recommendations?${params}`);
             const data = await res.json();

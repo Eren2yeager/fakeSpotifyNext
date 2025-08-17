@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import ArtistDashboardLayout from "@/layouts/artistDashboardLayout";
 import { SpotifyToastProvider } from "@/Contexts/SpotifyToastContext";
+import { ConfirmProvider } from "@/Contexts/confirmContext";
 function RootLayout({ children }) {
   useEffect(() => {
     document.title = "Artist Dashboard - Fake Spotify";
@@ -40,10 +41,13 @@ function RootLayout({ children }) {
   return (
     <>
       <SpotifyToastProvider>
+        <ConfirmProvider>
+
         <div className="absolute inset-0 -z-10 h-full w-full items-center px-5 py-24 [background:radial-gradient(125%_125%_at_50%_10%,#000_40%,#63e_100%)]"></div>
         <div className="w-full h-full overflow-y-auto overflow-x-hidden">
           <ArtistDashboardLayout>{children}</ArtistDashboardLayout>
         </div>
+        </ConfirmProvider>
       </SpotifyToastProvider>
     </>
   );

@@ -46,7 +46,7 @@ const EndMiddle = (props) => {
             disabled={isInAutoplay}
             aria-disabled={isInAutoplay}
             className={`text-xl transition-all duration-300 flex items-center justify-center
-              ${isShuffling ? "text-green-400" : "text-gray-400 hover:animate-pulse"}
+              ${isShuffling ? "text-green-400" : "text-gray-400 "}
               ${isInAutoplay ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
               bg-transparent border-none p-0 m-0`}
             style={{ background: "none", border: "none" }}
@@ -54,7 +54,7 @@ const EndMiddle = (props) => {
             <RxShuffle />
           </button>
           <MdSkipPrevious
-            className="text-4xl sm:text-3xl  text-gray-400  hover:animate-pulse transition-all duration-300  cursor-pointer"
+            className="text-4xl sm:text-3xl  text-gray-400   transition-all duration-300  cursor-pointer"
             title="Previous"
             onClick={prevTrack}
           />
@@ -95,7 +95,7 @@ const EndMiddle = (props) => {
                 ? "text-green-400"
                 : repeatMode === "all"
                   ? "text-green-400"
-                  : "text-gray-400 hover:animate-pulse"}
+                  : "text-gray-400 "}
               ${isInAutoplay ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
               bg-transparent border-none p-0 m-0`}
             style={{ background: "none", border: "none" }}

@@ -102,7 +102,7 @@ const SmallLeft = (props) => {
 
   return (
     <div
-      className={`small-left  w-[75px] h-[100%] bg-zinc-900 rounded-xl overflow-hidden ${isPending && "animate-pulse"} `}
+      className={`small-left  w-[75px] h-[100%] bg-zinc-900 rounded-xl overflow-hidden  `}
     >
       {library && (
         <>
@@ -140,9 +140,7 @@ const SmallLeft = (props) => {
             {items?.map((item, index) => (
               <div
                 key={index}
-                onClick={() => {
-                  console.log(items[index]);
-                }}
+
               >
                 <PlayCard key={index} index={index} item={item}></PlayCard>
               </div>

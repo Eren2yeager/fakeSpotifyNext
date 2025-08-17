@@ -113,7 +113,6 @@ const GridCellContainer = () => {
     (a, b) => new Date(b.playedAt).getTime() - new Date(a.playedAt).getTime()
   );
 
-  console.log(allRecents);
 
   return (
     <>

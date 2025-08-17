@@ -137,7 +137,7 @@ const Profile = () => {
           className={`scroll-container  relative w-[100%] h-[100%] rounded-xl  overflow-y-auto text-white bg-zinc-900`}
           onScroll={handleScroll}
         >
-          {session && session?.user && slug === session?.user._id && (
+          {session && session?.user && slug === session?.user._id && isModalOpen && (
             <EditProfileModal
               open={isModalOpen}
               currentUser={profile}

@@ -6,7 +6,6 @@ import Album from "@/models/Album";
 import User from "@/models/User";
 // Check if the current user has saved the album
 export async function isSavedAlbum(albumId) {
-  console.log("this is Album 1" ,Album)
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) return false;
@@ -29,7 +28,6 @@ export async function isSavedAlbum(albumId) {
 
 // Toggle save/unsave album for the current user
 export async function toggleSavedAlbum(albumId) {
-  console.log("this is Album 2" ,Album)
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) throw new Error("Unauthorized");

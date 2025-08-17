@@ -2,22 +2,28 @@
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useTransition } from "react";
+import { useConfirm } from "@/Contexts/confirmContext";
 
 // Dynamically import all icons and Portal to avoid Next.js build issues
-const BsThreeDots = dynamic(() =>
-  import("react-icons/bs").then((mod) => mod.BsThreeDots), { ssr: false }
+const BsThreeDots = dynamic(
+  () => import("react-icons/bs").then((mod) => mod.BsThreeDots),
+  { ssr: false }
 );
-const TiTick = dynamic(() =>
-  import("react-icons/ti").then((mod) => mod.TiTick), { ssr: false }
+const TiTick = dynamic(
+  () => import("react-icons/ti").then((mod) => mod.TiTick),
+  { ssr: false }
 );
-const IoAddSharp = dynamic(() =>
-  import("react-icons/io5").then((mod) => mod.IoAddSharp), { ssr: false }
+const IoAddSharp = dynamic(
+  () => import("react-icons/io5").then((mod) => mod.IoAddSharp),
+  { ssr: false }
 );
-const FiEdit2 = dynamic(() =>
-  import("react-icons/fi").then((mod) => mod.FiEdit2), { ssr: false }
+const FiEdit2 = dynamic(
+  () => import("react-icons/fi").then((mod) => mod.FiEdit2),
+  { ssr: false }
 );
-const RiDeleteBin6Line = dynamic(() =>
-  import("react-icons/ri").then((mod) => mod.RiDeleteBin6Line), { ssr: false }
+const RiDeleteBin6Line = dynamic(
+  () => import("react-icons/ri").then((mod) => mod.RiDeleteBin6Line),
+  { ssr: false }
 );
 const Portal = dynamic(() => import("../Helper/Portal"), { ssr: false });
 const EditSongPopup = dynamic(() => import("./EditSongPopUp"), { ssr: false });
@@ -32,6 +38,7 @@ import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 const ArtistSongThreeDots = ({ song, album, onUpdate }) => {
   const [pending, startTransition] = useTransition();
   const toast = useSpotifyToast();
+  const confirm = useConfirm();
   const [showPopup, setShowPopup] = useState(false);
   const [anchor, setAnchor] = useState(null);
   const [showEditSongPopup, setShowEditSongPopup] = useState(false);
@@ -46,13 +53,13 @@ const ArtistSongThreeDots = ({ song, album, onUpdate }) => {
 
   //   options ---------------------------------------------------
 
-  const handleDeleteSong = (e) => {
+  const handleDeleteSong = async (e) => {
     e.stopPropagation();
 
     if (
-      !window.confirm(
-        `Are you sure you want to delete the song "${song?.name}"? This action cannot be undone.`
-      )
+      !(await confirm({
+        text: `Are you sure you want to delete the song "${song?.name}"? This action cannot be undone.`,
+      }))
     ) {
       return;
     }
@@ -74,7 +81,10 @@ const ArtistSongThreeDots = ({ song, album, onUpdate }) => {
         }
 
         if (!res.ok) {
-          toast({ text: result && result.error ? result.error : "Failed to delete song" });
+          toast({
+            text:
+              result && result.error ? result.error : "Failed to delete song",
+          });
           return;
         }
 

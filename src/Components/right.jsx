@@ -375,10 +375,10 @@ const Right = () => {
                   </div>
                 </div>
               </div>
-                { (window.innerWidth < 640 && currentSong?.lyrics.length > 0) && (
+                { (window.innerWidth < 640 &&  currentSong?.lyrics && currentSong?.lyrics?.length > 0) && (
               <div className="w-full h-fit py-5 pb-10">
                   <SyncedLyrics
-                    lyrics={currentSong.lyrics}
+                    lyrics={currentSong?.lyrics}
 
                     options={{
                       autoScroll: true,
@@ -386,7 +386,7 @@ const Right = () => {
                       scrollOffset: 0,
                     }}
                     className={"w-full h-50 rounded-xl shadow-2xl shadow-black  "}
-                    lineClasses={"text-lg"}
+                    lineClasses={"text-xl"}
                     previousLineClasses ={"text-white"}
                     activeLineClasses={"text-white transform  transition-all duration-500"}
                     nonActiveLineClasses={"text-black/80"}

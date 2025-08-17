@@ -50,7 +50,7 @@ export async function POST(req) {
     artist.albums.push(album._id)
     await artist.save()
 
-    return Response.json(album);
+    return Response.json({ success: true });
   } catch (error) {
     return Response.json({ error: error.message || "Something went wrong" }, { status: 500 });
   }
@@ -93,7 +93,7 @@ export async function PUT(req) {
   if (!album)
     return Response.json({ error: "Album not found" }, { status: 404 });
 
-  return Response.json(album);
+  return Response.json({ success: true });
 }
 
 

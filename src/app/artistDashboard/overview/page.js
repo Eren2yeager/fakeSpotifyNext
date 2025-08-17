@@ -197,7 +197,7 @@ const ArtistOverview = () => {
               <h3 className="text-lg font-semibold mb-4">Recent Songs</h3>
 
               <div className="space-y-4 w-full">
-                {artist?.songs?.map((song) => (
+                {artist?.songs?.slice(0, 3).map((song) => (
                   <ArtistSongRow key={song._id} song={song}>
                     <Badge variant={song.album ? "default" : "secondary"}>
                       {song.album ? "Album" : "Single"}

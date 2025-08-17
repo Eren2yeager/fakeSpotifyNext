@@ -31,7 +31,13 @@ const MenuItem = ({ startIcon, endIcon, label, onClick, onDoubleClick }) => (
   </div>
 );
 
-export default function ProfileThreeDotsPopUp({ open, currentUser, anchorRect, onClose }) {
+export default function ProfileThreeDotsPopUp({
+  open,
+  currentUser,
+  anchorRect,
+  onClose,
+  onUpdate,
+}) {
   const router = useRouter();
 
   const [showEditProfilePopup, setEditProfilePopup] = useState(false);
@@ -44,9 +50,10 @@ export default function ProfileThreeDotsPopUp({ open, currentUser, anchorRect, o
       setShowBecomeArtistPopup(true);
     }
   };
-  const handleSignOut = () => {
-    signOut();
+  const handleSignOut = async () => {
+    await signOut();
     router.push("/login");
+
   };
 
   // For nested popup tracking (childOpen)
@@ -71,6 +78,7 @@ export default function ProfileThreeDotsPopUp({ open, currentUser, anchorRect, o
         <BecomeArtistDialog
           open={showBecomeArtistPopup}
           onClose={() => setShowBecomeArtistPopup(false)}
+          onUpdate ={onUpdate}
         />
       )}
 
@@ -96,7 +104,9 @@ export default function ProfileThreeDotsPopUp({ open, currentUser, anchorRect, o
               <BsFillPersonFill className="cursor-pointer" size={20} />
             )
           }
-          label={currentUser.isArtist ? "Go to Artist Dashboard" : "Become a Artist"}
+          label={
+            currentUser.isArtist ? "Go to Artist Dashboard" : "Become a Artist"
+          }
           onClick={handleBecomeArtist}
         />
       )}

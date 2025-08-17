@@ -8,7 +8,7 @@ import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
 import { useUser } from "@/Contexts/userContex";
 import { useImageProcessor } from "../Helper/ImageCropper";
 
-export default function BecomeArtistDialog({ open, onClose }) {
+export default function BecomeArtistDialog({ open, onClose , onUpdate }) {
   const [pending, startTransition] = useTransition();
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
@@ -67,6 +67,7 @@ export default function BecomeArtistDialog({ open, onClose }) {
 
       if (result && result.success) {
         await fetchCurrentUserProfile();
+        onUpdate()
         toast({ text: "You are now an artist!" });
         onClose();
       } else {

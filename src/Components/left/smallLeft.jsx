@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useTransition } from "react";
 import { GrAdd } from "react-icons/gr";
 
 import { usePathname } from "next/navigation";
@@ -13,29 +13,21 @@ const PlayCard = (props) => {
   const router = useRouter();
   const isActive = (route) => pathname === route;
 
-
-  const handleItemClick =  () => {
-
-    if(props.item.type == "Playlist"){
+  const handleItemClick = () => {
+    if (props.item.type == "Playlist") {
       if (pathname !== `/playlists/${props.item._id}`) {
         router.push(`/playlists/${props.item._id}`);
       }
-    }else if(props.item.type == "Artist") {
+    } else if (props.item.type == "Artist") {
       if (pathname !== `/artists/${props.item._id}`) {
         router.push(`/artists/${props.item._id}`);
-        }
-
-    }else if(props.item.type == "Album") {
+      }
+    } else if (props.item.type == "Album") {
       if (pathname !== `/albums/${props.item._id}`) {
         router.push(`/albums/${props.item._id}`);
-        }
-
+      }
     }
   };
-
- 
-
-
 
   return (
     <img
@@ -55,10 +47,16 @@ const PlayCard = (props) => {
 const SmallLeft = (props) => {
   const [items, setItems] = useState(null);
   const { library, fetchLibrary } = useLibrary();
+  const [isPending, startTransition] = useTransition();
 
-  const  {toggleFullScreen ,setToggleFullScreen , showRight, setShowRight , 
-showLibrary, 
-setShowLibrary} = useOtherContexts()
+  const {
+    toggleFullScreen,
+    setToggleFullScreen,
+    showRight,
+    setShowRight,
+    showLibrary,
+    setShowLibrary,
+  } = useOtherContexts();
 
   // for scrolling effect
   const toast = useSpotifyToast();
@@ -76,16 +74,18 @@ setShowLibrary} = useOtherContexts()
   };
 
   useEffect(() => {
-    fetchLibrary();
-    if (!items) {
-      setItems(library?.all);
-    } else if (props.activeItem === 1) {
-      setItems(library?.playlists);
-    } else if (props.activeItem === 2) {
-      setItems(library?.artists);
-    } else if (props.activeItem === 3) {
-      setItems(library?.albums);
-    }
+    startTransition(async () => {
+      await fetchLibrary();
+      if (!items) {
+        setItems(library?.all);
+      } else if (props.activeItem === 1) {
+        setItems(library?.playlists);
+      } else if (props.activeItem === 2) {
+        setItems(library?.artists);
+      } else if (props.activeItem === 3) {
+        setItems(library?.albums);
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -98,11 +98,11 @@ setShowLibrary} = useOtherContexts()
     } else if (props.activeItem === 3) {
       setItems(library?.artists);
     }
-  }, [library,props.activeItem]);
+  }, [library, props.activeItem]);
 
   return (
     <div
-      className={`small-left  w-[75px] h-[100%] bg-zinc-900 rounded-xl overflow-hidden`}
+      className={`small-left  w-[75px] h-[100%] bg-zinc-900 rounded-xl overflow-hidden ${isPending && "animate-pulse"} `}
     >
       {library && (
         <>
@@ -113,8 +113,7 @@ setShowLibrary} = useOtherContexts()
             <div
               className="toggle-playlists-button-1 cursor-pointer"
               onClick={() => {
-                
-setShowLibrary(true);
+                setShowLibrary(true);
                 if (window.innerWidth <= 1280) {
                   setShowRight(false);
                 }
@@ -145,11 +144,7 @@ setShowLibrary(true);
                   console.log(items[index]);
                 }}
               >
-                <PlayCard
-                  key={index}
-                  index={index}
-                  item = {item}
-                ></PlayCard>
+                <PlayCard key={index} index={index} item={item}></PlayCard>
               </div>
             ))}
           </div>

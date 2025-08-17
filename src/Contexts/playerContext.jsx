@@ -1,9 +1,16 @@
 "use client";
 // context/PlayerContext.js
-import { createContext, useContext, useState, useRef, useEffect, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+} from "react";
 import { useSession } from "next-auth/react";
 import { useSpotifyToast } from "./SpotifyToastContext";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 const PlayerContext = createContext();
 
@@ -11,9 +18,10 @@ export const usePlayer = () => useContext(PlayerContext);
 
 export const PlayerProvider = ({ children }) => {
   // for uses
-  const toast = useSpotifyToast()
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const toast = useSpotifyToast();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
 
   // ===================================================
@@ -32,10 +40,10 @@ export const PlayerProvider = ({ children }) => {
   // Removed positionSec in favor of currentTimeRef (ref only)
 
   // for opening purposes
-  const [isPlaying , setIsPlaying ] = useState(false)
-  const durationRef =useRef("");
-  const currentTimeRef =useRef("");
-  const audioRef = useRef()
+  const [isPlaying, setIsPlaying] = useState(false);
+  const durationRef = useRef("");
+  const currentTimeRef = useRef("");
+  const audioRef = useRef();
   // openQueue state is synced with the "openQueue" query param in the URL
   const [openQueue, updateOpenQueue] = useState(false);
 
@@ -52,14 +60,18 @@ export const PlayerProvider = ({ children }) => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       params.set("openQueue", value ? "true" : "false");
-      const newUrl = window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
+      const newUrl =
+        window.location.pathname +
+        (params.toString() ? `?${params.toString()}` : "");
       router.push(newUrl, { scroll: false });
     }
   };
 
   // for checks
-  const [isUserInsertedQueuePlaying , setIsUserInsertedQueuePlaying ] = useState(false)
- const [originalQueueRelatedContext, setOriginalQueueRelatedContext] = useState()
+  const [isUserInsertedQueuePlaying, setIsUserInsertedQueuePlaying] =
+    useState(false);
+  const [originalQueueRelatedContext, setOriginalQueueRelatedContext] =
+    useState();
   // Helper: build play order with or without shuffle
   const buildPlayOrder = useCallback((queueLength, startIndex, shuffle) => {
     const indices = Array.from({ length: queueLength }, (_, i) => i);
@@ -74,63 +86,69 @@ export const PlayerProvider = ({ children }) => {
     }
     return [...before, indices[startIndex], ...after];
   }, []);
-  
+
   // Function to play a specific song from userInsertQueue
   const playFromUserInsertQueue = (songId) => {
     if (!songId) return;
-    setUserInsertQueue(prev => prev.filter(id => id.toString() !== songId.toString()));
-    setIsUserInsertedQueuePlaying(true)
+    setUserInsertQueue((prev) =>
+      prev.filter((id) => id.toString() !== songId.toString())
+    );
+    setIsUserInsertedQueuePlaying(true);
     setCurrentSong(songId);
-    
-    setIsPlaying(true)
+
+    setIsPlaying(true);
   };
   // Enhanced play function with queue management
-  const play = useCallback((songList, current, contextInfo) => {
+  const play = useCallback(
+    (songList, current, contextInfo) => {
+      if (contextInfo.type === "Queue") {
+        if (typeof current === "object" && current._id) {
+          // userInsertQueue contains song objects, not just IDs? Let's check type
+          setUserInsertQueue((prev) =>
+            prev.filter((item) => {
+              // If prev contains objects
+              if (typeof item === "object" && item._id) {
+                return item._id.toString() !== current._id.toString();
+              }
+              // If prev contains IDs
+              return item.toString() !== current._id.toString();
+            })
+          );
+          setIsUserInsertedQueuePlaying(true);
+          setCurrentSong(current);
+          setContext({ type: "Queue", name: current.name, id: current._id });
 
-    if ( contextInfo.type === "Queue") {
-      if (typeof current === "object" && current._id) {
-        // userInsertQueue contains song objects, not just IDs? Let's check type
-        setUserInsertQueue(prev => 
-          prev.filter(item => {
-            // If prev contains objects
-            if (typeof item === "object" && item._id) {
-              return item._id.toString() !== current._id.toString();
-            }
-            // If prev contains IDs
-            return item.toString() !== current._id.toString();
-          })
-        );
-        setIsUserInsertedQueuePlaying(true);
-        setCurrentSong(current);
-        setContext({ type: "Queue", name: current.name, id: current._id });
-        
-        setIsPlaying(true);
-        return;
-      } else {
-        // fallback for ID
-        playFromUserInsertQueue(current);
-        setIsPlaying(true);
-        return;
+          setIsPlaying(true);
+          return;
+        } else {
+          // fallback for ID
+          playFromUserInsertQueue(current);
+          setIsPlaying(true);
+          return;
+        }
       }
-    }
 
+      setOriginalQueue(songList);
+      setCurrentSong(current);
+      setContext(contextInfo);
+      setOriginalQueueRelatedContext(contextInfo);
 
-    setOriginalQueue(songList);
-    setCurrentSong(current);
-    setContext(contextInfo);
-    setOriginalQueueRelatedContext(contextInfo)
+      // Find current song index in original queue
+      const startIndex = songList.findIndex((song) => song._id === current._id);
+      const newPlayOrder = buildPlayOrder(
+        songList.length,
+        startIndex,
+        isShuffling
+      );
+      setPlayOrder(newPlayOrder);
+      setCurrentPlayOrderIndex(newPlayOrder.indexOf(startIndex));
+      setUserInsertQueue([]);
 
-    // Find current song index in original queue
-    const startIndex = songList.findIndex(song => song._id === current._id);
-    const newPlayOrder = buildPlayOrder(songList.length, startIndex, isShuffling);
-    setPlayOrder(newPlayOrder);
-    setCurrentPlayOrderIndex(newPlayOrder.indexOf(startIndex));
-    setUserInsertQueue([]);
-    
-    setIsPlaying(true);
-    setAutoplayEnabled(false);
-  }, [isShuffling, buildPlayOrder]);
-
+      setIsPlaying(true);
+      setAutoplayEnabled(false);
+    },
+    [isShuffling, buildPlayOrder]
+  );
 
   const conditionCheckForSong = (item) => {
     let conditionCheck = false;
@@ -151,8 +169,7 @@ export const PlayerProvider = ({ children }) => {
         item?.type == context?.type &&
         String(context?.id || "").toLowerCase() === genreId;
     } else if (item?.type === "Playlist") {
-      conditionCheck =
-      item?.type == context?.type && item?._id == context?.id;
+      conditionCheck = item?.type == context?.type && item?._id == context?.id;
     }
     return conditionCheck;
   };
@@ -176,11 +193,11 @@ export const PlayerProvider = ({ children }) => {
       const nextSong = userInsertQueue[0];
       // If the userInsertQueue contains song objects, not just IDs
       if (typeof nextSong === "object" && nextSong._id) {
-        setUserInsertQueue(prev => prev.slice(1));
+        setUserInsertQueue((prev) => prev.slice(1));
         setIsUserInsertedQueuePlaying(true);
         setCurrentSong(nextSong);
-        setContext({type : "Queue" , name : nextSong.name , id : nextSong._id});
-        
+        setContext({ type: "Queue", name: nextSong.name, id: nextSong._id });
+
         setIsPlaying(true);
         return;
       } else {
@@ -190,7 +207,6 @@ export const PlayerProvider = ({ children }) => {
         return;
       }
     }
-   
 
     // Move to next in play order
     const nextIndex = currentPlayOrderIndex + 1;
@@ -199,7 +215,7 @@ export const PlayerProvider = ({ children }) => {
         // Wrap to beginning
         setCurrentPlayOrderIndex(0);
         setCurrentSong(originalQueue[playOrder[0]]);
-        
+
         setIsPlaying(true);
         setAutoplayEnabled(false);
       } else {
@@ -208,18 +224,23 @@ export const PlayerProvider = ({ children }) => {
           try {
             // Build exclude list of song IDs
             const exclude = [
-              ...originalQueue.map(s => s._id),
-              ...userInsertQueue.map(s => (typeof s === "object" ? s._id : s))
+              ...originalQueue.map((s) => s._id),
+              ...userInsertQueue.map((s) =>
+                typeof s === "object" ? s._id : s
+              ),
             ];
             const params = new URLSearchParams({
               seedSongId: currentSong._id,
               seedArtistId: currentSong.artist?._id || "",
               seedAlbumId: currentSong.album?._id || "",
-              seedPlaylistId: originalQueueRelatedContext?.type === "Playlist" ? (originalQueueRelatedContext?.id || "") : "",
-              limit: "50"
+              seedPlaylistId:
+                originalQueueRelatedContext?.type === "Playlist"
+                  ? originalQueueRelatedContext?.id || ""
+                  : "",
+              limit: "50",
             });
             // Add exclude as query param (repeat for each)
-            exclude.forEach(id => params.append("exclude", id));
+            exclude.forEach((id) => params.append("exclude", id));
             // Call your recommendations route
             const res = await fetch(`/api/recommendations?${params}`);
             const data = await res.json();
@@ -227,28 +248,28 @@ export const PlayerProvider = ({ children }) => {
               // Play the first recommended song immediately
               setUserInsertQueue([]); // clear any old user queue
               setCurrentSong(data.songs[0]);
-              
+
               setIsPlaying(true);
               // Optionally, add the rest to userInsertQueue if more than 1
               if (data.songs.length > 1) {
                 setUserInsertQueue(data.songs.slice(1));
               }
               setAutoplayEnabled(true);
-              toast({text : "Autoplaying Similar Songs"})
+              toast({ text: "Autoplaying Similar Songs" });
             } else {
               // No recommendations, just stop
-              toast({text : "We can't find similar songs"})
+              toast({ text: "We can't find similar songs" });
               setIsPlaying(false);
               setAutoplayEnabled(false);
             }
           } catch (err) {
             console.error("Autoplay/Recommendation failed:", err);
-            toast({text : `Autoplay/Recommendation failed: ${err}`})
+            toast({ text: `Autoplay/Recommendation failed: ${err}` });
             setIsPlaying(false);
             setAutoplayEnabled(false);
           }
         } else {
-          toast({text : "We can't find similar songs"})
+          toast({ text: "We can't find similar songs" });
           setIsPlaying(false);
           setAutoplayEnabled(false);
         }
@@ -259,10 +280,10 @@ export const PlayerProvider = ({ children }) => {
     // Play next song in order
     setCurrentPlayOrderIndex(nextIndex);
     setCurrentSong(originalQueue[playOrder[nextIndex]]);
-    if(originalQueueRelatedContext){
-      setContext(originalQueueRelatedContext)
+    if (originalQueueRelatedContext) {
+      setContext(originalQueueRelatedContext);
     }
-    
+
     setIsPlaying(true);
   }, [
     currentPlayOrderIndex,
@@ -271,7 +292,7 @@ export const PlayerProvider = ({ children }) => {
     userInsertQueue,
     repeatMode,
     autoplayEnabled,
-    currentSong
+    currentSong,
   ]);
 
   // Previous track logic
@@ -289,29 +310,26 @@ export const PlayerProvider = ({ children }) => {
         const lastIndex = playOrder.length - 1;
         setCurrentPlayOrderIndex(lastIndex);
         setCurrentSong(originalQueue[playOrder[lastIndex]]);
-        
       } else {
         // Restart first track
         setCurrentPlayOrderIndex(0);
         setCurrentSong(originalQueue[playOrder[0]]);
-        
       }
       return;
     }
 
     setCurrentPlayOrderIndex(prevIndex);
     setCurrentSong(originalQueue[playOrder[prevIndex]]);
-    
   }, [currentPlayOrderIndex, playOrder, originalQueue, repeatMode]);
 
   // Queue management
   const addToQueue = useCallback((songs) => {
-    setUserInsertQueue(prev => [...prev, ...songs]);
+    setUserInsertQueue((prev) => [...prev, ...songs]);
     setAutoplayEnabled(false);
   }, []);
 
   const playNext = useCallback((songs) => {
-    setUserInsertQueue(prev => [...songs, ...prev]);
+    setUserInsertQueue((prev) => [...songs, ...prev]);
     setAutoplayEnabled(false);
   }, []);
 
@@ -326,8 +344,14 @@ export const PlayerProvider = ({ children }) => {
     setIsShuffling(newShuffle);
 
     if (originalQueue.length > 0) {
-      const currentIndex = originalQueue.findIndex(song => song._id === currentSong._id);
-      const newPlayOrder = buildPlayOrder(originalQueue.length, currentIndex, newShuffle);
+      const currentIndex = originalQueue.findIndex(
+        (song) => song._id === currentSong._id
+      );
+      const newPlayOrder = buildPlayOrder(
+        originalQueue.length,
+        currentIndex,
+        newShuffle
+      );
       setPlayOrder(newPlayOrder);
       setCurrentPlayOrderIndex(newPlayOrder.indexOf(currentIndex));
     }
@@ -347,15 +371,17 @@ export const PlayerProvider = ({ children }) => {
     const state = {
       currentSong: currentSong._id,
       context,
-      originalQueue: originalQueue.map(s => s._id),
+      originalQueue: originalQueue.map((s) => s._id),
       originalQueueRelatedContext,
       playOrder,
       currentPlayOrderIndex,
-      userInsertQueue: userInsertQueue.map(s => (typeof s === "object" ? s._id : s)),
+      userInsertQueue: userInsertQueue.map((s) =>
+        typeof s === "object" ? s._id : s
+      ),
       isShuffling,
       repeatMode,
       autoplayEnabled,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
     // Save to localStorage
@@ -373,7 +399,19 @@ export const PlayerProvider = ({ children }) => {
     //     console.error("Failed to persist playback state:", err);
     //   }
     // }
-  }, [currentSong, context, originalQueueRelatedContext, originalQueue, playOrder, currentPlayOrderIndex, userInsertQueue, isShuffling, repeatMode, autoplayEnabled, session]);
+  }, [
+    currentSong,
+    context,
+    originalQueueRelatedContext,
+    originalQueue,
+    playOrder,
+    currentPlayOrderIndex,
+    userInsertQueue,
+    isShuffling,
+    repeatMode,
+    autoplayEnabled,
+    session,
+  ]);
 
   // Hydrate playback state on mount
   useEffect(() => {
@@ -414,7 +452,7 @@ export const PlayerProvider = ({ children }) => {
             const res = await fetch(`/api/play/song/bulk`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ songIds })
+              body: JSON.stringify({ songIds }),
             });
             const data = await res.json();
             return data.songs || [];
@@ -426,7 +464,7 @@ export const PlayerProvider = ({ children }) => {
 
         // Restore basic state first
         setContext(finalData.context);
-        setOriginalQueueRelatedContext(finalData.originalQueueRelatedContext)
+        setOriginalQueueRelatedContext(finalData.originalQueueRelatedContext);
         setPlayOrder(finalData.playOrder || []);
         setCurrentPlayOrderIndex(finalData.currentPlayOrderIndex || 0);
         setIsShuffling(finalData.isShuffling || false);
@@ -443,7 +481,7 @@ export const PlayerProvider = ({ children }) => {
 
         if (finalData.originalQueue && finalData.originalQueue.length > 0) {
           const songs = await populateSongs(finalData.originalQueue);
-        setOriginalQueue(songs);
+          setOriginalQueue(songs);
         }
 
         if (finalData.userInsertQueue && finalData.userInsertQueue.length > 0) {
@@ -458,9 +496,26 @@ export const PlayerProvider = ({ children }) => {
 
   // Debounced persistence (exclude positionSec to avoid frequent writes)
   useEffect(() => {
-    const timeoutId = setTimeout(persistPlaybackState, 300);
+    const timeoutId = setTimeout(
+      () => {
+        if (session && pathname !== "/login") persistPlaybackState();
+      },
+
+      300
+    );
     return () => clearTimeout(timeoutId);
-  }, [currentSong, context, originalQueueRelatedContext, originalQueue, playOrder, currentPlayOrderIndex, userInsertQueue, isShuffling, repeatMode, autoplayEnabled]);
+  }, [
+    currentSong,
+    context,
+    originalQueueRelatedContext,
+    originalQueue,
+    playOrder,
+    currentPlayOrderIndex,
+    userInsertQueue,
+    isShuffling,
+    repeatMode,
+    autoplayEnabled,
+  ]);
 
   // Persist on tab/window close to reduce restart-to-0 issues
   useEffect(() => {
@@ -469,23 +524,36 @@ export const PlayerProvider = ({ children }) => {
         const state = {
           currentSong: currentSong?._id,
           context,
-          originalQueue: originalQueue.map(s => s._id),
+          originalQueue: originalQueue.map((s) => s._id),
           originalQueueRelatedContext,
           playOrder,
           currentPlayOrderIndex,
-          userInsertQueue: userInsertQueue.map(s => (typeof s === "object" ? s._id : s)),
+          userInsertQueue: userInsertQueue.map((s) =>
+            typeof s === "object" ? s._id : s
+          ),
           isShuffling,
           repeatMode,
           autoplayEnabled,
           // No position persistence (using currentTimeRef only during session)
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         };
         localStorage.setItem("spotify.playbackState", JSON.stringify(state));
       } catch {}
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [currentSong, context, originalQueue, originalQueueRelatedContext, playOrder, currentPlayOrderIndex, userInsertQueue, isShuffling, repeatMode, autoplayEnabled]);
+  }, [
+    currentSong,
+    context,
+    originalQueue,
+    originalQueueRelatedContext,
+    playOrder,
+    currentPlayOrderIndex,
+    userInsertQueue,
+    isShuffling,
+    repeatMode,
+    autoplayEnabled,
+  ]);
 
   // When user changes context, disable autoplay
   const handlePlayFromType = async (item) => {
@@ -495,9 +563,8 @@ export const PlayerProvider = ({ children }) => {
       try {
         const res = await fetch(`/api/play/${item?.type}/${item?._id}`);
         const data = await res.json();
-   
-        play(data.songs, data.current, data.context);
 
+        play(data.songs, data.current, data.context);
       } catch (err) {
         console.error("Failed to play:", err);
       }
@@ -515,14 +582,38 @@ export const PlayerProvider = ({ children }) => {
 
   return (
     <PlayerContext.Provider
-      value={{ 
-        currentSong, context, play, handlePlayFromType, conditionCheckForSong, 
-        openQueue, setOpenQueue, isPlaying, setIsPlaying, durationRef, currentTimeRef, audioRef,
+      value={{
+        currentSong,
+        context,
+        play,
+        handlePlayFromType,
+        conditionCheckForSong,
+        openQueue,
+        setOpenQueue,
+        isPlaying,
+        setIsPlaying,
+        durationRef,
+        currentTimeRef,
+        audioRef,
         // NEW
-        originalQueue, playOrder, currentPlayOrderIndex, userInsertQueue, setUserInsertQueue,
-        isShuffling, repeatMode, autoplayEnabled,
-        nextTrack, prevTrack, toggleShuffle, cycleRepeat, addToQueue, playNext, clearUserInsertQueue,
-        setAutoplayEnabled , playFromUserInsertQueue , originalQueueRelatedContext
+        originalQueue,
+        playOrder,
+        currentPlayOrderIndex,
+        userInsertQueue,
+        setUserInsertQueue,
+        isShuffling,
+        repeatMode,
+        autoplayEnabled,
+        nextTrack,
+        prevTrack,
+        toggleShuffle,
+        cycleRepeat,
+        addToQueue,
+        playNext,
+        clearUserInsertQueue,
+        setAutoplayEnabled,
+        playFromUserInsertQueue,
+        originalQueueRelatedContext,
       }}
     >
       {children}

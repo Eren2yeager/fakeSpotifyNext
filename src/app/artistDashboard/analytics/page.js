@@ -98,13 +98,16 @@ const ArtistOverview = () => {
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Top Performing Songs</h3>
             <div className="space-y-4 w-full">
-              {artist?.songs?.map((song) => (
-                <ArtistSongRow key={song._id} song={song}>
-                  <Badge variant={song.album ? "default" : "secondary"}>
-                    {song.album ? "Album" : "Single"}
-                  </Badge>
-                </ArtistSongRow>
-              ))}
+              {artist?.songs
+                ?.slice() // make a shallow copy to avoid mutating original
+                .sort((a, b) => (b.views || 0) - (a.views || 0))
+                .map((song) => (
+                  <ArtistSongRow key={song._id} song={song}>
+                    <Badge variant={song.album ? "default" : "secondary"}>
+                      {song.album ? "Album" : "Single"}
+                    </Badge>
+                  </ArtistSongRow>
+                ))}
             </div>
           </Card>
         </div>

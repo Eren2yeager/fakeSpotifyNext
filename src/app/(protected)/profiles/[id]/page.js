@@ -19,8 +19,7 @@ import HorizentalItemsList from "@/Components/horizentalLists/horizentalItemsLis
 import EditProfileModal from "@/Components/popups/EditProfileModal";
 import { useUser } from "@/Contexts/userContex";
 import { useSession } from "next-auth/react";
-import BecomeArtistDialog from "@/Components/popups/BecomeArtistDialog";
-import { useSpotifyToast } from "@/Contexts/SpotifyToastContext";
+
 import ProfileThreeDots from "@/Components/Helper/profileThreeDots";
 import { useParams } from "next/navigation";
 import Followbutton from "@/Components/artistsComponents/followbutton";
@@ -306,7 +305,9 @@ const Profile = () => {
                   )}
 
                   {session && session?.user && slug === session?.user._id && (
-                    <ProfileThreeDots currentUser={profile} />
+                    <ProfileThreeDots currentUser={profile}               onUpdate={() => {
+                      setIsUpdated(true);
+                    }} />
                   )}
                 </div>
                 {publicPlaylists.length > 0 && (

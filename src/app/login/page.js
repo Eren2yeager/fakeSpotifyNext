@@ -7,8 +7,9 @@ import { FaGithub, FaGoogle } from "react-icons/fa";
  function LoginPage() {
 
 
-
-
+//  no session related saves on login
+  localStorage.setItem("recentSearchesArray", []);
+  localStorage.setItem("spotify.playbackState", null);
 
    const handleSignIn = async (provider) => {
     await signIn(provider, { callbackUrl: '/' }); // NextAuth will redirect to home after login

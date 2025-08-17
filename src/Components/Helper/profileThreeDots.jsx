@@ -2,7 +2,7 @@ import { BsThreeDots } from "react-icons/bs";
 
 import React, { useState , useEffect } from "react";
 import ProfileThreeDotsPopUp from "../popups/profileThreeDotsPop";
-const ProfileThreeDots = ({ currentUser }) => {
+const ProfileThreeDots = ({ currentUser , onUpdate }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [anchor, setAnchor] = useState(null)
   
@@ -42,6 +42,7 @@ const ProfileThreeDots = ({ currentUser }) => {
             onClose={() => {
               setShowPopup(false);
             }}
+            onUpdate={onUpdate}
           />
         
       )}

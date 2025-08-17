@@ -219,9 +219,9 @@ setShowLibrary} = useOtherContexts()
   };
 
   useEffect(() => {
-    startTransition(() => {
+    startTransition(async () => {
       if (!library) {
-        fetchLibrary();
+        await fetchLibrary();
       }
     });
   }, [library]);

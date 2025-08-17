@@ -166,7 +166,7 @@ function SyncedLyrics({
         <>
           {wantHeading !== false && (
             <div
-              className="w-full h-12 backdrop-blur-2xl sticky top-0  px-3 py-2 rounded-t-xl text-md font-bold flex justify-between "
+              className={`w-full ${lyricsFullScreen ? "h-15" : "h-10"}  backdrop-blur-2xl sticky top-0  px-5 py-3 rounded-t-xl text-md font-bold flex justify-between `}
               style={{ background: lighestBg }}
             >
               {!lyricsFullScreen && (
@@ -196,7 +196,7 @@ function SyncedLyrics({
               {lyricsFullScreen && (
                 <>
                   <button
-                    className="absolute left-0 p-1 rounded-full transition flex items-center"
+                    className="absolute left-0 ml-5 py-1 rounded-full transition flex items-center"
                     title="Maximize2 Lyrics"
                     onClick={() => setLyricsFullScreen(false)}
                   >
@@ -227,7 +227,7 @@ function SyncedLyrics({
               }}
             ></div>
 
-            <div className=" px-3 pb-4 space-y-2 overflow-x-hidden">
+            <div className=" px-5 pb-4 space-y-2 overflow-x-hidden">
               {lyrics.length === 0 && (
                 <p className="text-sm text-white/60 text-center">
                   No lyrics available.
@@ -269,7 +269,7 @@ function SyncedLyrics({
             ></div>
           </div>
           {lyricsFullScreen && (
-            <div className="w-[100%] h-fit p-3">
+            <div className="w-[100%] h-fit p-5">
               <div className="w-full">
                 <LiveSeekbar showTime={true} />
               </div>

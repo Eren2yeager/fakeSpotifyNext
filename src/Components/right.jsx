@@ -320,7 +320,7 @@ const Right = () => {
                       size={15}
                       title="minimize"
                       disabled={isPending}
-                      onClick={handleFullScreen}
+                      onClick={isPending ? undefined : handleFullScreen}
                     />
                   ) : (
                     <Maximize2
@@ -330,7 +330,7 @@ const Right = () => {
                       size={15}
                       title="maximize"
                       disabled={isPending}
-                      onClick={handleFullScreen}
+                      onClick={isPending ? undefined : handleFullScreen}
                     />
                   )}
                 </span>

@@ -26,7 +26,7 @@ const ImagePreviewer = () => {
               <img
                 src={imagefullViewSrc}
                 alt="Full View"
-                className="max-w-[70vw]  sm:max-w-[500px] sm:max-h-[500px] object-cover shadow-2xl shadow-zinc-950"
+                className="max-w-[70vw]  sm:max-w-[800px] sm:max-h-[800px] object-cover shadow-2xl shadow-zinc-950"
                 initial={{ scale: 0.98, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.98, opacity: 0 }}

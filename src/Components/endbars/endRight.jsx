@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useContext,
+  useTransition,
+} from "react";
 
 import { useOtherContexts } from "@/Contexts/otherContexts";
 import { MdLyrics } from "react-icons/md";
@@ -28,19 +34,22 @@ const EndRight = () => {
 
   const { openQueue, setOpenQueue, audioRef } = usePlayer();
   const [localValue, setLocalValue] = useState(0);
+  const [isPending, startTransition] = useTransition();
 
   const router = useRouter();
   const pathname = usePathname();
 
   const toggleLyricsRoute = () => {
-    // const next = !toggleLyrics;
-    // settoggleLyrics(next);
-    if (pathname !== "/lyrics") {
-      router.push("/lyrics");
-    } else {
-      // Optionally, if router.back() doesn't leave /lyrics, force push to home
-      router.push("/");
-    }
+    startTransition(async () => {
+      // const next = !toggleLyrics;
+      // settoggleLyrics(next);
+      if (pathname !== "/lyrics") {
+        router.push("/lyrics");
+      } else {
+        // Optionally, if router.back() doesn't leave /lyrics, force push to home
+        router.push("/");
+      }
+    });
   };
 
   const handleVolumeChange = (value) => {
@@ -59,34 +68,36 @@ const EndRight = () => {
     }
   };
 
-  const handleFullScreen = () => {
-    const newToggleFullScreen = !toggleFullScreen;
+  const handleFullScreen = async() => {
+    startTransition(async () => {
+      const newToggleFullScreen = !toggleFullScreen;
 
-    // Update context state as before
-    if (showRight) {
-      setToggleFullScreen(newToggleFullScreen);
-    } else {
-      setShowRight(true);
-      if (window.innerWidth <= 1280) {
-        setShowLibrary(false);
+      // Update context state as before
+      if (showRight) {
+        setToggleFullScreen(newToggleFullScreen);
+      } else {
+        setShowRight(true);
+        if (window.innerWidth <= 1280) {
+          setShowLibrary(false);
+        }
+        setToggleFullScreen(newToggleFullScreen);
       }
-      setToggleFullScreen(newToggleFullScreen);
-    }
-
-    
+    });
   };
-  const handleOpenQueue = () => {
-    const newOpenQueue = !openQueue;
+  const handleOpenQueue =  () => {
+    startTransition(async () => {
+      const newOpenQueue = !openQueue;
 
-    if (showRight) {
-      setOpenQueue(newOpenQueue);
-    } else {
-      setShowRight(true);
-      if (window.innerWidth <= 1280) {
-        setShowLibrary(false);
+      if (showRight) {
+         setOpenQueue(newOpenQueue);
+      } else {
+        setShowRight(true);
+        if (window.innerWidth <= 1280) {
+          setShowLibrary(false);
+        }
+         setOpenQueue(newOpenQueue);
       }
-      setOpenQueue(newOpenQueue);
-    }
+    })
   };
 
   return (
@@ -94,29 +105,33 @@ const EndRight = () => {
       <div className="flex w-auto  gap-3">
         {pathname == "/lyrics" ? (
           <MdLyrics
-            className="text-xl cursor-pointer"
+            className={`text-xl cursor-pointer ${isPending ? "opacity-50 pointer-events-none" : ""}`}
             title="Lyrics"
-            onClick={toggleLyricsRoute}
+            onClick={isPending ? undefined : toggleLyricsRoute}
+            disabled={isPending}
           />
         ) : (
           <MdOutlineLyrics
-            className="text-xl cursor-pointer"
+            className={`text-xl cursor-pointer ${isPending ? "opacity-50 pointer-events-none" : ""}`}
             title="Lyrics"
-            onClick={toggleLyricsRoute}
+            onClick={isPending ? undefined : toggleLyricsRoute}
+            disabled={isPending}
           />
         )}
 
         {openQueue ? (
           <HiQueueList
-            className="text-xl cursor-pointer"
+            className={`text-xl cursor-pointer ${isPending ? "opacity-50 pointer-events-none" : ""}`}
             title="Queue"
-            onClick={handleOpenQueue}
+            onClick={isPending ? undefined : handleOpenQueue}
+            disabled={isPending}
           />
         ) : (
           <HiOutlineQueueList
-            className="text-xl cursor-pointer"
+            className={`text-xl cursor-pointer ${isPending ? "opacity-50 pointer-events-none" : ""}`}
             title="Queue"
-            onClick={handleOpenQueue}
+            onClick={isPending ? undefined : handleOpenQueue}
+            disabled={isPending}
           />
         )}
       </div>
@@ -145,15 +160,17 @@ const EndRight = () => {
         />
         {toggleFullScreen ? (
           <GoScreenNormal
-            className="text-xl cursor-pointer transition-all duration-300 transform hover:scale-90"
+            className={`text-xl cursor-pointer transition-all duration-300 transform hover:scale-90 ${isPending ? "opacity-50 pointer-events-none" : ""}`}
             title="FullScreen"
-            onClick={handleFullScreen}
+            onClick={isPending ? undefined : handleFullScreen}
+            disabled={isPending}
           />
         ) : (
           <GoScreenFull
-            className="text-xl cursor-pointer transition-all duration-300 transform hover:scale-110"
+            className={`text-xl cursor-pointer transition-all duration-300 transform hover:scale-110 ${isPending ? "opacity-50 pointer-events-none" : ""}`}
             title="FullScreen"
-            onClick={handleFullScreen}
+            onClick={isPending ? undefined : handleFullScreen}
+            disabled={isPending}
           />
         )}
       </div>

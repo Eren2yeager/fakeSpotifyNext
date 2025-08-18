@@ -1,10 +1,15 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useTransition,
+} from "react";
 
 import { useOtherContexts } from "@/Contexts/otherContexts";
 import MarqueeDiv from "./Helper/marquee";
 import SuggestBgColor from "../functions/bgSuggester";
 import { motion } from "framer-motion";
-
 
 import { Maximize2, Minimize2 } from "lucide-react";
 import ShowMoreShowLess from "./Helper/showMoreShowLess";
@@ -50,6 +55,8 @@ const Right = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const [isUpdated, setIsUpdated] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
   useEffect(() => {
     setIsUpdated(false);
     if (!currentSong) return;
@@ -105,13 +112,22 @@ const Right = () => {
       );
     }
   });
-  const handleClick = (e) => {
-    if (toggleFullScreen) {
-      setToggleFullScreen(false);
-      // setShowRight(false);
-    } else {
-      setShowRight(!showRight);
-    }
+  const handleClick =  () => {
+    startTransition(async () => {
+      if (toggleFullScreen) {
+        await  setToggleFullScreen(false);
+        // setShowRight(false);
+      } else {
+        setShowRight(!showRight);
+      }
+    });
+  };
+  const handleFullScreen =   () => {
+    startTransition(async () => {
+      
+      // Update context state as before
+       await setToggleFullScreen(!toggleFullScreen);
+    })
   };
 
   React.useEffect(() => {
@@ -293,15 +309,29 @@ const Right = () => {
                   />
                 </div>
                 <span
-                  className="max-h-[100%] transition-all duration-300 hover:backdrop-blur-lg hidden sm:group-hover/right:block hover:bg-white/8  rounded-full "
-                  onClick={() => {
-                    setToggleFullScreen(!toggleFullScreen);
-                  }}
+                  className={`max-h-[100%] transition-all duration-300 hover:backdrop-blur-lg hidden sm:group-hover/right:block hover:bg-white/8  rounded-full `}
+                 
                 >
                   {toggleFullScreen ? (
-                    <Minimize2 className="cursor-pointer" size={15} title="minimize" />
+                    <Minimize2
+                      className={`cursor-pointer ${
+                    isPending ? "opacity-50 pointer-events-none" : ""
+                  }`}
+                      size={15}
+                      title="minimize"
+                      disabled={isPending}
+                      onClick={handleFullScreen}
+                    />
                   ) : (
-                    <Maximize2 className="cursor-pointer" size={15} title="maximize" />
+                    <Maximize2
+                    className={`cursor-pointer ${
+                      isPending ? "opacity-50 pointer-events-none" : ""
+                    }`}
+                      size={15}
+                      title="maximize"
+                      disabled={isPending}
+                      onClick={handleFullScreen}
+                    />
                   )}
                 </span>
               </div>
@@ -375,23 +405,28 @@ const Right = () => {
                   </div>
                 </div>
               </div>
-                { (window.innerWidth < 640 &&  currentSong?.lyrics && currentSong?.lyrics?.length > 0) && (
-              <div className="w-full h-fit py-5 pb-10">
-                  <SyncedLyrics
-                    lyrics={currentSong?.lyrics}
-
-                    options={{
-                      autoScroll: true,
-                      smoothScroll: true,
-                      scrollOffset: 0,
-                    }}
-                    className={"w-full h-50 rounded-xl shadow-2xl shadow-black  "}
-                    lineClasses={"text-xl"}
-                    previousLineClasses ={"text-white"}
-                    activeLineClasses={"text-white transform  transition-all duration-500"}
-                    nonActiveLineClasses={"text-black/80"}
-                  />
-              </div>
+              {window.innerWidth < 640 &&
+                currentSong?.lyrics &&
+                currentSong?.lyrics?.length > 0 && (
+                  <div className="w-full h-fit py-5 pb-10">
+                    <SyncedLyrics
+                      lyrics={currentSong?.lyrics}
+                      options={{
+                        autoScroll: true,
+                        smoothScroll: true,
+                        scrollOffset: 0,
+                      }}
+                      className={
+                        "w-full h-50 rounded-xl shadow-2xl shadow-black  "
+                      }
+                      lineClasses={"text-xl"}
+                      previousLineClasses={"text-white"}
+                      activeLineClasses={
+                        "text-white transform  transition-all duration-500"
+                      }
+                      nonActiveLineClasses={"text-black/80"}
+                    />
+                  </div>
                 )}
 
               <div

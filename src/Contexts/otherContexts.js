@@ -42,27 +42,60 @@ export function OtherContextsProvider({ children }) {
   }, [searchParams]); // re-run when router changes (URL changes)
 
   // When you want to update toggleFullScreen, update the URL (which will update state via useEffect)
+  // Using AbortController can help prevent overlapping router.push calls,
+  // but it may not fully prevent route freeze if the router implementation
+  // does not handle rapid repeated navigation gracefully.
+  // It helps by aborting previous navigation requests, but if the user clicks
+  // extremely rapidly, some router.push calls may still queue up.
+  // For best UX, consider also disabling the button while navigation is pending.
+
+  let setToggleFullScreenAbortController = null;
   const setToggleFullScreen = (value) => {
     if (typeof window !== "undefined" && router) {
+      // Abort any previous navigation if still pending
+      if (setToggleFullScreenAbortController) {
+        setToggleFullScreenAbortController.abort();
+      }
+      setToggleFullScreenAbortController = new AbortController();
+
       const params = new URLSearchParams(window.location.search);
       params.set("toggleFullScreen", value ? "true" : "false");
       const newUrl =
         window.location.pathname +
         (params.toString() ? `?${params.toString()}` : "");
-      router.push(newUrl, { scroll: false });
+      try {
+        // The signal option will abort the previous navigation if still pending.
+        // This reduces the chance of route freeze, but is not a 100% guarantee.
+        router.push(newUrl, { scroll: false, signal: setToggleFullScreenAbortController.signal });
+      } catch (e) {
+        // If signal not supported, fallback to normal push
+        router.push(newUrl, { scroll: false });
+      }
       setToggleFullScreenState(value);
     }
   };
 
   // When you want to update lyricsFullScreen, update the URL (which will update state via useEffect)
+  let setLyricsFullScreenAbortController = null;
   const setLyricsFullScreen = (value) => {
     if (typeof window !== "undefined" && router) {
+      // Abort any previous navigation if still pending
+      if (setLyricsFullScreenAbortController) {
+        setLyricsFullScreenAbortController.abort();
+      }
+      setLyricsFullScreenAbortController = new AbortController();
+
       const params = new URLSearchParams(window.location.search);
       params.set("lyricsFullScreen", value ? "true" : "false");
       const newUrl =
         window.location.pathname +
         (params.toString() ? `?${params.toString()}` : "");
-      router.push(newUrl, { scroll: false });
+      try {
+        router.push(newUrl, { scroll: false, signal: setLyricsFullScreenAbortController.signal });
+      } catch (e) {
+        // If signal not supported, fallback to normal push
+        router.push(newUrl, { scroll: false });
+      }
       setLyricsFullScreenState(value);
     }
   };

@@ -56,14 +56,28 @@ export const PlayerProvider = ({ children }) => {
   }, [searchParams]); // re-run when router changes (URL changes)
 
   // When you want to update openQueue, update the URL (which will update state via useEffect)
+  // Add an AbortController to prevent rapid route changes from repeated button clicks
+  let setOpenQueueAbortController = null;
   const setOpenQueue = (value) => {
     if (typeof window !== "undefined") {
+      // Abort any previous navigation if still pending
+      if (setOpenQueueAbortController) {
+        setOpenQueueAbortController.abort();
+      }
+      setOpenQueueAbortController = new AbortController();
+
       const params = new URLSearchParams(window.location.search);
       params.set("openQueue", value ? "true" : "false");
       const newUrl =
         window.location.pathname +
         (params.toString() ? `?${params.toString()}` : "");
-      router.push(newUrl, { scroll: false });
+      // router.push supports signal in Next.js 14+; fallback if not supported
+      try {
+        router.push(newUrl, { scroll: false, signal: setOpenQueueAbortController.signal });
+      } catch (e) {
+        // If signal not supported, fallback to normal push
+        router.push(newUrl, { scroll: false });
+      }
     }
   };
 

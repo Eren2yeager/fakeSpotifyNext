@@ -7,7 +7,7 @@ import MediaSession from "./mediaSession";
 const AudioComponent = () => {
 
 
-  const  {toggleFullScreen ,setToggleFullScreen , showRight, setShowRight , showPlaylists, setShowPlaylists} = useOtherContexts()
+  const  {toggleFullScreen ,setToggleFullScreen , showRight, setShowRight , showLibrary, setShowLibrary} = useOtherContexts()
 
 
   const { currentSong, isPlaying , setIsPlaying , durationRef , currentTimeRef , audioRef, nextTrack, context ,  prevTrack} = usePlayer();
@@ -27,7 +27,7 @@ const AudioComponent = () => {
           .then(() => {
             setShowRight(true);
             if(window.innerWidth <= 1280){
-              setShowPlaylists(false)
+              setShowLibrary(false)
             }
             setIsPlaying(true); // ✅ only after successful play
 

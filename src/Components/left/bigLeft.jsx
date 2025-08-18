@@ -218,14 +218,13 @@ setShowLibrary} = useOtherContexts()
     }
   };
 
-  useEffect(() => {
-    startTransition(async () => {
-      if (!library) {
-        await fetchLibrary();
-      }
-    });
-  }, [library]);
+  // useEffect(() => {
+  //   startTransition(async () => {
+  //       await fetchLibrary();
+  //   });
+  // }, []);
 
+    console.log("rendering big left")
   useEffect(() => {
     if (props.activeItem == 0) {
       setItems(library?.all);

@@ -22,8 +22,8 @@ const EndRight = () => {
     setToggleFullScreen,
     showRight,
     setShowRight,
-    showPlaylists,
-    setShowPlaylists,
+    showLibrary,
+    setShowLibrary,
   } = useOtherContexts();
 
   const { openQueue, setOpenQueue, audioRef } = usePlayer();
@@ -68,18 +68,12 @@ const EndRight = () => {
     } else {
       setShowRight(true);
       if (window.innerWidth <= 1280) {
-        setShowPlaylists(false);
+        setShowLibrary(false);
       }
       setToggleFullScreen(newToggleFullScreen);
     }
 
-    // Update the URL query parameter
-    const params = new URLSearchParams(window.location.search);
-    params.set("toggleFullScreen", newToggleFullScreen ? "true" : "false");
-    const newUrl =
-      window.location.pathname +
-      (params.toString() ? `?${params.toString()}` : "");
-    router.push(newUrl, { scroll: false });
+    
   };
   const handleOpenQueue = () => {
     const newOpenQueue = !openQueue;
@@ -89,7 +83,7 @@ const EndRight = () => {
     } else {
       setShowRight(true);
       if (window.innerWidth <= 1280) {
-        setShowPlaylists(false);
+        setShowLibrary(false);
       }
       setOpenQueue(newOpenQueue);
     }

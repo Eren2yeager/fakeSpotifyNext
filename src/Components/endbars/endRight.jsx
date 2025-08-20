@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  useContext,
-} from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 
 import { useOtherContexts } from "@/Contexts/otherContexts";
 import { MdLyrics } from "react-icons/md";
@@ -32,19 +27,19 @@ const EndRight = () => {
     setShowLibrary,
   } = useOtherContexts();
 
-  const { openQueue, setOpenQueue, audioRef } = usePlayer();
+  const { openQueue, setOpenQueue, audioRef, currentSong } = usePlayer();
   const [localValue, setLocalValue] = useState(0);
 
   const router = useRouter();
   const pathname = usePathname();
 
   const toggleLyricsRoute = () => {
-      if (pathname !== "/lyrics") {
-        router.push("/lyrics");
-      } else {
-        // Optionally, if router.back() doesn't leave /lyrics, force push to home
-        router.push("/");
-      }
+    if (pathname !== "/lyrics") {
+      router.push("/lyrics");
+    } else {
+      // Optionally, if router.back() doesn't leave /lyrics, force push to home
+      router.push("/");
+    }
   };
 
   const handleVolumeChange = (value) => {
@@ -64,51 +59,59 @@ const EndRight = () => {
   };
 
   const handleFullScreen = () => {
-      const newToggleFullScreen = !toggleFullScreen;
+    const newToggleFullScreen = !toggleFullScreen;
 
-      // Update context state as before
-      if (showRight) {
-        setToggleFullScreen(newToggleFullScreen);
-      } else {
-        setShowRight(true);
-        if (window.innerWidth <= 1280) {
-          setShowLibrary(false);
-        }
-        setToggleFullScreen(newToggleFullScreen);
+    // Update context state as before
+    if (showRight) {
+      setToggleFullScreen(newToggleFullScreen);
+    } else {
+      setShowRight(true);
+      if (window.innerWidth <= 1280) {
+        setShowLibrary(false);
       }
+      setToggleFullScreen(newToggleFullScreen);
+    }
   };
 
   const handleOpenQueue = () => {
-      const newOpenQueue = !openQueue;
+    const newOpenQueue = !openQueue;
 
-      if (showRight) {
-         setOpenQueue(newOpenQueue);
-      } else {
-        setShowRight(true);
-        if (window.innerWidth <= 1280) {
-          setShowLibrary(false);
-        }
-         setOpenQueue(newOpenQueue);
+    if (showRight) {
+      setOpenQueue(newOpenQueue);
+    } else {
+      setShowRight(true);
+      if (window.innerWidth <= 1280) {
+        setShowLibrary(false);
       }
+      setOpenQueue(newOpenQueue);
+    }
   };
 
-  console.log("endright",toggleFullScreen,showRight ,openQueue , window.location.pathname)
+  console.log(
+    "endright",
+    toggleFullScreen,
+    showRight,
+    openQueue,
+    window.location.pathname
+  );
   return (
     <div className="max-w-[100%] h-[100%] flex flex-col items-end xl:flex-row  xl:justify-end xl:items-center gap-2 xl:gap-5  p-3">
       <div className="flex w-auto  gap-3">
-        {pathname == "/lyrics" ? (
-          <MdLyrics
-            className={`text-xl cursor-pointer `}
-            title="Lyrics"
-            onClick={toggleLyricsRoute}
-          />
-        ) : (
-          <MdOutlineLyrics
-            className={`text-xl cursor-pointer `}
-            title="Lyrics"
-            onClick={toggleLyricsRoute}
-          />
-        )}
+        {currentSong?.lyrics &&
+          currentSong?.lyrics?.length > 0 &&
+          (pathname == "/lyrics" ? (
+            <MdLyrics
+              className={`text-xl cursor-pointer `}
+              title="Lyrics"
+              onClick={toggleLyricsRoute}
+            />
+          ) : (
+            <MdOutlineLyrics
+              className={`text-xl cursor-pointer `}
+              title="Lyrics"
+              onClick={toggleLyricsRoute}
+            />
+          ))}
 
         {openQueue ? (
           <HiQueueList

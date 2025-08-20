@@ -11,7 +11,6 @@ import {
 import { useSession } from "next-auth/react";
 import { useSpotifyToast } from "./SpotifyToastContext";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useNavWatchdog } from "./NavWatchdogContext";
 
 const PlayerContext = createContext();
 
@@ -24,7 +23,6 @@ export const PlayerProvider = ({ children }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
-  const nav = useNavWatchdog && useNavWatchdog();
 
   // ===================================================
   const [currentSong, setCurrentSong] = useState(null);
@@ -47,10 +45,7 @@ export const PlayerProvider = ({ children }) => {
   const currentTimeRef = useRef("");
   const audioRef = useRef();
   // openQueue state is synced with the "openQueue" query param in the URL
-  const [openQueue, updateOpenQueue] = useState(false);
-
-  // Debounce timer for URL updates
-  const openQueueTimerRef = useRef(null);
+  // const [openQueue, updateOpenQueue] = useState(false);
 
   // useEffect(() => {
   //   if (typeof window !== "undefined") {
@@ -60,64 +55,32 @@ export const PlayerProvider = ({ children }) => {
   //   }
   // }, [searchParams]); // re-run when router changes (URL changes)
 
-  // Debounced URL update function (supports push or replace)
-  const updateURLParam = useCallback((paramName, value, mode = "replace") => {
-    if (typeof window === "undefined") return;
-
-    const params = new URLSearchParams(window.location.search);
-    params.set(paramName, value ? "true" : "false");
-    const newUrl =
-      window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
-
-    try {
-      if (mode === "push") {
-        router.push(newUrl, { scroll: false });
-      } else {
-        router.replace(newUrl, { scroll: false });
-      }
-    } catch (e) {
-      // Fallback to history API if router errors
-      if (mode === "push") {
-        window.history.pushState({}, "", newUrl);
-      } else {
-        window.history.replaceState({}, "", newUrl);
-      }
-    }
-  }, [router]);
-
-  // When you want to update openQueue, update the URL with debouncing
-  const setOpenQueue = useCallback((value) => {
-    // Update state immediately for responsive UI
-    updateOpenQueue(value);
-    
-    // // Clear existing timer
-    // if (openQueueTimerRef.current) {
-    //   clearTimeout(openQueueTimerRef.current);
-    // }
-    
-    // // Debounce URL update to prevent rapid changes
-    // openQueueTimerRef.current = setTimeout(() => {
-    //   const mode = value ? "push" : "replace"; // open -> push, close -> replace
-    //   if (nav && nav.updateQueryParamDebounced) {
-    //     nav.updateQueryParamDebounced("openQueue", value, mode, {
-    //       onStall: () => {
-    //         if (toast) toast({ text: "Please avoid rapid clicks" });
-    //       },
-    //     });
-    //   } else {
-    //     updateURLParam("openQueue", value, mode);
+  // When you want to update openQueue, update the URL (which will update state via useEffect)
+  // Add an AbortController to prevent rapid route changes from repeated button clicks
+  // let setOpenQueueAbortController = null;
+  const setOpenQueue = (value) => {
+    // if (typeof window !== "undefined") {
+    //   // Abort any previous navigation if still pending
+    //   if (setOpenQueueAbortController) {
+    //     setOpenQueueAbortController.abort();
     //   }
-    // }, 100); // 100ms debounce
-  }, [updateURLParam, nav, toast]);
+    //   setOpenQueueAbortController = new AbortController();
 
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (openQueueTimerRef.current) {
-        clearTimeout(openQueueTimerRef.current);
-      }
-    };
-  }, []);
+    //   const params = new URLSearchParams(window.location.search);
+    //   params.set("openQueue", value ? "true" : "false");
+    //   const newUrl =
+    //     window.location.pathname +
+    //     (params.toString() ? `?${params.toString()}` : "");
+    //   // router.push supports signal in Next.js 14+; fallback if not supported
+    //   try {
+    //     router.replace(newUrl, { scroll: false, signal: setOpenQueueAbortController.signal });
+    //   } catch (e) {
+    //     // If signal not supported, fallback to normal push
+    //     router.replace(newUrl, { scroll: false });
+    //   }
+      updateOpenQueue(value);
+    // }
+  };
 
   // for checks
   const [isUserInsertedQueuePlaying, setIsUserInsertedQueuePlaying] =
@@ -675,4 +638,3 @@ export const PlayerProvider = ({ children }) => {
     </PlayerContext.Provider>
   );
 };
-

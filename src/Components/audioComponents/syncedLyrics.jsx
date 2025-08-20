@@ -227,7 +227,7 @@ function SyncedLyrics({
               }}
             ></div>
 
-            <div className=" pb-4 space-y-2 overflow-x-hidden mx-5">
+            <div className=" pb-4 space-y-2 overflow-x-hidden ">
               {lyrics.length === 0 && (
                 <p className="text-sm text-white/60 text-center">
                   No lyrics available.
@@ -237,7 +237,7 @@ function SyncedLyrics({
                 <div
                   key={`${i}-${l.time}`}
                   ref={(el) => (lineRefs.current[i] = el)}
-                  className={`transition-all duration-500 leading-relaxed font-extrabold hover:underline cursor-pointer  ${lineClasses} ${
+                  className={`transition-all duration-500 leading-relaxed font-extrabold hover:underline cursor-pointer mx-5  ${lineClasses} ${
                     i < activeIdx
                       ? previousLineClasses
                       : i === activeIdx

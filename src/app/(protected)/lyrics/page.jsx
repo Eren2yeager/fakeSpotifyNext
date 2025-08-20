@@ -42,7 +42,7 @@ const Page = () => {
           }}
           image={currentSong?.image}
           className={"w-full h-full rounded-xl shadow-2xl shadow-black "}
-          lineClasses ={"text-2xl sm:text-4xl text-center  mx-5"}
+          lineClasses ={"text-2xl sm:text-4xl text-center  px-5"}
           wantHeading={false}
           nonActiveLineClasses={"text-white/50"}
           activeLineClasses={"text-white transform scale-110 transition-all duration-500"}

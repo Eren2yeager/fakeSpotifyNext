@@ -45,7 +45,7 @@ export const PlayerProvider = ({ children }) => {
   const currentTimeRef = useRef("");
   const audioRef = useRef();
   // openQueue state is synced with the "openQueue" query param in the URL
-  // const [openQueue, updateOpenQueue] = useState(false);
+  const [openQueue, updateOpenQueue] = useState(false);
 
   // useEffect(() => {
   //   if (typeof window !== "undefined") {

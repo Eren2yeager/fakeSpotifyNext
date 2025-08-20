@@ -1,5 +1,5 @@
 "use client";
-import React, {useState, useContext ,useEffect } from "react";
+import React, {useState, useContext ,useEffect, useRef } from "react";
 
 import { useOtherContexts } from "@/Contexts/otherContexts";
 import { GoHome, GoHomeFill } from "react-icons/go";
@@ -22,6 +22,7 @@ const SmallEndbar = (props) => {
  
   
   const  {toggleFullScreen ,setToggleFullScreen , showRight, setShowRight} = useOtherContexts()
+  const toggleGuardRef = useRef(false);
 
   const handleFullScreen = () => {
     if (showRight) {
@@ -30,6 +31,19 @@ const SmallEndbar = (props) => {
       setShowRight(true);
       setToggleFullScreen(!toggleFullScreen);
     }
+  };
+  const onCardClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (toggleGuardRef.current) return;
+    toggleGuardRef.current = true;
+    // Coalesce rapid clicks
+    requestAnimationFrame(() => {
+      handleFullScreen();
+      setTimeout(() => {
+        toggleGuardRef.current = false;
+      }, 200); // small lock to avoid spamming navigation updates
+    });
   };
   
   const [selectedSong, setSelectedSong] = useState(null);
@@ -64,7 +78,7 @@ const SmallEndbar = (props) => {
       }`}
     >
       {currentSong !== null && (
-        <div onClick={handleFullScreen}>
+        <div onClick={onCardClick}>
           <RectangularSongCard
             marquee={{ show: true }}
             showPlayButton={true}

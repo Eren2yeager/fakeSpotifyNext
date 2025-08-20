@@ -3,7 +3,6 @@ import React, {
   useRef,
   useEffect,
   useContext,
-  useTransition,
 } from "react";
 
 import { useOtherContexts } from "@/Contexts/otherContexts";
@@ -20,6 +19,7 @@ import { HiOutlineQueueList } from "react-icons/hi2";
 import { usePlayer } from "@/Contexts/playerContext";
 import CustomInputRange from "../Helper/customInputRange";
 import { useRouter, usePathname } from "next/navigation";
+
 const EndRight = () => {
   const [sliderValue, setsliderValue] = useState(100);
 
@@ -34,22 +34,17 @@ const EndRight = () => {
 
   const { openQueue, setOpenQueue, audioRef } = usePlayer();
   const [localValue, setLocalValue] = useState(0);
-  const [isPending, startTransition] = useTransition();
 
   const router = useRouter();
   const pathname = usePathname();
 
   const toggleLyricsRoute = () => {
-    startTransition(async () => {
-      // const next = !toggleLyrics;
-      // settoggleLyrics(next);
       if (pathname !== "/lyrics") {
         router.push("/lyrics");
       } else {
         // Optionally, if router.back() doesn't leave /lyrics, force push to home
         router.push("/");
       }
-    });
   };
 
   const handleVolumeChange = (value) => {
@@ -68,8 +63,7 @@ const EndRight = () => {
     }
   };
 
-  const handleFullScreen = async() => {
-    startTransition(async () => {
+  const handleFullScreen = () => {
       const newToggleFullScreen = !toggleFullScreen;
 
       // Update context state as before
@@ -82,10 +76,9 @@ const EndRight = () => {
         }
         setToggleFullScreen(newToggleFullScreen);
       }
-    });
   };
-  const handleOpenQueue =  () => {
-    startTransition(async () => {
+
+  const handleOpenQueue = () => {
       const newOpenQueue = !openQueue;
 
       if (showRight) {
@@ -97,41 +90,37 @@ const EndRight = () => {
         }
          setOpenQueue(newOpenQueue);
       }
-    })
   };
 
+  console.log("endright",toggleFullScreen,showRight ,openQueue , window.location.pathname)
   return (
     <div className="max-w-[100%] h-[100%] flex flex-col items-end xl:flex-row  xl:justify-end xl:items-center gap-2 xl:gap-5  p-3">
       <div className="flex w-auto  gap-3">
         {pathname == "/lyrics" ? (
           <MdLyrics
-            className={`text-xl cursor-pointer ${isPending ? "opacity-50 pointer-events-none" : ""}`}
+            className={`text-xl cursor-pointer `}
             title="Lyrics"
-            onClick={isPending ? undefined : toggleLyricsRoute}
-            disabled={isPending}
+            onClick={toggleLyricsRoute}
           />
         ) : (
           <MdOutlineLyrics
-            className={`text-xl cursor-pointer ${isPending ? "opacity-50 pointer-events-none" : ""}`}
+            className={`text-xl cursor-pointer `}
             title="Lyrics"
-            onClick={isPending ? undefined : toggleLyricsRoute}
-            disabled={isPending}
+            onClick={toggleLyricsRoute}
           />
         )}
 
         {openQueue ? (
           <HiQueueList
-            className={`text-xl cursor-pointer ${isPending ? "opacity-50 pointer-events-none" : ""}`}
+            className={`text-xl cursor-pointer`}
             title="Queue"
-            onClick={isPending ? undefined : handleOpenQueue}
-            disabled={isPending}
+            onClick={handleOpenQueue}
           />
         ) : (
           <HiOutlineQueueList
-            className={`text-xl cursor-pointer ${isPending ? "opacity-50 pointer-events-none" : ""}`}
+            className={`text-xl cursor-pointer`}
             title="Queue"
-            onClick={isPending ? undefined : handleOpenQueue}
-            disabled={isPending}
+            onClick={handleOpenQueue}
           />
         )}
       </div>
@@ -160,17 +149,15 @@ const EndRight = () => {
         />
         {toggleFullScreen ? (
           <GoScreenNormal
-            className={`text-xl cursor-pointer transition-all duration-300 transform hover:scale-90 ${isPending ? "opacity-50 pointer-events-none" : ""}`}
+            className={`text-xl cursor-pointer transition-all duration-300 transform hover:scale-90`}
             title="FullScreen"
-            onClick={isPending ? undefined : handleFullScreen}
-            disabled={isPending}
+            onClick={handleFullScreen}
           />
         ) : (
           <GoScreenFull
-            className={`text-xl cursor-pointer transition-all duration-300 transform hover:scale-110 ${isPending ? "opacity-50 pointer-events-none" : ""}`}
+            className={`text-xl cursor-pointer transition-all duration-300 transform hover:scale-110`}
             title="FullScreen"
-            onClick={isPending ? undefined : handleFullScreen}
-            disabled={isPending}
+            onClick={handleFullScreen}
           />
         )}
       </div>

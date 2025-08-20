@@ -227,7 +227,7 @@ function SyncedLyrics({
               }}
             ></div>
 
-            <div className=" px-5 pb-4 space-y-2 overflow-x-hidden mx-5">
+            <div className=" pb-4 space-y-2 overflow-x-hidden mx-5">
               {lyrics.length === 0 && (
                 <p className="text-sm text-white/60 text-center">
                   No lyrics available.

@@ -8,6 +8,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useNavWatchdog } from "@/Contexts/NavWatchdogContext";
 import { FaArrowLeft } from "react-icons/fa6";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { IoAddSharp } from "react-icons/io5";
@@ -32,6 +33,7 @@ export default function QueueAndRecentsSide({ open, onClose, className, style })
   const [expanded, setExpanded] = useState({});
   const popupRef = useRef(null);
   const router = useRouter();
+  const nav = useNavWatchdog && useNavWatchdog();
 
   // Memoized remaining songs in queue
   const getRemainingSongs = useCallback(() => {
@@ -93,7 +95,10 @@ export default function QueueAndRecentsSide({ open, onClose, className, style })
           className="flex items-center justify-between text-gray-400 h-[60px] px-2 hover:bg-white/8 rounded-[5px] cursor-pointer"
           style={{ minWidth: 0, overflow: "hidden" }}
           onClick={() => {
-            if (id) router.push(`/${typeKey}s/${id}`);
+            if (id) {
+              const url = `/${typeKey}s/${id}`;
+              if (nav && nav.navigate) nav.navigate(url, "push"); else router.push(url);
+            }
           }}
         >
           <div className="flex items-center gap-3 min-w-0" style={{ minWidth: 0, overflow: "hidden" }}>
@@ -208,14 +213,16 @@ export default function QueueAndRecentsSide({ open, onClose, className, style })
         />
         <IoAddSharp className="transform rotate-45 ml-auto hidden sm:block" size={25} onClick={onClose} />
       </div>
-      <div className="w-full h-auto overflow-hidden">
+      <div className="w-full h-auto overflow-hidden pb-30">
         {activeItem === 0 ? (
           <>
             {!currentSong ? (
               <NotFound
                 icon={<HiOutlineQueueList size={40} />}
                 buttonText="Find Something to Play"
-                buttonOnClick={() => router.push("/search")}
+                buttonOnClick={() => {
+                  if (nav && nav.navigate) nav.navigate("/search", "push"); else router.push("/search");
+                }}
                 buttonColor="white"
                 text="Add to Your Queue"
                 position="center"

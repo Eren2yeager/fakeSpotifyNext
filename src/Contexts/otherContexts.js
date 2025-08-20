@@ -9,6 +9,8 @@ import {
 } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { useNavWatchdog } from "./NavWatchdogContext";
+import { useSpotifyToast } from "./SpotifyToastContext";
 
 const otherContexts = createContext();
 
@@ -20,6 +22,8 @@ export const useOtherContexts = () => useContext(otherContexts);
 export function OtherContextsProvider({ children }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const nav = useNavWatchdog && useNavWatchdog();
+  const toast = useSpotifyToast && useSpotifyToast();
 
   const [showRight, setShowRight] = useState(true);
   const [showLibrary, setShowLibrary] = useState(false);
@@ -30,75 +34,107 @@ export function OtherContextsProvider({ children }) {
   const [lyricsFullScreen, setLyricsFullScreenState] = useState(false);
   const [toggleFullScreen, setToggleFullScreenState] = useState(false);
 
+  // Debounce timers for URL updates
+  const toggleFullScreenTimerRef = useRef(null);
+  const lyricsFullScreenTimerRef = useRef(null);
+
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     const params = new URLSearchParams(window.location.search);
+  //     const toggleFullScreenQuery = params.get("toggleFullScreen");
+  //     setToggleFullScreenState(toggleFullScreenQuery === "true");
+
+  //     const lyricsFullScreenQuery = params.get("lyricsFullScreen");
+  //     setLyricsFullScreenState(lyricsFullScreenQuery === "true");
+  //   }
+  // }, [searchParams]); // re-run when router changes (URL changes)
+
+  // Debounced URL update function (supports push or replace)
+  const updateURLParam = useCallback((paramName, value, mode = "replace") => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    params.set(paramName, value ? "true" : "false");
+    const newUrl =
+      window.location.pathname + (params.toString() ? `?${params.toString()}` : "");
+
+    try {
+      if (mode === "push") {
+        router.push(newUrl, { scroll: false });
+      } else {
+        router.replace(newUrl, { scroll: false });
+      }
+    } catch (e) {
+      // Fallback to history API if router errors
+      if (mode === "push") {
+        window.history.pushState({}, "", newUrl);
+      } else {
+        window.history.replaceState({}, "", newUrl);
+      }
+    }
+  }, [router]);
+
+  // When you want to update toggleFullScreen, update the URL with debouncing
+  const setToggleFullScreen = useCallback((value) => {
+    // Update state immediately for responsive UI
+    setToggleFullScreenState(value);
+    
+    // // Clear existing timer
+    // if (toggleFullScreenTimerRef.current) {
+    //   clearTimeout(toggleFullScreenTimerRef.current);
+    // }
+    
+    // // Debounce URL update to prevent rapid changes
+    // toggleFullScreenTimerRef.current = setTimeout(() => {
+    //   const mode = value ? "push" : "replace"; // open -> push, close -> replace
+    //   if (nav && nav.updateQueryParamDebounced) {
+    //     nav.updateQueryParamDebounced("toggleFullScreen", value, mode, {
+    //       // onStall: () => {
+    //       //   if (toast) toast({ text: "Please avoid rapid clicks" });
+    //       // },
+    //     });
+    //   } else {
+    //     updateURLParam("toggleFullScreen", value, mode);
+    //   }
+    // }, 100); // 100ms debounce
+  }, [updateURLParam, nav, toast]);
+
+  // When you want to update lyricsFullScreen, update the URL with debouncing
+  const setLyricsFullScreen = useCallback((value) => {
+    // Update state immediately for responsive UI
+    setLyricsFullScreenState(value);
+    
+    // // Clear existing timer
+    // if (lyricsFullScreenTimerRef.current) {
+    //   clearTimeout(lyricsFullScreenTimerRef.current);
+    // }
+    
+    // // Debounce URL update to prevent rapid changes
+    // lyricsFullScreenTimerRef.current = setTimeout(() => {
+    //   const mode = value ? "push" : "replace"; // open -> push, close -> replace
+    //   if (nav && nav.updateQueryParamDebounced) {
+    //     nav.updateQueryParamDebounced("lyricsFullScreen", value, mode, {
+    //       // onStall: () => {
+    //       //   if (toast) toast({ text: "Please avoid rapid clicks" });
+    //       // },
+    //     });
+    //   } else {
+    //     updateURLParam("lyricsFullScreen", value, mode);
+    //   }
+    // }, 100); // 100ms debounce
+  }, [updateURLParam, nav, toast]);
+
+  // Cleanup timers on unmount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const toggleFullScreenQuery = params.get("toggleFullScreen");
-      setToggleFullScreenState(toggleFullScreenQuery === "true");
-
-      const lyricsFullScreenQuery = params.get("lyricsFullScreen");
-      setLyricsFullScreenState(lyricsFullScreenQuery === "true");
-    }
-  }, [searchParams]); // re-run when router changes (URL changes)
-
-  // When you want to update toggleFullScreen, update the URL (which will update state via useEffect)
-  // Using AbortController can help prevent overlapping router.push calls,
-  // but it may not fully prevent route freeze if the router implementation
-  // does not handle rapid repeated navigation gracefully.
-  // It helps by aborting previous navigation requests, but if the user clicks
-  // extremely rapidly, some router.push calls may still queue up.
-  // For best UX, consider also disabling the button while navigation is pending.
-
-  let setToggleFullScreenAbortController = null;
-  const setToggleFullScreen = (value) => {
-    if (typeof window !== "undefined" && router) {
-      // Abort any previous navigation if still pending
-      if (setToggleFullScreenAbortController) {
-        setToggleFullScreenAbortController.abort();
+    return () => {
+      if (toggleFullScreenTimerRef.current) {
+        clearTimeout(toggleFullScreenTimerRef.current);
       }
-      setToggleFullScreenAbortController = new AbortController();
-
-      const params = new URLSearchParams(window.location.search);
-      params.set("toggleFullScreen", value ? "true" : "false");
-      const newUrl =
-        window.location.pathname +
-        (params.toString() ? `?${params.toString()}` : "");
-      try {
-        // The signal option will abort the previous navigation if still pending.
-        // This reduces the chance of route freeze, but is not a 100% guarantee.
-        router.push(newUrl, { scroll: false, signal: setToggleFullScreenAbortController.signal });
-      } catch (e) {
-        // If signal not supported, fallback to normal push
-        router.push(newUrl, { scroll: false });
+      if (lyricsFullScreenTimerRef.current) {
+        clearTimeout(lyricsFullScreenTimerRef.current);
       }
-      setToggleFullScreenState(value);
-    }
-  };
-
-  // When you want to update lyricsFullScreen, update the URL (which will update state via useEffect)
-  let setLyricsFullScreenAbortController = null;
-  const setLyricsFullScreen = (value) => {
-    if (typeof window !== "undefined" && router) {
-      // Abort any previous navigation if still pending
-      if (setLyricsFullScreenAbortController) {
-        setLyricsFullScreenAbortController.abort();
-      }
-      setLyricsFullScreenAbortController = new AbortController();
-
-      const params = new URLSearchParams(window.location.search);
-      params.set("lyricsFullScreen", value ? "true" : "false");
-      const newUrl =
-        window.location.pathname +
-        (params.toString() ? `?${params.toString()}` : "");
-      try {
-        router.push(newUrl, { scroll: false, signal: setLyricsFullScreenAbortController.signal });
-      } catch (e) {
-        // If signal not supported, fallback to normal push
-        router.push(newUrl, { scroll: false });
-      }
-      setLyricsFullScreenState(value);
-    }
-  };
+    };
+  }, []);
 
   return (
     <otherContexts.Provider

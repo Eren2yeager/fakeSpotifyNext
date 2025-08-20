@@ -20,6 +20,7 @@ import { usePlayer } from "../Contexts/playerContext";
 import ThreeDots from "./Helper/ThreeDots";
 import TickOrAdd from "./Helper/TickOrAdd";
 import { useRouter } from "next/navigation";
+import { useNavWatchdog } from "@/Contexts/NavWatchdogContext";
 import QueueAndRecentsSide from "./audioComponents/QueueAndRecents";
 import { HiQueueList } from "react-icons/hi2";
 import { HiOutlineQueueList } from "react-icons/hi2";
@@ -53,6 +54,7 @@ const Right = () => {
     audioRef,
   } = usePlayer();
   const router = useRouter();
+  const nav = useNavWatchdog && useNavWatchdog();
   const { data: session } = useSession();
   const [isUpdated, setIsUpdated] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -113,21 +115,17 @@ const Right = () => {
     }
   });
   const handleClick =  () => {
-    startTransition(async () => {
       if (toggleFullScreen) {
-        await  setToggleFullScreen(false);
+          setToggleFullScreen(false);
         // setShowRight(false);
       } else {
-        setShowRight(!showRight);
+        setShowRight(false);
       }
-    });
   };
   const handleFullScreen =   () => {
-    startTransition(async () => {
       
       // Update context state as before
-       await setToggleFullScreen(!toggleFullScreen);
-    })
+        setToggleFullScreen(!toggleFullScreen);
   };
 
   React.useEffect(() => {
@@ -263,7 +261,11 @@ const Right = () => {
               buttonText={"Search"}
               position={"center"}
               buttonOnClick={() => {
-                router.push("/search");
+                if (nav && nav.navigate) {
+                  nav.navigate("/search", "push");
+                } else {
+                  router.push("/search");
+                }
                 setToggleFullScreen(false);
               }}
             />
@@ -314,23 +316,21 @@ const Right = () => {
                 >
                   {toggleFullScreen ? (
                     <Minimize2
-                      className={`cursor-pointer ${
-                    isPending ? "opacity-50 pointer-events-none" : ""
-                  }`}
+                      className={`cursor-pointer `}
                       size={15}
                       title="minimize"
-                      disabled={isPending}
-                      onClick={isPending ? undefined : handleFullScreen}
+                      // disabled={isPending}
+                      // onClick={isPending ? undefined : handleFullScreen}
+                      onClick={handleFullScreen}
                     />
                   ) : (
                     <Maximize2
-                    className={`cursor-pointer ${
-                      isPending ? "opacity-50 pointer-events-none" : ""
-                    }`}
+                    className={`cursor-pointer `}
                       size={15}
                       title="maximize"
-                      disabled={isPending}
-                      onClick={isPending ? undefined : handleFullScreen}
+                      // disabled={isPending}
+                      // onClick={isPending ? undefined : handleFullScreen}
+                      onClick={handleFullScreen}
                     />
                   )}
                 </span>
@@ -372,7 +372,8 @@ const Right = () => {
                         text={selectedSong?.artist?.name || "prop not provided"}
                         textClassName="font-sans font-bold text-[0.9em] opacity-70 hover:underline cursor-pointer"
                         onClick={() => {
-                          router.push(`/artists/${selectedSong.artist._id}`);
+                          const url = `/artists/${selectedSong.artist._id}`;
+                          if (nav && nav.navigate) nav.navigate(url, "push"); else router.push(url);
                         }}
                       />
                     </div>
@@ -452,7 +453,8 @@ const Right = () => {
                       <p
                         className="max-w-[100%] truncate hover:underline cursor-pointer font-bold"
                         onClick={() => {
-                          router.push(`/artists/${selectedSong.artist._id}`);
+                          const url = `/artists/${selectedSong.artist._id}`;
+                          if (nav && nav.navigate) nav.navigate(url, "push"); else router.push(url);
                         }}
                       >
                         {selectedSong?.artist?.name || "UnKnown Artist"}

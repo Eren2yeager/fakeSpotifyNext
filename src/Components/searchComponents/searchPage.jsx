@@ -181,7 +181,7 @@ const SearchPage = ({ searchQuery, activeItem }) => {
       {/* for only songs */}
       {activeItem == 1 &&
         (results?.songs?.length > 0 ? (
-          <div className="flex flex-col p-2 w-full gap-5">
+          <div className="flex flex-col py-2 w-full gap-5">
             <p className="font-bold text-2xl ">Songs</p>
             <div>
               {results.songs.map((song, idx) => (
@@ -218,7 +218,7 @@ const SearchPage = ({ searchQuery, activeItem }) => {
       {/* for only albums  */}
       {activeItem == 2 &&
         (results?.albums?.length > 0 ? (
-          <div className="flex flex-col p-2 w-full gap-5">
+          <div className="flex flex-col py-2 w-full gap-5">
             <p className="font-bold text-2xl ">Albums</p>
             <div className="flex flex-wrap">
               {results.albums.map((album, idx) => (
@@ -247,7 +247,7 @@ const SearchPage = ({ searchQuery, activeItem }) => {
       {/* for only artists  */}
       {activeItem == 3 &&
         (results?.artists?.length > 0 ? (
-          <div className="flex flex-col p-2 w-full gap-5">
+          <div className="flex flex-col py-2 w-full gap-5">
             <p className="font-bold text-2xl ">Artists</p>
             <div className="flex flex-wrap">
               {results.artists.map((artist, idx) => (
@@ -276,7 +276,7 @@ const SearchPage = ({ searchQuery, activeItem }) => {
       {/* for only playlists  */}
       {activeItem == 4 &&
         (results?.playlists?.length > 0 ? (
-          <div className="flex flex-col p-2 w-full gap-5">
+          <div className="flex flex-col py-2 w-full gap-5">
             <p className="font-bold text-2xl ">Public Playlists</p>
             <div className="flex flex-wrap">
               {results.playlists.map((playlist, idx) => (
@@ -305,7 +305,7 @@ const SearchPage = ({ searchQuery, activeItem }) => {
       {/* for only profiles  */}
       {activeItem == 5 &&
         (results?.users?.length > 0 ? (
-          <div className="flex flex-col p-2 w-full gap-5">
+          <div className="flex flex-col py-2 w-full gap-5">
             <p className="font-bold text-2xl ">Profiles</p>
             <div className="flex flex-wrap">
               {results.users.map((user, idx) => (

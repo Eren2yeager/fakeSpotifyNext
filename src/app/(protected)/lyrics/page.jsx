@@ -30,7 +30,7 @@ const Page = () => {
 
 
   return (
-    <div className="w-full h-full rounded-xl overflow-hidden">
+    <div className="w-full h-full rounded-xl overflow-hidden  px-5">
       {currentSong?.lyrics ? (
         <SyncedLyrics
           lyrics={currentSong.lyrics}

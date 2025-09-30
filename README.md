@@ -2,6 +2,8 @@
 
 A full‑stack Spotify‑like web app built with Next.js App Router, React, NextAuth, MongoDB (Mongoose), and Cloudinary. It supports authentication, artists and albums, playlists and library, audio playback with queue/shuffle/repeat, synced lyrics, Media Session integration, and basic recommendations/autoplay.
 
+![Home Page](./readme-assets/home.png)
+
 ### Tech stack
 - **Framework**: Next.js 15 (App Router), React 19
 - **Auth**: NextAuth (Google, GitHub providers)
@@ -11,10 +13,25 @@ A full‑stack Spotify‑like web app built with Next.js App Router, React, Next
 
 ### Key features
 - **Authentication**: Sign in with Google or GitHub. Creates a user profile and an initial "Liked Songs" playlist on first login.
+
+  ![Login Page](./readme-assets/login.png)
+
 - **Library & Playlists**: Save playlists/albums/artists to your library; create and edit playlists.
+
+  ![Liked Playlist](./readme-assets/likedplaylist.png)
+
 - **Artist mode**: Become an artist, upload songs (image + audio), manage albums/songs. Optional LRC file parsing for synced lyrics.
+
+  ![Artist Dashboard](./readme-assets/admindashboard.png)
+
 - **Playback**: Player with queue, play next, shuffle, repeat (off/all/one), previous/next, persisted playback state.
+
+  ![Song Full View](./readme-assets/songfullview.png)
+
 - **Synced lyrics**: LRC parsing and a high‑performance lyric view with auto‑scroll and click‑to‑seek.
+
+  ![Lyrics Page](./readme-assets/lyricspage.png)
+
 - **Recommendations/Autoplay**: After the queue ends, suggests similar songs (by artist, genre, album, or context playlist).
 - **Media Session**: Lock‑screen/OS media controls (play/pause/next/previous) with metadata and artwork.
 
@@ -134,6 +151,9 @@ src/
 
 ### Becoming an artist and uploading songs
 1. Use the UI to become an artist (image upload via Cloudinary).
+
+   ![Profile Page](./readme-assets/profile.png)
+
 2. After you are an artist, use the dashboard to upload songs:
    - Required fields: `name`, at least one `genre`, `image`, `audioFile`.
    - Optional: `lrcFile` to enable synced lyrics.

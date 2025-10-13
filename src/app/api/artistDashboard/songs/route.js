@@ -62,15 +62,15 @@ export async function POST(req) {
     // NOTE: If you are uploading from a phone and the upload fails for files >5MB,
     // it is likely due to a client/browser/server upload limit, not this backend check.
     // This backend allows up to 20MB, but your device, browser, or Vercel/host may have a lower limit.
-    const maxAudioSize = 20 * 1024 * 1024;
-    if (audioFile.size > maxAudioSize) {
-      return Response.json({ error: "Audio file too large (max 20MB allowed)" }, { status: 413 });
-    }
-    if (audioFile.size > 5 * 1024 * 1024) {
-      // Add a warning in the response if file is >5MB, for debugging client-side issues
-      // (This does not block the upload, just for info)
-      console.warn("Audio file is larger than 5MB. If upload fails, check client/server upload limits.");
-    }
+    // const maxAudioSize = 20 * 1024 * 1024;
+    // if (audioFile.size > maxAudioSize) {
+    //   return Response.json({ error: "Audio file too large (max 20MB allowed)" }, { status: 413 });
+    // }
+    // if (audioFile.size > 5 * 1024 * 1024) {
+    //   // Add a warning in the response if file is >5MB, for debugging client-side issues
+    //   // (This does not block the upload, just for info)
+    //   console.warn("Audio file is larger than 5MB. If upload fails, check client/server upload limits.");
+    // }
 
     // Only get arrayBuffers once
     const [imageBuffer, audioBuffer] = await Promise.all([
@@ -135,18 +135,18 @@ export async function POST(req) {
       status: 200,
     });
   } catch (err) {
-    // Catch-all for unexpected errors
-    // If the error is related to request size, add a hint for the client
-    if (
-      err &&
-      typeof err.message === "string" &&
-      err.message.toLowerCase().includes("body exceeded") // e.g. "Request body size limit exceeded"
-    ) {
-      return Response.json({
-        error:
-          "Upload failed: File too large for server to accept. Try a smaller file or check your network/server limits.",
-      }, { status: 413 });
-    }
+    // // Catch-all for unexpected errors
+    // // If the error is related to request size, add a hint for the client
+    // if (
+    //   err &&
+    //   typeof err.message === "string" &&
+    //   err.message.toLowerCase().includes("body exceeded") // e.g. "Request body size limit exceeded"
+    // ) {
+    //   return Response.json({
+    //     error:
+    //       "Upload failed: File too large for server to accept. Try a smaller file or check your network/server limits.",
+    //   }, { status: 413 });
+    // }
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }

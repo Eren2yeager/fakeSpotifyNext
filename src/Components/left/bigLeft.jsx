@@ -224,7 +224,7 @@ setShowLibrary} = useOtherContexts()
   //   });
   // }, []);
 
-    console.log("rendering big left")
+    // console.log("rendering big left")
   useEffect(() => {
     if (props.activeItem == 0) {
       setItems(library?.all);

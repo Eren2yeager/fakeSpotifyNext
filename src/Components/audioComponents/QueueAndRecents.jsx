@@ -8,7 +8,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useNavWatchdog } from "@/Contexts/NavWatchdogContext";
 import { FaArrowLeft } from "react-icons/fa6";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { IoAddSharp } from "react-icons/io5";
@@ -33,7 +32,6 @@ export default function QueueAndRecentsSide({ open, onClose, className, style })
   const [expanded, setExpanded] = useState({});
   const popupRef = useRef(null);
   const router = useRouter();
-  const nav = useNavWatchdog && useNavWatchdog();
 
   // Memoized remaining songs in queue
   const getRemainingSongs = useCallback(() => {
@@ -96,8 +94,7 @@ export default function QueueAndRecentsSide({ open, onClose, className, style })
           style={{ minWidth: 0, overflow: "hidden" }}
           onClick={() => {
             if (id) {
-              const url = `/${typeKey}s/${id}`;
-              if (nav && nav.navigate) nav.navigate(url, "push"); else router.push(url);
+              router.push(`/${typeKey}s/${id}`);
             }
           }}
         >
@@ -221,7 +218,7 @@ export default function QueueAndRecentsSide({ open, onClose, className, style })
                 icon={<HiOutlineQueueList size={40} />}
                 buttonText="Find Something to Play"
                 buttonOnClick={() => {
-                  if (nav && nav.navigate) nav.navigate("/search", "push"); else router.push("/search");
+                  router.push("/search");
                 }}
                 buttonColor="white"
                 text="Add to Your Queue"

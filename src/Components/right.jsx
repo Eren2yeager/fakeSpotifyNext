@@ -20,7 +20,6 @@ import { usePlayer } from "../Contexts/playerContext";
 import ThreeDots from "./Helper/ThreeDots";
 import TickOrAdd from "./Helper/TickOrAdd";
 import { useRouter } from "next/navigation";
-import { useNavWatchdog } from "@/Contexts/NavWatchdogContext";
 import QueueAndRecentsSide from "./audioComponents/QueueAndRecents";
 import { HiQueueList } from "react-icons/hi2";
 import { HiOutlineQueueList } from "react-icons/hi2";
@@ -54,7 +53,6 @@ const Right = () => {
     audioRef,
   } = usePlayer();
   const router = useRouter();
-  const nav = useNavWatchdog && useNavWatchdog();
   const { data: session } = useSession();
   const [isUpdated, setIsUpdated] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -261,11 +259,7 @@ const Right = () => {
               buttonText={"Search"}
               position={"center"}
               buttonOnClick={() => {
-                if (nav && nav.navigate) {
-                  nav.navigate("/search", "push");
-                } else {
-                  router.push("/search");
-                }
+                router.push("/search");
                 setToggleFullScreen(false);
               }}
             />
@@ -372,8 +366,7 @@ const Right = () => {
                         text={selectedSong?.artist?.name || "prop not provided"}
                         textClassName="font-sans font-bold text-[0.9em] opacity-70 hover:underline cursor-pointer"
                         onClick={() => {
-                          const url = `/artists/${selectedSong.artist._id}`;
-                          if (nav && nav.navigate) nav.navigate(url, "push"); else router.push(url);
+                          router.push(`/artists/${selectedSong.artist._id}`);
                         }}
                       />
                     </div>
@@ -453,8 +446,7 @@ const Right = () => {
                       <p
                         className="max-w-[100%] truncate hover:underline cursor-pointer font-bold"
                         onClick={() => {
-                          const url = `/artists/${selectedSong.artist._id}`;
-                          if (nav && nav.navigate) nav.navigate(url, "push"); else router.push(url);
+                          router.push(`/artists/${selectedSong.artist._id}`);
                         }}
                       >
                         {selectedSong?.artist?.name || "UnKnown Artist"}

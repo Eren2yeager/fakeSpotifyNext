@@ -87,13 +87,13 @@ const EndRight = () => {
     }
   };
 
-  console.log(
-    "endright",
-    toggleFullScreen,
-    showRight,
-    openQueue,
-    window.location.pathname
-  );
+  // console.log(
+  //   "endright",
+  //   toggleFullScreen,
+  //   showRight,
+  //   openQueue,
+  //   window.location.pathname
+  // );
   return (
     <div className="max-w-[100%] h-[100%] flex flex-col items-end xl:flex-row  xl:justify-end xl:items-center gap-2 xl:gap-5  p-3">
       <div className="flex w-auto  gap-3">

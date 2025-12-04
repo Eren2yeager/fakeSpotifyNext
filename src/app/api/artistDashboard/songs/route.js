@@ -58,19 +58,22 @@ export async function POST(req) {
       return Response.json({ error: "Invalid file uploads" }, { status: 400 });
     }
 
-    // Only restrict audio file size (max 20MB), no restriction on image
-    // NOTE: If you are uploading from a phone and the upload fails for files >5MB,
-    // it is likely due to a client/browser/server upload limit, not this backend check.
-    // This backend allows up to 20MB, but your device, browser, or Vercel/host may have a lower limit.
-    // const maxAudioSize = 20 * 1024 * 1024;
-    // if (audioFile.size > maxAudioSize) {
-    //   return Response.json({ error: "Audio file too large (max 20MB allowed)" }, { status: 413 });
-    // }
-    // if (audioFile.size > 5 * 1024 * 1024) {
-    //   // Add a warning in the response if file is >5MB, for debugging client-side issues
-    //   // (This does not block the upload, just for info)
-    //   console.warn("Audio file is larger than 5MB. If upload fails, check client/server upload limits.");
-    // }
+    // Restrict audio file size (max 50MB to match Next.js config)
+    // Cloudinary free tier supports up to 100MB files
+    const maxAudioSize = 50 * 1024 * 1024; // 50MB
+    const maxImageSize = 10 * 1024 * 1024; // 10MB
+    
+    if (audioFile.size > maxAudioSize) {
+      return Response.json({ 
+        error: `Audio file too large (max 50MB allowed, got ${(audioFile.size / 1024 / 1024).toFixed(2)}MB)` 
+      }, { status: 413 });
+    }
+    
+    if (image.size > maxImageSize) {
+      return Response.json({ 
+        error: `Image file too large (max 10MB allowed, got ${(image.size / 1024 / 1024).toFixed(2)}MB)` 
+      }, { status: 413 });
+    }
 
     // Only get arrayBuffers once
     const [imageBuffer, audioBuffer] = await Promise.all([
@@ -97,19 +100,27 @@ export async function POST(req) {
     // Upload files to Cloudinary
     let image_secure_url, audio_secure_url;
     try {
+      console.log(`Uploading image (${(image.size / 1024 / 1024).toFixed(2)}MB)...`);
       image_secure_url = await uploadToCloudinary(
         Buffer.from(imageBuffer),
         "spotify/songs/images",
         "image"
       );
+      console.log("Image uploaded successfully");
+      
+      console.log(`Uploading audio (${(audioFile.size / 1024 / 1024).toFixed(2)}MB)...`);
       // Cloudinary expects "video" resource type for audio files
       audio_secure_url = await uploadToCloudinary(
         Buffer.from(audioBuffer),
         "spotify/songs/audios",
         "video"
       );
+      console.log("Audio uploaded successfully");
     } catch (err) {
-      return Response.json({ error: "File upload failed" }, { status: 500 });
+      console.error("Cloudinary upload error:", err);
+      return Response.json({ 
+        error: `File upload failed: ${err.message}` 
+      }, { status: 500 });
     }
 
     // Create song in DB
@@ -137,16 +148,16 @@ export async function POST(req) {
   } catch (err) {
     // // Catch-all for unexpected errors
     // // If the error is related to request size, add a hint for the client
-    // if (
-    //   err &&
-    //   typeof err.message === "string" &&
-    //   err.message.toLowerCase().includes("body exceeded") // e.g. "Request body size limit exceeded"
-    // ) {
-    //   return Response.json({
-    //     error:
-    //       "Upload failed: File too large for server to accept. Try a smaller file or check your network/server limits.",
-    //   }, { status: 413 });
-    // }
+    if (
+      err &&
+      typeof err.message === "string" &&
+      err.message.toLowerCase().includes("body exceeded") // e.g. "Request body size limit exceeded"
+    ) {
+      return Response.json({
+        error:
+          "Upload failed: File too large for server to accept. Try a smaller file or check your network/server limits.",
+      }, { status: 413 });
+    }
     return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }

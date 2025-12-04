@@ -17,6 +17,18 @@ const nextConfig = {
         ]
       }
     ];
+  },
+  // Increase body size limit for file uploads (default is ~4.5MB)
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '50mb'
+    }
+  },
+  // For API routes, you need to handle this in the route itself
+  api: {
+    bodyParser: {
+      sizeLimit: '50mb'
+    }
   }
 };
 

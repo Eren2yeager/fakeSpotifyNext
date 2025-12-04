@@ -19,8 +19,8 @@ export const authOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
-        console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
-        console.log("Sign in attempt for:", user.email);
+        // console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
+        // console.log("Sign in attempt for:", user.email);
 
         await connectDB();
         const existingUser = await User.findOne({ email: user.email });
@@ -56,7 +56,7 @@ export const authOptions = {
           });
 
           await newUser.save();
-          console.log("New user created successfully");
+          // console.log("New user created successfully");
         }
 
         return true;
@@ -81,7 +81,7 @@ export const authOptions = {
           }
         }
         
-        console.log("session:", session);
+        // console.log("session:", session);
         return session;
       } catch (error) {
         console.error("Session callback error:", error);

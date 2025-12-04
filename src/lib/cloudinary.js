@@ -9,7 +9,7 @@ cloudinary.config({
 
 /**
  * Uploads any file (image, audio, video, pdf, etc.) to Cloudinary.
- * Works for very large files — no 5 MB limit.
+ * Supports large files with chunked uploads for files over 20MB.
  *
  * @param {Buffer | string} fileBufferOrPath - File buffer or file path
  * @param {string} folder - Cloudinary folder name
@@ -19,30 +19,32 @@ cloudinary.config({
 export const uploadToCloudinary = async (fileBufferOrPath, folder, resourceType = "auto") => {
   try {
     let uploaded;
+    const uploadOptions = {
+      folder,
+      resource_type: resourceType,
+      chunk_size: 6000000, // 6MB chunks for large files
+    };
 
     if (Buffer.isBuffer(fileBufferOrPath)) {
-      // If it's a Buffer, write it to a temporary file
-      const tempFilePath = `./temp_${Date.now()}`;
-      fs.writeFileSync(tempFilePath, fileBufferOrPath);
-
-      uploaded = await cloudinary.uploader.upload(tempFilePath, {
-        folder,
-        resource_type: resourceType,
+      // Upload directly from buffer using upload_stream (no temp file needed)
+      uploaded = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          uploadOptions,
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        uploadStream.end(fileBufferOrPath);
       });
-
-      // Clean up temp file after upload
-      fs.unlinkSync(tempFilePath);
     } else {
       // If it's already a file path
-      uploaded = await cloudinary.uploader.upload(fileBufferOrPath, {
-        folder,
-        resource_type: resourceType,
-      });
+      uploaded = await cloudinary.uploader.upload(fileBufferOrPath, uploadOptions);
     }
 
     return uploaded.secure_url;
   } catch (error) {
     console.error("❌ Cloudinary upload failed:", error);
-    throw new Error("Cloudinary upload failed");
+    throw new Error(error.message || "Cloudinary upload failed");
   }
 };

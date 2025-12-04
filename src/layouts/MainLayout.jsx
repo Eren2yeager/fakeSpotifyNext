@@ -22,7 +22,7 @@ function MainLayout({ children }) {
     renderCount.current++;
   }, []);
 
-  console.log(renderCount.current)
+  // console.log(renderCount.current)
 
   // Add safety check for context to prevent SSR errors
   const contextValue = useOtherContexts();

@@ -28,7 +28,7 @@ const Page = () => {
     }
     const data = await res.json();
     setSongs(data);
-    console.log("Fetched artist:");
+    // console.log("Fetched artist:");
   };
 
   useEffect(() => {

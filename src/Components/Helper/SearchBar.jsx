@@ -3,13 +3,11 @@ import React, { memo, useRef, useState, useContext } from "react";
 import { IoAddOutline } from "react-icons/io5";
 import { RiSearchLine, RiSearchEyeFill } from "react-icons/ri";
 import { useRouter } from "next/navigation";
-import { useNavWatchdog } from "@/Contexts/NavWatchdogContext";
 
 const SearchBar = (props) => {
 
   const {setSearchedText} = props.fromParent;
   const router = useRouter();
-  const nav = useNavWatchdog && useNavWatchdog();
   const debounceTimeout = useRef(null);
   const [input, setInput] = useState("");
  
@@ -24,11 +22,10 @@ const SearchBar = (props) => {
 
     debounceTimeout.current = setTimeout(() => {
       const query = value.trim();
-      setSearchedText(query); // update context if needed
+      setSearchedText(query);
 
-      // Use replace to avoid rerender/scroll/focus loss
       const url = query.length > 0 ? `/search?q=${encodeURIComponent(query)}` : "/search";
-      if (nav && nav.navigate) nav.navigate(url, "replace", { showOverlay: false }); else router.replace(url);
+      router.replace(url);
     }, 1000);
   };
 
@@ -66,7 +63,7 @@ const SearchBar = (props) => {
           onClick={() => {
             setInput("");
             setSearchedText("");
-            if (nav && nav.navigate) nav.navigate("/search", "replace", { showOverlay: false }); else router.replace("/search");
+            router.replace("/search");
             props.fromParent.inputRef.current?.focus();
           }}
         >

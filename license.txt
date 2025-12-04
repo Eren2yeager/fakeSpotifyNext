@@ -1,0 +1,75 @@
+Commercial License –  (Spotify Next.js Starter Kit)
+
+Copyright © 2025 Samar Gautam
+
+This software is licensed, not sold.
+By purchasing, downloading, or using this software (“Product”), you agree to the terms below.
+
+1. Permitted Use
+
+You (the Buyer) are granted a non-exclusive, non-transferable license to:
+
+✔ Use this Product in unlimited personal or commercial projects
+✔ Modify the source code for your own or your clients’ projects
+✔ Deploy the Product to any number of servers or environments
+✔ Use the template as a base to build apps, SaaS products, portfolios, demos, or client work
+
+2. Prohibited Use
+
+You may NOT:
+
+❌ Redistribute, share, upload, or publish this Product’s source code in any public location
+(GitHub, forums, open-source repos, StackOverflow, etc.)
+
+❌ Resell, sublicense, or bundle the Product as a competing template or starter kit
+
+❌ Give the Product to others for free, even if modified
+
+❌ Use any included assets (images, audio, thumbnails) in your own products
+unless they are explicitly marked as royalty-free or replaced by you
+
+❌ Claim the Product as your own original creation
+
+3. Team/Client Usage
+
+You may use the Product in client projects, but your client may not access the source code.
+
+Team/company members may access the code only if they also purchased a license
+(or if your plan explicitly includes team seats).
+
+4. Liability
+
+The Product is provided “as-is,” without warranty of any kind.
+The author is not liable for:
+
+Data loss
+
+Security issues due to misuse
+
+Third-party service limits (Cloudinary, MongoDB, hosting providers, etc.)
+
+5. Refund Policy
+
+Because this is a digital product with full source code access, refunds are not provided after the Product has been downloaded.
+
+6. Updates
+
+You may receive future updates to this Product if provided, but updates are not guaranteed.
+
+7. Termination of License
+
+Your license is automatically terminated if you:
+
+Share the Product publicly
+
+Resell/distribute the code
+
+Violate any prohibited use clause
+
+After termination, you must delete all copies of the Product.
+
+8. Ownership
+
+All rights, title, and interest in the Product remain with
+© 2025 Samar Gautam
+You are receiving a license to use, not ownership of, the Product.

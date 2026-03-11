@@ -48,3 +48,5 @@ export const uploadToCloudinary = async (fileBufferOrPath, folder, resourceType 
     throw new Error(error.message || "Cloudinary upload failed");
   }
 };
+
+export default cloudinary;

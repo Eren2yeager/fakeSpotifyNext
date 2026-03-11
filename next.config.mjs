@@ -23,12 +23,6 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '50mb'
     }
-  },
-  // For API routes, you need to handle this in the route itself
-  api: {
-    bodyParser: {
-      sizeLimit: '50mb'
-    }
   }
 };
 
